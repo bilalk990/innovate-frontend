@@ -1,0 +1,261 @@
+/* ============================================
+   ADMIN PANEL STYLES
+   Professional & Optimized CSS for Admin Dashboard
+   ============================================ */
+
+/* Admin Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-main);
+}
+
+.admin-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-page-content {
+  flex: 1;
+  padding: 2.5rem;
+  overflow-y: auto;
+  background: var(--bg-main);
+}
+
+/* Admin Dashboard - KPI Cards */
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1 1fr));
+    gap: 1.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.admin-kpi-card {
+    padding: 1.75rem;
+}
+
+.admin-kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.admin-kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.admin-kpi-trend {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.admin-kpi-value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.4rem;
+    color: var(--text-main);
+}
+
+.admin-kpi-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Admin Charts Grid */
+.admin-chart-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 1.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.admin-chart-box {
+    padding: 2rem;
+}
+
+.admin-box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 1.25rem;
+}
+
+.admin-box-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.admin-box-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Admin Bottom Grid */
+.admin-grid-2 {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr;
+    gap: 1.75rem;
+}
+
+.admin-action-code {
+    background: rgba(0, 0, 0, 0.04);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-family: monospace;
+}
+
+.admin-view-all {
+    font-size: 0.8rem;
+    color: var(--primary-red);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.admin-view-all:hover {
+    text-decoration: underline;
+}
+
+.admin-actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 1rem 0;
+}
+
+.admin-action-item {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.admin-action-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--primary-red);
+    transform: translateX(4px);
+}
+
+/* Admin Reports Page */
+.admin-reports-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.admin-reports-kpi-card {
+    padding: 1.75rem;
+    text-align: center;
+}
+
+.admin-reports-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 1rem 0 0.4rem;
+    color: var(--text-main);
+}
+
+.admin-reports-kpi-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.admin-reports-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-reports-chart-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr;
+    gap: 1.75rem;
+}
+
+.admin-reports-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.admin-reports-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.admin-reports-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-chart-grid,
+    .admin-grid-2,
+    .admin-reports-chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-kpi-grid,
+    .admin-reports-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .admin-page-content {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-kpi-grid,
+    .admin-reports-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}

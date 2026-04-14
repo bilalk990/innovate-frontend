@@ -1,0 +1,364 @@
+/* 
+   ==========================================================================
+   ELITE HR DESIGN SYSTEM - InnovAIte Interview Guardian
+   Core Theme: Professional Red, Tactical Black, Pristine White
+   ========================================================================== 
+*/
+
+:root {
+  /* Core Brand Palette */
+  --hr-red: #E63946;
+  --hr-red-dark: #D62839;
+  --hr-red-glow: rgba(230, 57, 70, 0.4);
+  --hr-red-soft: rgba(230, 57, 70, 0.08);
+  
+  --hr-black: #0A0A0A;
+  --hr-black-alt: #121212;
+  --hr-slate: #1E293B;
+  
+  --hr-white: #FFFFFF;
+  --hr-bg: #F8F9FA;
+  --hr-surface: #FFFFFF;
+  
+  /* Tactical Borders & Accents */
+  --hr-border: #E2E8F0;
+  --hr-border-dark: #334155;
+  
+  /* Text */
+  --hr-text-main: #0F172A;
+  --hr-text-muted: #475569;
+  --hr-text-on-dark: #F8FAFC;
+
+  /* Shadows & Depth */
+  --hr-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --hr-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --hr-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --hr-shadow-red: 0 0 30px rgba(230, 57, 70, 0.15);
+
+  /* Geometry */
+  --hr-radius: 12px;
+  --hr-radius-lg: 24px;
+  --hr-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   LAYOUT & CONTAINER
+   ========================================================================== */
+
+.hr-content {
+    padding: 3rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    animation: hrFadeIn 0.6s ease-out;
+}
+
+/* Recruiter pages use elite-content class — define layout here so candidate.css is not needed */
+.elite-content {
+    padding: 40px;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+    .elite-content {
+        padding: 20px;
+    }
+}
+
+@keyframes hrFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hr-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .hr-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; }
+.col-5 { grid-column: span 5; }
+.col-6 { grid-column: span 6; }
+.col-7 { grid-column: span 7; }
+.col-8 { grid-column: span 8; }
+.col-9 { grid-column: span 9; }
+.col-12 { grid-column: span 12; }
+    
+    .hr-content {
+        padding: 1.5rem;
+    }
+    
+    .hr-heading {
+        font-size: 1.75rem;
+    }
+}
+
+/* ==========================================================================
+   ELITE CARDS
+   ========================================================================== */
+
+.hr-card {
+    background: var(--hr-surface);
+    border-radius: 20px;
+    border: 1px solid var(--hr-border);
+    box-shadow: var(--hr-shadow-sm);
+    transition: var(--hr-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.hr-card:hover {
+    box-shadow: var(--hr-shadow-md);
+    border-color: rgba(230, 57, 70, 0.15);
+}
+
+.hr-card-premium {
+    background: var(--hr-black);
+    color: var(--hr-white);
+    border: none;
+    box-shadow: var(--hr-shadow-lg);
+}
+
+.hr-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   TACTICAL COMPONENTS
+   ========================================================================== */
+
+/* Buttons */
+.btn-hr-primary {
+    background: var(--hr-red);
+    color: white;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: var(--hr-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.btn-hr-primary:hover {
+    background: var(--hr-red-dark);
+    box-shadow: var(--hr-shadow-red);
+    transform: translateY(-2px);
+}
+
+.btn-hr-secondary {
+    background: var(--hr-black);
+    color: white;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--hr-border-dark);
+    cursor: pointer;
+    transition: var(--hr-transition);
+}
+
+.btn-hr-secondary:hover {
+    background: #000;
+    border-color: var(--hr-red);
+}
+
+.btn-hr-outline {
+    background: transparent;
+    border: 2px solid var(--hr-red);
+    color: var(--hr-red);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.8rem 1.8rem;
+    border-radius: 8px;
+}
+
+.btn-hr-outline:hover {
+    background: var(--hr-red);
+    color: white;
+}
+
+/* Stats */
+.hr-stat-box {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.hr-stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: var(--hr-black);
+    line-height: 1;
+}
+
+.hr-stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--hr-text-muted);
+    letter-spacing: 0.2em;
+    margin-top: 0.5rem;
+}
+
+.hr-stat-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--hr-red-soft);
+    color: var(--hr-red);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ==========================================================================
+   DATA TABLES
+   ========================================================================== */
+
+.hr-table-container {
+    overflow-x: auto;
+}
+
+.hr-table-pro {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.hr-table-pro th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--hr-text-muted);
+    letter-spacing: 0.15em;
+    border-bottom: 2px solid var(--hr-border);
+}
+
+.hr-table-pro td {
+    padding: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--hr-text-main);
+    border-bottom: 1px solid var(--hr-border);
+    transition: background 0.2s;
+}
+
+.hr-table-pro tr:hover td {
+    background: var(--hr-bg);
+}
+
+/* ==========================================================================
+   TYPOGRAPHY
+   ========================================================================== */
+
+.hr-heading {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: var(--hr-black);
+    font-style: italic;
+}
+
+.hr-subheading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    font-weight: 800;
+    color: var(--hr-text-muted);
+}
+
+/* ==========================================================================
+   BADGES & STATUS
+   ========================================================================== */
+
+.hr-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-style: italic;
+    display: inline-block;
+}
+
+.hr-badge-pending { background: #FEF3C7; color: #D97706; }
+.hr-badge-active { background: #DCFCE7; color: #16A34A; }
+.hr-badge-completed { background: #F1F5F9; color: #475569; }
+.hr-badge-red { background: var(--hr-red-soft); color: var(--hr-red); border: 1px solid var(--hr-red-glow); }
+
+/* ==========================================================================
+   FORM CONTROLS
+   ========================================================================== */
+
+.hr-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: #FAFAFA;
+    border: 2px solid var(--hr-border);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--hr-text-main);
+    transition: var(--hr-transition);
+}
+
+.hr-input:focus {
+    background: white;
+    border-color: var(--hr-red);
+    outline: none;
+    box-shadow: 0 0 0 4px var(--hr-red-soft);
+}
+
+.hr-input::placeholder {
+    color: #475569;
+    font-weight: 500;
+}
+
+.hr-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+    color: var(--hr-text-muted);
+}
+
+textarea.hr-input {
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+/* Grid Column Spans */
+.col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; }
+.col-5 { grid-column: span 5; }
+.col-6 { grid-column: span 6; }
+.col-7 { grid-column: span 7; }
+.col-8 { grid-column: span 8; }
+.col-9 { grid-column: span 9; }
+.col-12 { grid-column: span 12; }
