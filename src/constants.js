@@ -48,3 +48,10 @@ export const COUNTRIES_LIST = [
   'Italy', 'Netherlands', 'Sweden', 'Switzerland', 'Singapore', 'UAE',
   'Pakistan', 'Bangladesh', 'Other'
 ];
+
+export const CORE_VALUES_LIST = [
+  "Innovation", "Integrity", "Excellence", "Diversity", "Customer Focus", "Teamwork", 
+  "Sustainability", "Accountability", "Agility", "Passion", "Transparency", "Inclusivity", 
+  "Efficiency", "Creativity", "Reliability", "Impact", "Growth Mindset", "Quality", 
+  "Collaboration", "Respect", "Courage", "Simplicity", "Speed", "Ambition"
+];
