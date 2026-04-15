@@ -103,6 +103,23 @@ export default function InterviewRoom() {
                     if (user?.role === 'candidate') {
                         setAdmissionStatus('admitted');
                         toast.success('Recruiter has admitted you. Entering room...');
+                        
+                        // CRITICAL FIX: Immediately trigger peer connection setup after admission
+                        // Don't wait for peer-connected message as it might arrive before state updates
+                        setTimeout(async () => {
+                            console.log('[DEBUG] Setting up peer connection after admission');
+                            const connection = createPeerConnection();
+                            // Add tracks before making offer
+                            if (localStream.current) {
+                                localStream.current.getTracks().forEach(track => {
+                                    connection.addTrack(track, localStream.current);
+                                });
+                            }
+                            const offer = await connection.createOffer();
+                            await connection.setLocalDescription(offer);
+                            send({ type: 'offer', offer });
+                            updateLogs({ type: 'NET', text: 'Initiating handshake...', color: 'text-blue-500' });
+                        }, 500); // Small delay to ensure state is updated
                     }
                 }
 
@@ -116,20 +133,12 @@ export default function InterviewRoom() {
 
                 // --- Core WebRTC Signaling ---
                 if (data.type === 'peer-connected') {
-                    // Both peers know someone else is here.
-                    // Strictly: Candidate sends offer, Recruiter waits.
-                    if (user?.role === 'candidate') {
-                        const connection = createPeerConnection();
-                        // Add tracks before making offer
-                        if (localStream.current) {
-                            localStream.current.getTracks().forEach(track => {
-                                connection.addTrack(track, localStream.current);
-                            });
-                        }
-                        const offer = await connection.createOffer();
-                        await connection.setLocalDescription(offer);
-                        send({ type: 'offer', offer });
-                        updateLogs({ type: 'NET', text: 'Initiating handshake...', color: 'text-blue-500' });
+                    console.log('[DEBUG] Received peer-connected, user role:', user?.role);
+                    // Candidate creates offer (already handled in 'admitted' message above)
+                    // Recruiter just waits for the offer
+                    if (user?.role === 'recruiter' || user?.role === 'admin') {
+                        console.log('[DEBUG] Recruiter waiting for candidate offer');
+                        updateLogs({ type: 'NET', text: 'Waiting for candidate connection...', color: 'text-blue-500' });
                     }
                 } 
                 
