@@ -470,6 +470,14 @@ export default function InterviewRoom() {
         if (track) {
             track.enabled = !track.enabled;
             setAudioMuted(!track.enabled);
+            console.log('[AUDIO] Audio', track.enabled ? 'unmuted' : 'muted');
+            toast.info(track.enabled ? 'Microphone on' : 'Microphone off');
+            
+            // Notify peer about media status change
+            send({ type: 'media-status-update', audio: track.enabled, video: !videoOff });
+        } else {
+            console.warn('[AUDIO] No audio track available');
+            toast.error('No microphone available');
         }
     };
 
@@ -478,6 +486,16 @@ export default function InterviewRoom() {
         if (track) {
             track.enabled = !track.enabled;
             setVideoOff(!track.enabled);
+            console.log('[VIDEO] Video', track.enabled ? 'on' : 'off');
+            toast.info(track.enabled ? 'Camera on' : 'Camera off');
+            
+            // Notify peer about media status change
+            send({ type: 'media-status-update', audio: !audioMuted, video: track.enabled });
+        } else {
+            console.warn('[VIDEO] No video track available');
+            toast.error('No camera available');
+        }
+    };
         }
     };
 
@@ -786,7 +804,7 @@ export default function InterviewRoom() {
                     <div className="flex-1 relative group overflow-hidden flex items-center justify-center p-8">
                         {/* Remote Output */}
                         <div className="relative w-full h-full max-w-5xl rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center bg-black/50">
-                            <video ref={remoteVideo} autoPlay playsInline className="w-full h-full object-cover transition-opacity duration-1000 transform scale-x-[-1]" />
+                            <video ref={remoteVideo} autoPlay playsInline className="w-full h-full object-cover transition-opacity duration-1000" />
                             
                             {/* Candidate Waiting Banner — only shown to recruiter */}
                             {isCandidateWaiting && user?.role !== 'candidate' && (
