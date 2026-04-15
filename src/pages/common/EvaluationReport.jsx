@@ -225,20 +225,82 @@ export default function EvaluationReport() {
                         {data.behavioral_summary || "The candidate profile shows high technical proficiency and strong communication skills for professional roles."}
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 mb-10">
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Confidence: High</span>
+                           <div className={`w-2 h-2 rounded-full ${data.confidence_score >= 70 ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                               Confidence: {data.confidence_score >= 80 ? 'High' : data.confidence_score >= 50 ? 'Moderate' : 'Low'} ({data.confidence_score ?? 'N/A'}%)
+                           </span>
                         </div>
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                           <div className="w-2 h-2 rounded-full bg-red-500" />
-                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Latency: Optimally Low</span>
+                           <div className={`w-2 h-2 rounded-full ${data.proctoring_score >= 80 ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} />
+                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                               Integrity: {data.proctoring_score ?? 100}% · {data.tab_switch_count > 0 ? `${data.tab_switch_count} violations` : 'Clean'}
+                           </span>
                         </div>
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                           <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Security: Verified</span>
+                           <div className={`w-2 h-2 rounded-full ${data.recommendation === 'hire' ? 'bg-emerald-500' : data.recommendation === 'maybe' ? 'bg-yellow-400' : 'bg-red-500'}`} />
+                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                               Verdict: {(data.recommendation || 'pending').toUpperCase()}
+                           </span>
                         </div>
                     </div>
+
+                    {/* Strengths & Weaknesses from backend */}
+                    {((data.strengths?.length > 0) || (data.weaknesses?.length > 0)) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                            {data.strengths?.length > 0 && (
+                                <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
+                                    <h4 className="text-[10px] font-black uppercase text-emerald-700 tracking-widest mb-4">✅ Strengths</h4>
+                                    <ul className="space-y-2">
+                                        {data.strengths.map((s, i) => (
+                                            <li key={i} className="text-[11px] text-emerald-800 font-medium flex gap-2">
+                                                <span className="text-emerald-500 mt-0.5">•</span>{s}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {data.weaknesses?.length > 0 && (
+                                <div className="p-6 bg-red-50 rounded-2xl border border-red-100">
+                                    <h4 className="text-[10px] font-black uppercase text-red-700 tracking-widest mb-4">⚠️ Areas to Improve</h4>
+                                    <ul className="space-y-2">
+                                        {data.weaknesses.map((w, i) => (
+                                            <li key={i} className="text-[11px] text-red-800 font-medium flex gap-2">
+                                                <span className="text-red-500 mt-0.5">•</span>{w}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Criterion Breakdown from backend */}
+                    {data.criterion_results?.length > 0 && (
+                        <div className="mt-10">
+                            <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-6 border-l-4 border-red-600 pl-4">Criterion Breakdown</h4>
+                            <div className="space-y-4">
+                                {data.criterion_results.map((c, i) => (
+                                    <div key={i} className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-[10px] font-black uppercase text-gray-700 tracking-widest">{c.criterion.replace(/_/g, ' ')}</span>
+                                            <span className="text-sm font-black text-gray-900">{c.score}/{c.max_score}</span>
+                                        </div>
+                                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mb-2">
+                                            <div
+                                                className="h-full bg-red-500 rounded-full transition-all"
+                                                style={{ width: `${(c.score / c.max_score) * 100}%` }}
+                                            />
+                                        </div>
+                                        {c.explanation && (
+                                            <p className="text-[10px] text-gray-400 italic">{c.explanation}</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Offer Letter Module */}
