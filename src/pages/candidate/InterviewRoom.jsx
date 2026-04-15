@@ -52,23 +52,6 @@ export default function InterviewRoom() {
     const [evaluating, setEvaluating] = useState(true);
     const [finalVerdict, setFinalVerdict] = useState(null);
 
-    const generateMockAIVerdict = () => {
-        const scores = [88, 94, 76, 81, 91, 85, 96];
-        const techs = [
-            "Candidate correctly identified architecture bottlenecks but lacked depth in distributed caching strategies.",
-            "Demonstrated exceptional understanding of Kubernetes orchestration. No logical failure points detected.",
-            "Strong grasp of scalable pipelines, though optimal backend integration techniques were slightly misunderstood.",
-            "Perfect syntactical awareness for the given challenges. High cognitive throughput recorded."
-        ];
-        
-        let sc = scores[Math.floor(Math.random() * scores.length)];
-        if (violations > 0) sc -= (violations * 8);
-
-        setFinalVerdict({
-            score: Math.max(0, sc),
-            techText: techs[Math.floor(Math.random() * techs.length)]
-        });
-    };
 
     // Derive WebSocket URL — prefer VITE_WS_URL, otherwise auto-convert from VITE_API_URL
     const wsBaseUrl = (() => {
@@ -89,33 +72,25 @@ export default function InterviewRoom() {
                 const data = JSON.parse(event.data);
 
                 // --- Admission Signaling (cross-device via WebSocket) ---
+                // Backend sends 'candidate_waiting' to recruiter when candidate joins
                 if (data.type === 'candidate_waiting') {
-                    // Recruiter sees admit toast
                     if (user?.role !== 'candidate') {
                         setIsCandidateWaiting(true);
-                        toast('Candidate is waiting to be admitted.', {
-                            action: {
-                                label: 'Admit Now',
-                                onClick: () => {
-                                    send({ type: 'admit_candidate', room: id });
-                                    setIsCandidateWaiting(false);
-                                }
-                            },
-                            duration: Infinity,
-                            id: 'waiting_toast'
-                        });
                     }
                 }
 
-                if (data.type === 'admit_candidate') {
-                    // Candidate gets admitted
+                // Backend sends 'candidate_left' when candidate disconnects from waiting
+                if (data.type === 'candidate_left') {
+                    if (user?.role !== 'candidate') {
+                        setIsCandidateWaiting(false);
+                    }
+                }
+
+                // Backend sends 'admitted' to candidate when recruiter admits them
+                if (data.type === 'admitted') {
                     if (user?.role === 'candidate') {
                         setAdmissionStatus('admitted');
                         toast.success('Recruiter has admitted you. Entering room...');
-                    }
-                    // Recruiter dismisses waiting state
-                    if (user?.role !== 'candidate') {
-                        setIsCandidateWaiting(false);
                     }
                 }
 
@@ -221,12 +196,12 @@ export default function InterviewRoom() {
     );
     const [isCandidateWaiting, setIsCandidateWaiting] = useState(false);
 
-    // When candidate joins, notify recruiter via WebSocket
+    // When candidate joins, send 'request_admit' to backend (backend then notifies recruiter)
     useEffect(() => {
         if (user?.role === 'candidate' && admissionStatus === 'waiting') {
-            // Small delay to ensure WS connection is open
+            // Delay to ensure WS connection is open
             const t = setTimeout(() => {
-                send({ type: 'candidate_waiting', room: id });
+                send({ type: 'request_admit', room: id });
             }, 1500);
             return () => clearTimeout(t);
         }
@@ -465,17 +440,15 @@ export default function InterviewRoom() {
             setConfirmEnd(true);
             setTimeout(() => setConfirmEnd(false), 3000);
         } else {
-            // Signal Backend to terminate session for all clients natively
+            // Signal backend to end session for all clients
             send({ type: 'end_meeting', room: id });
-            
-            // Keep localStorage fallback active for isolated mock testing
-            localStorage.setItem(`room_${id}_completed`, 'true');
             if (localStream.current) {
                 localStream.current.getTracks().forEach(t => t.stop());
             }
+            if (pc.current) pc.current.close();
             setInterviewComplete(true);
-            generateMockAIVerdict();
-            setTimeout(() => setEvaluating(false), 2000);
+            // Navigate recruiter to dashboard — real AI eval will appear there shortly
+            setTimeout(() => navigate('/recruiter/dashboard'), 3000);
         }
     };
 
@@ -533,30 +506,38 @@ export default function InterviewRoom() {
         );
     }
 
-    // ── RENDER COMPLETED STATE (AI EVALUATION) ──
+    // ── RENDER COMPLETED STATE ──
     if (interviewComplete) {
-        if (user?.role === 'candidate') {
-            return (
-                <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white p-6 relative overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-                        <div className="w-[1000px] h-[1000px] rounded-full bg-emerald-600 blur-[150px] animate-pulse" />
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white p-6 relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                    <div className="w-[1000px] h-[1000px] rounded-full bg-emerald-600 blur-[150px] animate-pulse" />
+                </div>
+                <div className="z-10 flex flex-col items-center p-12 bg-black/60 backdrop-blur-xl border border-white/10 rounded-[3rem] shadow-2xl text-center">
+                    <TfiCheck className="text-6xl text-emerald-500 mb-6 drop-shadow-[0_0_15px_#10b981]" />
+                    <h1 className="text-4xl font-black uppercase tracking-widest italic mb-4">Interview Complete</h1>
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] max-w-sm leading-relaxed mb-4">
+                        {user?.role === 'candidate'
+                            ? 'Your responses have been submitted. AI evaluation is processing — check your dashboard for results.'
+                            : 'Interview ended. AI evaluation is processing in the background. Results will appear on your dashboard shortly.'}
+                    </p>
+                    <div className="flex gap-3 mb-8">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-75" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-150" />
                     </div>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
-                    
-                    <div className="z-10 flex flex-col items-center">
-                        {evaluating ? (
-                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center">
-                                <div className="w-40 h-40 relative mb-12">
-                                    <div className="absolute inset-0 border-[3px] border-dashed border-emerald-600/30 rounded-full animate-spin duration-[4000ms]" />
-                                    <div className="absolute inset-4 border-[2px] border-emerald-500/50 rounded-full animate-spin-reverse duration-[2000ms]" />
-                                    <div className="flex items-center justify-center w-full h-full text-5xl text-emerald-500 shadow-[0_0_30px_#10b981] rounded-full bg-black/50 backdrop-blur-xl">
-                                        <TfiReload className="animate-spin" />
-                                    </div>
-                                </div>
-                                <h2 className="text-3xl font-black uppercase tracking-[0.4em] italic mb-4">Securing Session Data</h2>
-                                <p className="animate-pulse text-[10px] font-black uppercase tracking-widest text-gray-400">Uploading Encrypted Telemetry...</p>
-                            </motion.div>
-                        ) : (
+                    <button
+                        onClick={() => navigate(user?.role === 'candidate' ? '/candidate/dashboard' : '/recruiter/dashboard')}
+                        className="px-10 py-4 bg-emerald-600 text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] italic hover:bg-white transition-all shadow-[0_0_15px_#10b981]"
+                    >
+                        Go to Dashboard
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+
                             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center p-12 bg-black/60 backdrop-blur-xl border border-white/10 rounded-[3rem] shadow-2xl text-center">
                                 <TfiCheck className="text-6xl text-emerald-500 mb-6 drop-shadow-[0_0_15px_#10b981]" />
                                 <h1 className="text-4xl font-black uppercase tracking-widest italic mb-4">Interview Concluded</h1>
@@ -760,11 +741,11 @@ export default function InterviewRoom() {
 
                     {isCandidateWaiting && user?.role !== 'candidate' && (
                         <button onClick={() => {
-                            localStorage.setItem(`room_${id}_status`, 'admitted');
+                            send({ type: 'admit_candidate', room: id });
                             setIsCandidateWaiting(false);
-                            toast.dismiss('waiting_toast');
-                        }} className="h-12 px-8 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-[0.5em] italic transition-all skew-x-[-15deg] group shadow-[0_0_15px_#10b981] animate-pulse hover:bg-emerald-400">
-                            <span className="skew-x-[15deg] block">Admit Candidate</span>
+                            toast.success('Candidate admitted!');
+                        }} className="h-12 px-8 bg-emerald-500 text-black text-[10px] font-black uppercase tracking-[0.5em] italic transition-all skew-x-[-15deg] shadow-[0_0_20px_#10b981] animate-pulse hover:bg-emerald-400 hover:scale-105">
+                            <span className="skew-x-[15deg] block">⚡ ADMIT CANDIDATE</span>
                         </button>
                     )}
 
@@ -789,6 +770,30 @@ export default function InterviewRoom() {
                         {/* Remote Output */}
                         <div className="relative w-full h-full max-w-5xl rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center bg-black/50">
                             <video ref={remoteVideo} autoPlay playsInline className="w-full h-full object-cover transition-opacity duration-1000 transform scale-x-[-1]" />
+                            
+                            {/* Candidate Waiting Banner — only shown to recruiter */}
+                            {isCandidateWaiting && user?.role !== 'candidate' && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-30 backdrop-blur-sm">
+                                    <div className="flex flex-col items-center gap-6 p-12 bg-emerald-500/10 border-2 border-emerald-500 rounded-[3rem] shadow-[0_0_60px_#10b981] animate-pulse">
+                                        <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                            <span className="text-5xl">🔔</span>
+                                        </div>
+                                        <h2 className="text-white text-3xl font-black uppercase tracking-widest italic">Candidate is Waiting</h2>
+                                        <p className="text-emerald-400 text-[11px] font-black uppercase tracking-[0.4em]">Candidate has entered the lobby and is requesting access</p>
+                                        <button
+                                            onClick={() => {
+                                                send({ type: 'admit_candidate', room: id });
+                                                setIsCandidateWaiting(false);
+                                                toast.success('Candidate admitted!');
+                                            }}
+                                            className="px-16 py-5 bg-emerald-500 text-black text-[13px] font-black uppercase tracking-[0.6em] rounded-2xl shadow-[0_0_30px_#10b981] hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95"
+                                        >
+                                            ⚡ Admit Now
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             
                             {/* Sniper / Focus Overlays */}
                             <div className="absolute inset-0 border-[4px] border-black/40 pointer-events-none rounded-[3rem]" />
