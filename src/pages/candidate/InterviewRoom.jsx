@@ -106,6 +106,14 @@ export default function InterviewRoom() {
                     }
                 }
 
+                // Backend sends 'recruiter_ready' when recruiter joins - candidate should re-request
+                if (data.type === 'recruiter_ready') {
+                    console.log('[DEBUG] Recruiter joined, re-sending admission request');
+                    if (user?.role === 'candidate' && admissionStatus === 'waiting') {
+                        send({ type: 'request_admit', room: id });
+                    }
+                }
+
                 // --- Core WebRTC Signaling ---
                 if (data.type === 'peer-connected') {
                     // Both peers know someone else is here.
@@ -220,6 +228,17 @@ export default function InterviewRoom() {
             return () => clearTimeout(t);
         }
     }, [user, admissionStatus, id]);
+
+    // CRITICAL FIX: When recruiter joins, send a ping to check if candidate is waiting
+    useEffect(() => {
+        if (user?.role === 'recruiter' || user?.role === 'admin') {
+            const t = setTimeout(() => {
+                console.log('[DEBUG] Recruiter checking for waiting candidates');
+                send({ type: 'recruiter_joined', room: id });
+            }, 2000);
+            return () => clearTimeout(t);
+        }
+    }, [user, id]);
 
     // Refs
     const localVideo = useRef(null);

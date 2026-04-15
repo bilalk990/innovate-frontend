@@ -71,10 +71,21 @@ export default function Register() {
         setError('');
         setLoading(true);
         try {
+            console.log('[Register] Google login attempt:', { role: form.role });
+            
             const { data } = await authService.googleLogin(
                 credentialResponse.credential,
                 form.role
             );
+            
+            console.log('[Register] Google login response:', {
+                hasUser: !!data.user,
+                hasToken: !!data.token,
+                userRole: data.user?.role,
+                userName: data.user?.name,
+                userEmail: data.user?.email
+            });
+            
             login(data.user, data.token);
             
             if (!data.user.is_profile_complete) {
@@ -82,8 +93,9 @@ export default function Register() {
             } else {
                 navigate(`/${form.role}/dashboard`);
             }
-        } catch {
-            setError('Google sign-in failed.');
+        } catch (err) {
+            console.error('[Register] Google login error:', err);
+            setError(err.response?.data?.error || 'Google sign-in failed.');
         } finally {
             setLoading(false);
         }
