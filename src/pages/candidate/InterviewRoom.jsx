@@ -216,6 +216,42 @@ export default function InterviewRoom() {
                     }
                 }
 
+                // --- Chat Messages ---
+                else if (data.type === 'chat') {
+                    console.log('[CHAT] Received message from peer:', data.text);
+                    const newMsg = {
+                        sender: data.sender || 'Peer',
+                        text: data.text,
+                        time: data.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        isSystem: false,
+                        from: data.from || 'peer'
+                    };
+                    
+                    setChatMessages(prev => {
+                        const updated = [...prev, newMsg];
+                        localStorage.setItem(`room_${id}_chat`, JSON.stringify(updated));
+                        return updated;
+                    });
+                    
+                    // Show notification if chat is closed
+                    if (!showChat) {
+                        toast.info(`New message from ${newMsg.sender}`);
+                    }
+                }
+
+                // --- Chat History (on join) ---
+                else if (data.type === 'chat_history') {
+                    console.log('[CHAT] Received chat history:', data.history?.length, 'messages');
+                    if (data.history && data.history.length > 0) {
+                        setChatMessages(data.history.map(msg => ({
+                            sender: msg.sender || 'User',
+                            text: msg.text,
+                            time: msg.time || new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            isSystem: false
+                        })));
+                    }
+                }
+
                 // --- Flow Controls ---
                 if (data.type === 'end_meeting' || data.type === 'meeting_ended') {
                     if (localStream.current) localStream.current.getTracks().forEach(t => t.stop());
@@ -612,15 +648,31 @@ export default function InterviewRoom() {
     const handleChatSubmit = (e) => {
         e.preventDefault();
         if (!chatInput.trim()) return;
+        
         const newMsg = {
             sender: user?.name || 'User',
+            sender_id: user?.id || '',
             text: chatInput,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isSystem: false
+            isSystem: false,
+            from: user?.role || 'peer'
         };
+        
+        // Add to local state
         const updated = [...chatMessages, newMsg];
         setChatMessages(updated);
         localStorage.setItem(`room_${id}_chat`, JSON.stringify(updated));
+        
+        // CRITICAL FIX: Send via WebSocket to peer
+        console.log('[CHAT] Sending message:', newMsg.text);
+        send({ 
+            type: 'chat', 
+            sender_id: newMsg.sender_id,
+            text: newMsg.text,
+            from: newMsg.from,
+            sender: newMsg.sender,
+            time: newMsg.time
+        });
         
         // Log event for HR
         if (user?.role === 'candidate') {
