@@ -295,17 +295,6 @@ export default function InterviewRoom() {
     const [localEmotion, setLocalEmotion] = useState({ score: 88, emotion: 'CONFIDENT' });
     const [aiCoachingTip, setAiCoachingTip] = useState("Monitoring baseline response metrics.");
     
-    // Cheating Detection
-    const { 
-        violations: detectedViolations, 
-        detectionStats, 
-        addManualViolation,
-        isModelLoaded 
-    } = useCheatingDetection(
-        localVideo.current, 
-        admissionStatus === 'admitted' && user?.role === 'candidate'
-    );
-    
     // AI Question Generator State
     const [suggestedQuestions, setSuggestedQuestions] = useState([
         "Can you explain your approach to scaling highly concurrent systems?",
@@ -350,6 +339,17 @@ export default function InterviewRoom() {
     const localStream = useRef(null);
     const pc = useRef(null); // WebRTC Peer Connection
     const screenStream = useRef(null); // Screen share stream
+    
+    // Cheating Detection - pass null initially, will activate when video is ready
+    const { 
+        violations: detectedViolations, 
+        detectionStats, 
+        addManualViolation,
+        isModelLoaded 
+    } = useCheatingDetection(
+        localVideo.current, 
+        admissionStatus === 'admitted' && user?.role === 'candidate'
+    );
 
     // ICE Configuration (Public Google STUN servers)
     const iceConfig = {
