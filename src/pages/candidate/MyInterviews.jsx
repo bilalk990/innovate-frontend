@@ -127,12 +127,11 @@ export default function MyInterviews() {
                                     </div>
 
                                     {(() => {
-                                        const startTime = new Date(iv.scheduled_at);
-                                        const now = new Date();
-                                        const isPast = now > new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours after start
                                         const isLive = iv.status === 'active';
+                                        const isScheduled = iv.status === 'scheduled' || iv.status === 'pending';
                                         
-                                        if (isPast && !isLive) return null;
+                                        // Show join button for active or scheduled interviews
+                                        if (!isLive && !isScheduled) return null;
 
                                         return (
                                             <button 
