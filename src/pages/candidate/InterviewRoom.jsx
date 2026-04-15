@@ -484,7 +484,15 @@ export default function InterviewRoom() {
     const handleScreenShare = async () => {
         try {
             if (!screenSharing) {
-                const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                console.log('[SCREEN] Requesting screen share permission...');
+                const stream = await navigator.mediaDevices.getDisplayMedia({ 
+                    video: {
+                        cursor: "always"
+                    },
+                    audio: false
+                });
+                
+                console.log('[SCREEN] Screen share granted, stream:', stream);
                 screenStream.current = stream;
                 setScreenSharing(true);
                 
@@ -493,24 +501,47 @@ export default function InterviewRoom() {
                     const videoTrack = stream.getVideoTracks()[0];
                     const sender = pc.current.getSenders().find(s => s.track?.kind === 'video');
                     if (sender) {
-                        sender.replaceTrack(videoTrack);
+                        console.log('[SCREEN] Replacing video track with screen share');
+                        await sender.replaceTrack(videoTrack);
+                        updateLogs({ type: 'NET', text: 'Screen sharing started', color: 'text-blue-500' });
+                        toast.success('Screen sharing started');
+                    } else {
+                        console.error('[SCREEN] No video sender found in peer connection');
+                        toast.error('Failed to share screen - no video connection');
                     }
+                } else {
+                    console.warn('[SCREEN] No peer connection available');
+                    toast.warning('Screen sharing will start when connected');
                 }
 
+                // Handle user stopping screen share from browser
                 stream.getTracks()[0].onended = () => {
+                    console.log('[SCREEN] Screen share ended by user');
                     stopScreenSharing();
                 };
             } else {
+                console.log('[SCREEN] Stopping screen share');
                 stopScreenSharing();
             }
         } catch (err) {
-            console.error(err);
+            console.error('[SCREEN] Screen share error:', err);
+            if (err.name === 'NotAllowedError') {
+                toast.error('Screen sharing permission denied');
+            } else if (err.name === 'NotFoundError') {
+                toast.error('No screen available to share');
+            } else {
+                toast.error('Failed to start screen sharing');
+            }
         }
     };
 
     const stopScreenSharing = () => {
+        console.log('[SCREEN] Stopping screen share');
         if (screenStream.current) {
-            screenStream.current.getTracks().forEach(track => track.stop());
+            screenStream.current.getTracks().forEach(track => {
+                console.log('[SCREEN] Stopping track:', track.kind);
+                track.stop();
+            });
             screenStream.current = null;
         }
         setScreenSharing(false);
@@ -520,7 +551,12 @@ export default function InterviewRoom() {
             const videoTrack = localStream.current.getVideoTracks()[0];
             const sender = pc.current.getSenders().find(s => s.track?.kind === 'video');
             if (sender && videoTrack) {
+                console.log('[SCREEN] Reverting to camera track');
                 sender.replaceTrack(videoTrack);
+                updateLogs({ type: 'NET', text: 'Switched back to camera', color: 'text-blue-500' });
+                toast.info('Stopped screen sharing');
+            } else {
+                console.warn('[SCREEN] Could not revert to camera - track or sender not found');
             }
         }
     };
