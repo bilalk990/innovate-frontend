@@ -68,7 +68,12 @@ export default function InterviewRoom() {
     })();
     
     // ✅ CRITICAL FIX: Append JWT token to WebSocket URL for authentication
-    const wsUrl = `${wsBaseUrl}/ws/interview/${id}/${token ? `?token=${token}` : ''}`;
+    const wsUrl = `${wsBaseUrl}/ws/interview/${id}/?${token ? `token=${token}` : ''}`;
+    
+    // Debug logging to verify token is being passed
+    console.log('[DEBUG] WebSocket URL:', wsUrl);
+    console.log('[DEBUG] Token present:', !!token);
+    console.log('[DEBUG] User:', user?.email, 'Role:', user?.role);
     
     const { send } = useWebSocket(wsUrl, {
         onMessage: async (event) => {
