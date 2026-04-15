@@ -33,7 +33,8 @@ function ControlToggle({ active, icon, label, onClick, pulse }) {
 }
 
 export default function InterviewRoom() {
-    const { id } = useParams();
+    const { roomId } = useParams(); // Changed from 'id' to 'roomId' to match route
+    const id = roomId; // Keep 'id' variable for backward compatibility
     const navigate = useNavigate();
     const { user } = useAuth(); // Dynamic authenticated user
 
