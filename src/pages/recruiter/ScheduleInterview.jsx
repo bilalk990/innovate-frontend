@@ -209,8 +209,15 @@ export default function ScheduleInterview() {
 
         setLoading(true);
         try {
+            // Convert local datetime-local value to UTC ISO string
+            // Without this, backend (UTC) misinterprets local PKT time as UTC
+            const scheduledAtUTC = form.scheduled_at
+                ? new Date(form.scheduled_at).toISOString()
+                : '';
+
             const { data } = await interviewService.create({
                 ...form,
+                scheduled_at: scheduledAtUTC,
                 questions: validQuestions.map(q => ({
                     text: q.text,
                     category: q.category,
