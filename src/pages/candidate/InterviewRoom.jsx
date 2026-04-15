@@ -105,21 +105,41 @@ export default function InterviewRoom() {
                         toast.success('Recruiter has admitted you. Entering room...');
                         
                         // CRITICAL FIX: Immediately trigger peer connection setup after admission
-                        // Don't wait for peer-connected message as it might arrive before state updates
                         setTimeout(async () => {
                             console.log('[DEBUG] Setting up peer connection after admission');
-                            const connection = createPeerConnection();
-                            // Add tracks before making offer
-                            if (localStream.current) {
-                                localStream.current.getTracks().forEach(track => {
-                                    connection.addTrack(track, localStream.current);
-                                });
+                            
+                            // Wait for local stream to be ready
+                            let retries = 0;
+                            while (!localStream.current && retries < 10) {
+                                console.log('[DEBUG] Waiting for local stream...', retries);
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                                retries++;
                             }
+                            
+                            if (!localStream.current) {
+                                console.error('[DEBUG] Local stream not available after waiting!');
+                                toast.error('Camera not ready. Please refresh and try again.');
+                                return;
+                            }
+                            
+                            console.log('[DEBUG] Local stream ready, creating peer connection');
+                            const connection = createPeerConnection();
+                            
+                            // Add tracks before making offer
+                            console.log('[DEBUG] Adding local tracks to connection');
+                            localStream.current.getTracks().forEach(track => {
+                                connection.addTrack(track, localStream.current);
+                                console.log('[DEBUG] Added track:', track.kind);
+                            });
+                            
+                            console.log('[DEBUG] Creating offer');
                             const offer = await connection.createOffer();
                             await connection.setLocalDescription(offer);
+                            
+                            console.log('[DEBUG] Sending offer to recruiter');
                             send({ type: 'offer', offer });
                             updateLogs({ type: 'NET', text: 'Initiating handshake...', color: 'text-blue-500' });
-                        }, 500); // Small delay to ensure state is updated
+                        }, 1000); // Increased delay to ensure camera is ready
                     }
                 }
 
@@ -143,34 +163,56 @@ export default function InterviewRoom() {
                 } 
                 
                 else if (data.type === 'offer') {
+                    console.log('[DEBUG] Received offer from peer');
                     const connection = createPeerConnection();
+                    
+                    console.log('[DEBUG] Setting remote description (offer)');
+                    await connection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                    
                     // Add tracks before answering
                     if (localStream.current) {
+                        console.log('[DEBUG] Adding local tracks to connection');
                         localStream.current.getTracks().forEach(track => {
                             // Avoid adding same track twice if already added
                             if (!connection.getSenders().find(s => s.track === track)) {
                                 connection.addTrack(track, localStream.current);
+                                console.log('[DEBUG] Added track:', track.kind);
                             }
                         });
+                    } else {
+                        console.warn('[DEBUG] No local stream available when receiving offer');
                     }
-                    await connection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                    
+                    console.log('[DEBUG] Creating answer');
                     const answer = await connection.createAnswer();
                     await connection.setLocalDescription(answer);
+                    
+                    console.log('[DEBUG] Sending answer to peer');
                     send({ type: 'answer', answer });
                     updateLogs({ type: 'NET', text: 'Handshake accepted.', color: 'text-emerald-500' });
                 }
 
                 else if (data.type === 'answer') {
+                    console.log('[DEBUG] Received answer from peer');
                     if (pc.current) {
+                        console.log('[DEBUG] Setting remote description (answer)');
                         await pc.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+                        updateLogs({ type: 'NET', text: 'Connection established!', color: 'text-emerald-500' });
+                    } else {
+                        console.error('[DEBUG] No peer connection available for answer!');
                     }
                 }
 
                 else if (data.type === 'ice-candidate') {
                     if (pc.current && data.candidate) {
                         try {
+                            console.log('[DEBUG] Adding ICE candidate');
                             await pc.current.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        } catch (e) { console.error("Error adding candidate", e); }
+                        } catch (e) { 
+                            console.error("[DEBUG] Error adding ICE candidate:", e); 
+                        }
+                    } else {
+                        console.warn('[DEBUG] Cannot add ICE candidate - no peer connection or candidate is null');
                     }
                 }
 
