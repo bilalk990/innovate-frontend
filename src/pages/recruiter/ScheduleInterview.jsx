@@ -359,6 +359,9 @@ export default function ScheduleInterview() {
                                         value={form.scheduled_at}
                                         onChange={e => set('scheduled_at', e.target.value)}
                                     />
+                                    <p className="text-[9px] text-gray-400 mt-2 italic uppercase tracking-widest">
+                                        ⚠️ Minimum 1 hour advance notice required for proper preparation
+                                    </p>
                                 </div>
 
                                 {/* AI Slot Suggestions Panel */}
