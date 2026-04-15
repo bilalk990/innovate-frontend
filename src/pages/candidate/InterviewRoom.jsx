@@ -36,7 +36,7 @@ export default function InterviewRoom() {
     const { roomId } = useParams(); // Changed from 'id' to 'roomId' to match route
     const id = roomId; // Keep 'id' variable for backward compatibility
     const navigate = useNavigate();
-    const { user } = useAuth(); // Dynamic authenticated user
+    const { user, token } = useAuth(); // Dynamic authenticated user + JWT token
 
     // Mock Contexts
     const interview = { title: 'Senior AI Engineer Assessment', id: id };
@@ -66,7 +66,10 @@ export default function InterviewRoom() {
         }
         return 'ws://127.0.0.1:8000';
     })();
-    const wsUrl = `${wsBaseUrl}/ws/interview/${id}/`;
+    
+    // ✅ CRITICAL FIX: Append JWT token to WebSocket URL for authentication
+    const wsUrl = `${wsBaseUrl}/ws/interview/${id}/${token ? `?token=${token}` : ''}`;
+    
     const { send } = useWebSocket(wsUrl, {
         onMessage: async (event) => {
             try {
