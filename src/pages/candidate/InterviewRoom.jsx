@@ -331,49 +331,52 @@ export default function InterviewRoom() {
         };
     }, []);
 
-    // ✅ Start Camera
+    // ✅ Start Camera - Start immediately for preview, not just after admission
     useEffect(() => {
-        if (admissionStatus === 'admitted') {
-            const startCamera = async () => {
+        const startCamera = async () => {
+            try {
+                let stream;
                 try {
-                    let stream;
-                    try {
-                        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    } catch (e) {
-                        console.warn("Camera failed, using mic only in room:", e);
-                        stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-                        setHasVideoFeed(false);
-                        if (user?.role === 'candidate') {
-                            updateLogs({ type: 'CRIT', text: 'Candidate camera hardware unavailable or blocked.', color: 'text-red-700 font-black animate-pulse' });
-                            setViolations(v => v + 4); // Automatic 60% penalty
-                        }
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                } catch (e) {
+                    console.warn("Camera failed, using mic only in room:", e);
+                    stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                    setHasVideoFeed(false);
+                    if (user?.role === 'candidate') {
+                        updateLogs({ type: 'CRIT', text: 'Candidate camera hardware unavailable or blocked.', color: 'text-red-700 font-black animate-pulse' });
+                        setViolations(v => v + 4); // Automatic 60% penalty
                     }
-                    
-                    localStream.current = stream;
-                    const attachStreams = () => {
-                        if (localVideo.current) {
-                            localVideo.current.srcObject = stream;
-                            localVideo.current.play().catch(e => console.error("Local play blocked:", e));
-                        }
-                    };
-                    
-                    attachStreams();
-                    // If connection already exists (e.g. joined late), add tracks
-                    if (pc.current) {
-                        stream.getTracks().forEach(track => {
-                            if (!pc.current.getSenders().find(s => s.track === track)) {
-                                pc.current.addTrack(track, stream);
-                            }
-                        });
-                    }
-                } catch (err) {
-                    console.error('Camera/Mic error:', err);
                 }
-            };
-            startCamera();
-            
-            // Mock Heatmap generation
-            const interval = setInterval(() => {
+                
+                localStream.current = stream;
+                const attachStreams = () => {
+                    if (localVideo.current) {
+                        localVideo.current.srcObject = stream;
+                        localVideo.current.play().catch(e => console.error("Local play blocked:", e));
+                    }
+                };
+                
+                attachStreams();
+                // If connection already exists (e.g. joined late), add tracks
+                if (pc.current && admissionStatus === 'admitted') {
+                    stream.getTracks().forEach(track => {
+                        if (!pc.current.getSenders().find(s => s.track === track)) {
+                            pc.current.addTrack(track, stream);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Camera/Mic error:', err);
+            }
+        };
+        
+        // Start camera immediately (for both waiting room and main room)
+        startCamera();
+        
+        // Mock Heatmap generation (only when admitted)
+        let interval;
+        if (admissionStatus === 'admitted') {
+            interval = setInterval(() => {
                 setFaceSnapshots(prev => [...prev, {
                     x: Math.random() * 80 + 10,
                     y: Math.random() * 60 + 20,
@@ -396,8 +399,11 @@ export default function InterviewRoom() {
                     return { ...prev, score: newScore, emotion: newScore > 75 ? 'CONFIDENT' : newScore > 50 ? 'NEUTRAL' : 'ANXIOUS' };
                 });
             }, 2000);
-            
-            return () => clearInterval(interval);
+        }
+        
+        return () => {
+            if (interval) clearInterval(interval);
+        };
         }
     }, [admissionStatus]);
 
@@ -530,6 +536,23 @@ export default function InterviewRoom() {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white p-6 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)]" />
+                
+                {/* Camera Preview in Waiting Room */}
+                <div className="absolute top-8 right-8 z-20">
+                    <div className="relative w-64 h-48 rounded-2xl overflow-hidden border-2 border-red-600/50 shadow-2xl">
+                        <video
+                            ref={localVideo}
+                            autoPlay
+                            playsInline
+                            muted
+                            className="w-full h-full object-cover bg-gray-900"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-black/70 px-3 py-1 rounded-lg text-xs font-bold">
+                            Your Camera
+                        </div>
+                    </div>
+                </div>
+
                 <div className="flex flex-col items-center z-10 p-12 bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl">
                     <div className="w-24 h-24 rounded-full bg-red-600/10 flex items-center justify-center mb-6">
                         <TfiShield className="text-5xl text-red-600 animate-pulse drop-shadow-[0_0_15px_#dc2626]" />
