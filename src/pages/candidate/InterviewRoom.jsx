@@ -77,7 +77,38 @@ export default function InterviewRoom() {
         onMessage: async (event) => {
             try {
                 const data = JSON.parse(event.data);
-                
+
+                // --- Admission Signaling (cross-device via WebSocket) ---
+                if (data.type === 'candidate_waiting') {
+                    // Recruiter sees admit toast
+                    if (user?.role !== 'candidate') {
+                        setIsCandidateWaiting(true);
+                        toast('Candidate is waiting to be admitted.', {
+                            action: {
+                                label: 'Admit Now',
+                                onClick: () => {
+                                    send({ type: 'admit_candidate', room: id });
+                                    setIsCandidateWaiting(false);
+                                }
+                            },
+                            duration: Infinity,
+                            id: 'waiting_toast'
+                        });
+                    }
+                }
+
+                if (data.type === 'admit_candidate') {
+                    // Candidate gets admitted
+                    if (user?.role === 'candidate') {
+                        setAdmissionStatus('admitted');
+                        toast.success('Recruiter has admitted you. Entering room...');
+                    }
+                    // Recruiter dismisses waiting state
+                    if (user?.role !== 'candidate') {
+                        setIsCandidateWaiting(false);
+                    }
+                }
+
                 // --- Core WebRTC Signaling ---
                 if (data.type === 'peer-connected') {
                     // Both peers know someone else is here.
@@ -174,68 +205,22 @@ export default function InterviewRoom() {
     ]);
     const [generatingQuestions, setGeneratingQuestions] = useState(false);
 
-    // Cross-Tab Mock Signalling for Admission
-    const [admissionStatus, setAdmissionStatus] = useState(() => {
-        if (!user || user?.role === 'candidate') {
-            localStorage.setItem(`room_${id}_status`, 'waiting');
-            return 'waiting';
-        }
-        return 'admitted';
-    });
-    const [isCandidateWaiting, setIsCandidateWaiting] = useState(() => {
-        return (user?.role !== 'candidate' && localStorage.getItem(`room_${id}_status`) === 'waiting');
-    });
+    // Admission state (now powered by WebSocket, not localStorage)
+    const [admissionStatus, setAdmissionStatus] = useState(
+        user?.role === 'candidate' ? 'waiting' : 'admitted'
+    );
+    const [isCandidateWaiting, setIsCandidateWaiting] = useState(false);
 
+    // When candidate joins, notify recruiter via WebSocket
     useEffect(() => {
-        const handleStorage = (e) => {
-            if (e.key === `room_${id}_status`) {
-                if (user?.role === 'candidate' && e.newValue === 'admitted') {
-                    setAdmissionStatus('admitted');
-                    toast.success("Recruiter has granted access. Entering room.");
-                } else if (user?.role !== 'candidate' && e.newValue === 'waiting') {
-                    setIsCandidateWaiting(true);
-                    toast('Candidate has entered the Waiting Room.', {
-                        action: {
-                            label: 'Admit Candidate',
-                            onClick: () => {
-                                localStorage.setItem(`room_${id}_status`, 'admitted');
-                                setIsCandidateWaiting(false);
-                            }
-                        },
-                        duration: 10000
-                    });
-                }
-            }
-            if (e.key === `room_${id}_chat` && e.newValue) setChatMessages(JSON.parse(e.newValue));
-            if (e.key === `room_${id}_events` && e.newValue) setEventLog(JSON.parse(e.newValue));
-            
-            if (e.key === `room_${id}_completed` && e.newValue === 'true') {
-                if (localStream.current) {
-                    localStream.current.getTracks().forEach(t => t.stop());
-                }
-                setInterviewComplete(true);
-                setTimeout(() => setEvaluating(false), 3000);
-            }
-        };
-        window.addEventListener('storage', handleStorage);
-        
-        // Initial manual trigger for HR if candidate is already waiting
-        if (isCandidateWaiting) {
-             toast('Candidate is waiting in the Lobby.', {
-                action: {
-                    label: 'Admit',
-                    onClick: () => {
-                        localStorage.setItem(`room_${id}_status`, 'admitted');
-                        setIsCandidateWaiting(false);
-                    }
-                },
-                duration: Infinity,
-                id: 'waiting_toast'
-            });
+        if (user?.role === 'candidate' && admissionStatus === 'waiting') {
+            // Small delay to ensure WS connection is open
+            const t = setTimeout(() => {
+                send({ type: 'candidate_waiting', room: id });
+            }, 1500);
+            return () => clearTimeout(t);
         }
-        
-        return () => window.removeEventListener('storage', handleStorage);
-    }, [id, user, isCandidateWaiting]);
+    }, [user, admissionStatus, id]);
 
     // Refs
     const localVideo = useRef(null);
