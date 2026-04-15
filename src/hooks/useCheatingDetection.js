@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import '@tensorflow/tfjs';
 
-export default function useCheatingDetection(videoElement, isActive = false) {
+export default function useCheatingDetection(videoElement, isActive = false, onViolationDetected = null) {
     const [violations, setViolations] = useState([]);
     const [detectionStats, setDetectionStats] = useState({
         objectsDetected: [],
@@ -100,6 +100,11 @@ export default function useCheatingDetection(videoElement, isActive = false) {
 
                                 newViolations.push(violation);
                                 console.log('[CHEATING] Violation detected:', violation);
+                                
+                                // Call callback if provided (for WebSocket notification)
+                                if (onViolationDetected) {
+                                    onViolationDetected(violation);
+                                }
                             }
                         }
                     });
@@ -131,7 +136,7 @@ export default function useCheatingDetection(videoElement, isActive = false) {
                 clearInterval(detectionIntervalRef.current);
             }
         };
-    }, [isActive, videoElement]);
+    }, [isActive, videoElement, onViolationDetected]);
 
     const addManualViolation = (type, description) => {
         const violation = {

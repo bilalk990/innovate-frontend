@@ -255,6 +255,29 @@ export default function InterviewRoom() {
                     }
                 }
 
+                // --- Violation Alerts (Real-time for Recruiter) ---
+                else if (data.type === 'violation_alert') {
+                    console.log('[VIOLATION] Received violation alert:', data.violation);
+                    if (user?.role === 'recruiter' || user?.role === 'admin') {
+                        // Show toast notification
+                        toast.error(`🚨 VIOLATION: ${data.violation.type} - ${data.violation.description}`, {
+                            duration: 5000,
+                            style: {
+                                background: '#dc2626',
+                                color: 'white',
+                                fontWeight: 'bold'
+                            }
+                        });
+                        
+                        // Update event log
+                        updateLogs({ 
+                            type: 'WARN', 
+                            text: `Integrity Violation: ${data.violation.type} - ${data.violation.description}`, 
+                            color: 'text-red-600 font-bold animate-pulse' 
+                        });
+                    }
+                }
+
                 // --- Flow Controls ---
                 if (data.type === 'end_meeting' || data.type === 'meeting_ended') {
                     if (localStream.current) localStream.current.getTracks().forEach(t => t.stop());
@@ -348,7 +371,15 @@ export default function InterviewRoom() {
         isModelLoaded 
     } = useCheatingDetection(
         localVideo.current, 
-        admissionStatus === 'admitted' && user?.role === 'candidate'
+        admissionStatus === 'admitted' && user?.role === 'candidate',
+        (violation) => {
+            // Send WebSocket notification to recruiter
+            console.log('[VIOLATION] Sending to recruiter:', violation);
+            send({ 
+                type: 'violation_alert', 
+                violation: violation
+            });
+        }
     );
 
     // ICE Configuration (Public Google STUN servers)
