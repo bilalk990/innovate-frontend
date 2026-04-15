@@ -22,6 +22,7 @@ export default function useWebSocket(url, options = {}) {
     const wsRef = useRef(null);
     const reconnectTimeoutRef = useRef(null);
     const shouldReconnectRef = useRef(true);
+    const isConnectingRef = useRef(false); // CRITICAL FIX: Prevent multiple simultaneous connections
 
     const connect = useCallback(() => {
         if (!url) {
@@ -29,6 +30,13 @@ export default function useWebSocket(url, options = {}) {
             return;
         }
 
+        // CRITICAL FIX: Prevent multiple simultaneous connection attempts
+        if (isConnectingRef.current || (wsRef.current && wsRef.current.readyState === WebSocket.OPEN)) {
+            console.log('[WebSocket] Connection already in progress or open, skipping...');
+            return;
+        }
+
+        isConnectingRef.current = true;
         console.log(`[WebSocket] Attempting to connect to: ${url.substring(0, 50)}...`);
 
         try {
@@ -39,6 +47,7 @@ export default function useWebSocket(url, options = {}) {
                 console.log('[WebSocket] Connection opened successfully');
                 setReadyState('OPEN');
                 setReconnectCount(0);
+                isConnectingRef.current = false; // Reset flag on successful connection
                 onOpen?.(event);
             };
 
@@ -49,11 +58,13 @@ export default function useWebSocket(url, options = {}) {
             ws.onerror = (event) => {
                 console.error('[WebSocket] Error occurred:', event);
                 setReadyState('ERROR');
+                isConnectingRef.current = false; // Reset flag on error
                 onError?.(event);
             };
 
             ws.onclose = (event) => {
                 setReadyState('CLOSED');
+                isConnectingRef.current = false; // Reset flag on close
                 console.log(`[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`);
                 onClose?.(event);
 
@@ -89,6 +100,7 @@ export default function useWebSocket(url, options = {}) {
             };
         } catch (error) {
             setReadyState('ERROR');
+            isConnectingRef.current = false; // Reset flag on exception
             console.error('WebSocket connection error:', error);
         }
     }, [url, onOpen, onMessage, onError, onClose, reconnectInterval, maxReconnectAttempts, reconnectOnClose, reconnectCount]);
@@ -103,10 +115,13 @@ export default function useWebSocket(url, options = {}) {
 
     const close = useCallback(() => {
         shouldReconnectRef.current = false;
+        isConnectingRef.current = false; // Reset connecting flag
         if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
         }
-        wsRef.current?.close();
+        if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) {
+            wsRef.current.close();
+        }
     }, []);
 
     useEffect(() => {
