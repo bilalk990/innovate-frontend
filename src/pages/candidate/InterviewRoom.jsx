@@ -70,8 +70,18 @@ export default function InterviewRoom() {
         });
     };
 
-    // WebSocket Integration for Backend Triggers
-    const wsBaseUrl = import.meta.env.VITE_WS_URL || 'ws://127.0.0.1:8000';
+    // Derive WebSocket URL — prefer VITE_WS_URL, otherwise auto-convert from VITE_API_URL
+    const wsBaseUrl = (() => {
+        if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
+        if (import.meta.env.VITE_API_URL) {
+            // Convert https://host/api → wss://host
+            return import.meta.env.VITE_API_URL
+                .replace(/^https/, 'wss')
+                .replace(/^http/, 'ws')
+                .replace(/\/api\/?$/, '');
+        }
+        return 'ws://127.0.0.1:8000';
+    })();
     const wsUrl = `${wsBaseUrl}/ws/interview/${id}/`;
     const { send } = useWebSocket(wsUrl, {
         onMessage: async (event) => {
