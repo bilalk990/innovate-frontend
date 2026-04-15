@@ -404,7 +404,6 @@ export default function InterviewRoom() {
         return () => {
             if (interval) clearInterval(interval);
         };
-        }
     }, [admissionStatus]);
 
     // ✅ Controls Logic
