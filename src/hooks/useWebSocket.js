@@ -23,6 +23,20 @@ export default function useWebSocket(url, options = {}) {
     const reconnectTimeoutRef = useRef(null);
     const shouldReconnectRef = useRef(true);
     const isConnectingRef = useRef(false); // CRITICAL FIX: Prevent multiple simultaneous connections
+    
+    // CRITICAL FIX: Store callbacks in refs to prevent connect function from changing on every render
+    const onOpenRef = useRef(onOpen);
+    const onMessageRef = useRef(onMessage);
+    const onErrorRef = useRef(onError);
+    const onCloseRef = useRef(onClose);
+    
+    // Update refs when callbacks change
+    useEffect(() => {
+        onOpenRef.current = onOpen;
+        onMessageRef.current = onMessage;
+        onErrorRef.current = onError;
+        onCloseRef.current = onClose;
+    }, [onOpen, onMessage, onError, onClose]);
 
     const connect = useCallback(() => {
         if (!url) {
@@ -48,25 +62,25 @@ export default function useWebSocket(url, options = {}) {
                 setReadyState('OPEN');
                 setReconnectCount(0);
                 isConnectingRef.current = false; // Reset flag on successful connection
-                onOpen?.(event);
+                onOpenRef.current?.(event);
             };
 
             ws.onmessage = (event) => {
-                onMessage?.(event);
+                onMessageRef.current?.(event);
             };
 
             ws.onerror = (event) => {
                 console.error('[WebSocket] Error occurred:', event);
                 setReadyState('ERROR');
                 isConnectingRef.current = false; // Reset flag on error
-                onError?.(event);
+                onErrorRef.current?.(event);
             };
 
             ws.onclose = (event) => {
                 setReadyState('CLOSED');
                 isConnectingRef.current = false; // Reset flag on close
                 console.log(`[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`);
-                onClose?.(event);
+                onCloseRef.current?.(event);
 
                 // CRITICAL FIX: Don't reconnect on authentication failures (4001, 4003, 4004, 4010)
                 const authFailureCodes = [4001, 4003, 4004, 4010];
@@ -103,7 +117,7 @@ export default function useWebSocket(url, options = {}) {
             isConnectingRef.current = false; // Reset flag on exception
             console.error('WebSocket connection error:', error);
         }
-    }, [url, onOpen, onMessage, onError, onClose, reconnectInterval, maxReconnectAttempts, reconnectOnClose, reconnectCount]);
+    }, [url, reconnectInterval, maxReconnectAttempts, reconnectOnClose, reconnectCount]); // CRITICAL FIX: Removed callback dependencies
 
     const send = useCallback((data) => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
