@@ -418,6 +418,17 @@ export default function InterviewRoom() {
                     const updatedLogs = [...storedLogs, newLog];
                     localStorage.setItem(`room_${id}_events`, JSON.stringify(updatedLogs));
                     setEventLog(updatedLogs);
+                    
+                    // CRITICAL: Send WebSocket notification to recruiter
+                    send({ 
+                        type: 'violation_alert', 
+                        violation: {
+                            type: 'TAB_SWITCH',
+                            description: `Candidate switched to another tab/window (#${newVio})`,
+                            timestamp: new Date().toISOString(),
+                            severity: 'MEDIUM'
+                        }
+                    });
 
                     return newVio;
                 });
@@ -427,7 +438,7 @@ export default function InterviewRoom() {
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [admissionStatus, user, id, addManualViolation]);
+    }, [admissionStatus, user, id, addManualViolation, send]);
 
     // ✅ Start Camera - Start immediately for preview, not just after admission
     useEffect(() => {
@@ -1203,14 +1214,27 @@ export default function InterviewRoom() {
                                         key={index + q.substring(0, 5)}
                                         onClick={() => {
                                             const newMsg = {
-                                                sender: 'AI Target Prompt',
+                                                sender: user?.name || 'Recruiter',
+                                                sender_id: user?.id || '',
                                                 text: q,
                                                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                                isSystem: true
+                                                isSystem: false,
+                                                from: user?.role || 'recruiter'
                                             };
                                             const updated = [...chatMessages, newMsg];
                                             setChatMessages(updated);
                                             localStorage.setItem(`room_${id}_chat`, JSON.stringify(updated));
+                                            
+                                            // CRITICAL FIX: Send via WebSocket to candidate
+                                            console.log('[AI QUESTION] Sending question to candidate:', q);
+                                            send({ 
+                                                type: 'chat', 
+                                                sender_id: newMsg.sender_id,
+                                                text: newMsg.text,
+                                                from: newMsg.from,
+                                                sender: newMsg.sender,
+                                                time: newMsg.time
+                                            });
                                             
                                             updateLogs({ type: 'SYS', text: 'AI Prompt pushed directly to candidate channel.', color: 'text-blue-500 font-bold' });
                                             toast.success('Question pushed to active Comm Channel');
