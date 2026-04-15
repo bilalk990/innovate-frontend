@@ -537,23 +537,6 @@ export default function InterviewRoom() {
         );
     }
 
-
-                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="flex flex-col items-center p-12 bg-black/60 backdrop-blur-xl border border-white/10 rounded-[3rem] shadow-2xl text-center">
-                                <TfiCheck className="text-6xl text-emerald-500 mb-6 drop-shadow-[0_0_15px_#10b981]" />
-                                <h1 className="text-4xl font-black uppercase tracking-widest italic mb-4">Interview Concluded</h1>
-                                <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] max-w-sm leading-relaxed mb-8">
-                                    Your responses have been securely transmitted to the recruitment team for evaluation.
-                                </p>
-                                <button onClick={() => navigate('/candidate/dashboard')} className="px-10 py-4 bg-emerald-600 text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] italic hover:bg-white transition-all shadow-[0_0_15px_#10b981]">
-                                    Return to Dashboard
-                                </button>
-                            </motion.div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white p-6 relative overflow-hidden">
                 {/* Tactical Background */}
