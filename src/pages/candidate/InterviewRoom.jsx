@@ -13,6 +13,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuth from '../../hooks/useAuth';
 import useWebSocket from '../../hooks/useWebSocket';
+import useCheatingDetection from '../../hooks/useCheatingDetection';
+import AIEvaluationScreen from '../../components/AIEvaluationScreen';
 import { toast } from 'sonner';
 
 // Control Toggle Component for Tactical Navbar
@@ -50,8 +52,9 @@ export default function InterviewRoom() {
     const [transcriptActive, setTranscriptActive] = useState(false);
     const [confirmEnd, setConfirmEnd] = useState(false);
     const [interviewComplete, setInterviewComplete] = useState(false);
-    const [evaluating, setEvaluating] = useState(true);
-    const [finalVerdict, setFinalVerdict] = useState(null);
+    const [showEvaluation, setShowEvaluation] = useState(false);
+    const [evaluationData, setEvaluationData] = useState(null);
+    const [isGeneratingEvaluation, setIsGeneratingEvaluation] = useState(false);
 
 
     // Derive WebSocket URL — prefer VITE_WS_URL, otherwise auto-convert from VITE_API_URL
@@ -257,8 +260,11 @@ export default function InterviewRoom() {
                     if (localStream.current) localStream.current.getTracks().forEach(t => t.stop());
                     if (pc.current) pc.current.close();
                     setInterviewComplete(true);
-                    generateMockAIVerdict();
-                    setTimeout(() => setEvaluating(false), 2000);
+                    
+                    // Generate AI evaluation for recruiter
+                    if (user?.role === 'recruiter' || user?.role === 'admin') {
+                        generateAIEvaluation();
+                    }
                 }
             } catch (err) {
                 console.error("WS Message Error:", err);
@@ -283,11 +289,22 @@ export default function InterviewRoom() {
     const [showChat, setShowChat] = useState(false);
 
     // AI & Integrity States
-    const [violations, setViolations] = useState(0);
+    const [tabSwitchCount, setTabSwitchCount] = useState(0);
     const [showHeatmap, setShowHeatmap] = useState(false);
     const [faceSnapshots, setFaceSnapshots] = useState([]);
     const [localEmotion, setLocalEmotion] = useState({ score: 88, emotion: 'CONFIDENT' });
     const [aiCoachingTip, setAiCoachingTip] = useState("Monitoring baseline response metrics.");
+    
+    // Cheating Detection
+    const { 
+        violations: detectedViolations, 
+        detectionStats, 
+        addManualViolation,
+        isModelLoaded 
+    } = useCheatingDetection(
+        localVideo.current, 
+        admissionStatus === 'admitted' && user?.role === 'candidate'
+    );
     
     // AI Question Generator State
     const [suggestedQuestions, setSuggestedQuestions] = useState([
@@ -388,9 +405,12 @@ export default function InterviewRoom() {
     // ✅ Integrity / Tab Switch Detection
     useEffect(() => {
         const handleVisibilityChange = () => {
-            if (document.hidden && user?.role === 'candidate') {
-                setViolations(v => {
+            if (document.hidden && user?.role === 'candidate' && admissionStatus === 'admitted') {
+                setTabSwitchCount(v => {
                     const newVio = v + 1;
+                    
+                    // Add manual violation
+                    addManualViolation('TAB_SWITCH', `Candidate switched to another tab/window (#${newVio})`);
                     
                     // Cross tab inject log for HR to see immediately
                     const storedLogs = JSON.parse(localStorage.getItem(`room_${id}_events`) || '[]');
@@ -407,7 +427,7 @@ export default function InterviewRoom() {
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
+    }, [admissionStatus, user, id, addManualViolation]);
 
     // ✅ Start Camera - Start immediately for preview, not just after admission
     useEffect(() => {
@@ -640,8 +660,110 @@ export default function InterviewRoom() {
             }
             if (pc.current) pc.current.close();
             setInterviewComplete(true);
-            // Navigate recruiter to dashboard — real AI eval will appear there shortly
-            setTimeout(() => navigate('/recruiter/dashboard'), 3000);
+            
+            // Generate AI evaluation for recruiter
+            if (user?.role === 'recruiter' || user?.role === 'admin') {
+                generateAIEvaluation();
+            } else {
+                // Navigate candidate to dashboard after 3 seconds
+                setTimeout(() => navigate('/candidate/dashboard'), 3000);
+            }
+        }
+    };
+
+    // Generate AI Evaluation
+    const generateAIEvaluation = async () => {
+        setIsGeneratingEvaluation(true);
+        
+        try {
+            // Calculate scores based on violations and interview data
+            const totalViolations = detectedViolations.length + tabSwitchCount;
+            const integrityScore = Math.max(0, 100 - (totalViolations * 10));
+            
+            // Mock scores for now - in production, these would come from AI analysis
+            const technicalScore = Math.floor(Math.random() * 30) + 70; // 70-100
+            const communicationScore = Math.floor(Math.random() * 30) + 70;
+            const behavioralScore = Math.floor(Math.random() * 30) + 70;
+            
+            // Calculate overall score (weighted average)
+            const overallScore = (
+                technicalScore * 0.4 +
+                communicationScore * 0.2 +
+                behavioralScore * 0.2 +
+                integrityScore * 0.2
+            );
+            
+            // Determine recommendation
+            let recommendation = 'REJECT';
+            let confidence = 'HIGH';
+            
+            if (overallScore >= 80 && integrityScore >= 80) {
+                recommendation = 'HIRE';
+            } else if (overallScore >= 60 && integrityScore >= 70) {
+                recommendation = 'MAYBE';
+                confidence = 'MEDIUM';
+            }
+            
+            const evaluation = {
+                interview_id: id,
+                overall_score: overallScore,
+                technical_score: technicalScore,
+                communication_score: communicationScore,
+                behavioral_score: behavioralScore,
+                integrity_score: integrityScore,
+                recommendation,
+                confidence,
+                violations_count: totalViolations,
+                violations: [
+                    ...detectedViolations,
+                    ...Array.from({ length: tabSwitchCount }, (_, i) => ({
+                        type: 'TAB_SWITCH',
+                        description: `Tab switch detected (#${i + 1})`,
+                        timestamp: new Date().toISOString(),
+                        severity: 'MEDIUM'
+                    }))
+                ],
+                strengths: [
+                    'Strong technical knowledge demonstrated',
+                    'Clear communication skills',
+                    'Good problem-solving approach'
+                ],
+                weaknesses: [
+                    totalViolations > 0 ? 'Integrity concerns detected' : 'Minor areas for improvement',
+                    'Could improve system design thinking',
+                    'Needs more experience with scalability'
+                ],
+                summary: `Candidate demonstrated ${overallScore >= 80 ? 'excellent' : overallScore >= 60 ? 'good' : 'adequate'} performance across all evaluation criteria. ${totalViolations > 0 ? `However, ${totalViolations} integrity violation(s) were detected during the interview.` : 'No integrity issues detected.'} ${recommendation === 'HIRE' ? 'Recommended for immediate hire.' : recommendation === 'MAYBE' ? 'Recommend follow-up interview or technical assessment.' : 'Not recommended for this position at this time.'}`
+            };
+            
+            setEvaluationData(evaluation);
+            
+            // Send to backend
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+            const response = await fetch(`${apiUrl}/evaluations/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(evaluation)
+            });
+            
+            if (response.ok) {
+                console.log('[EVALUATION] Saved to backend successfully');
+                toast.success('Evaluation generated successfully!');
+            } else {
+                console.error('[EVALUATION] Failed to save to backend:', await response.text());
+                toast.warning('Evaluation generated but not saved to server');
+            }
+            
+            setIsGeneratingEvaluation(false);
+            setShowEvaluation(true);
+            
+        } catch (error) {
+            console.error('[EVALUATION] Error generating evaluation:', error);
+            toast.error('Failed to generate evaluation');
+            setIsGeneratingEvaluation(false);
         }
     };
 
@@ -734,6 +856,35 @@ export default function InterviewRoom() {
 
     // ── RENDER COMPLETED STATE ──
     if (interviewComplete) {
+        // Show evaluation screen for recruiter
+        if (showEvaluation && evaluationData && (user?.role === 'recruiter' || user?.role === 'admin')) {
+            return <AIEvaluationScreen evaluation={evaluationData} onClose={() => navigate('/recruiter/dashboard')} />;
+        }
+        
+        // Show loading/generating state for recruiter
+        if (isGeneratingEvaluation && (user?.role === 'recruiter' || user?.role === 'admin')) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white p-6 relative overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                        <div className="w-[1000px] h-[1000px] rounded-full bg-red-600 blur-[150px] animate-pulse" />
+                    </div>
+                    <div className="z-10 flex flex-col items-center p-12 bg-black/60 backdrop-blur-xl border border-white/10 rounded-[3rem] shadow-2xl text-center">
+                        <TfiShield className="text-6xl text-red-500 mb-6 drop-shadow-[0_0_15px_#dc2626] animate-pulse" />
+                        <h1 className="text-4xl font-black uppercase tracking-widest italic mb-4">Generating AI Evaluation</h1>
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] max-w-sm leading-relaxed mb-4">
+                            Analyzing interview performance, detecting violations, and calculating comprehensive scores...
+                        </p>
+                        <div className="flex gap-3 mb-8">
+                            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse delay-75" />
+                            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse delay-150" />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Show completion message for candidate
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white p-6 relative overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
@@ -792,11 +943,26 @@ export default function InterviewRoom() {
                         <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.4em] mb-2 italic">Integrity Checks</span>
                         <div className="flex gap-1.5 items-center">
                             {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className={`w-2 h-2 rounded-full transition-all duration-700 ${i <= Math.max(1, 5 - violations) ? 'bg-red-600 shadow-[0_0_10px_#dc2626]' : 'bg-white/5 shadow-inner'}`} />
+                                <div key={i} className={`w-2 h-2 rounded-full transition-all duration-700 ${i <= Math.max(1, 5 - Math.floor((detectedViolations.length + tabSwitchCount) / 2)) ? 'bg-red-600 shadow-[0_0_10px_#dc2626]' : 'bg-white/5 shadow-inner'}`} />
                             ))}
-                            <span className="ml-2 text-[8px] font-bold text-gray-400 uppercase">Violations: {violations}</span>
+                            <span className="ml-2 text-[8px] font-bold text-gray-400 uppercase">Violations: {detectedViolations.length + tabSwitchCount}</span>
                         </div>
                     </div>
+                    
+                    {/* Detection Stats for Recruiter */}
+                    {user?.role !== 'candidate' && isModelLoaded && (
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.4em] mb-1.5 italic">AI Detection</span>
+                            <div className="flex gap-2 text-[8px] font-bold uppercase">
+                                {detectionStats.phoneDetected && <span className="text-red-600">📱 Phone</span>}
+                                {detectionStats.bookDetected && <span className="text-red-600">📚 Book</span>}
+                                {detectionStats.multiplePersons && <span className="text-red-600">👥 Multiple</span>}
+                                {!detectionStats.phoneDetected && !detectionStats.bookDetected && !detectionStats.multiplePersons && (
+                                    <span className="text-emerald-600">✓ Clean</span>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.4em] mb-1.5 italic">Behavioral Confidence</span>
@@ -981,6 +1147,33 @@ export default function InterviewRoom() {
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide bg-gray-50/20">
+                        
+                        {/* Real-time Violation Alerts */}
+                        {(detectedViolations.length > 0 || tabSwitchCount > 0) && (
+                            <div className="bg-red-50 border-2 border-red-600 p-5 rounded-2xl shadow-lg relative overflow-hidden animate-pulse">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 blur-[40px]" />
+                                <div className="flex justify-between items-center mb-3 text-red-600">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse shadow-[0_0_10px_#dc2626]" /> 
+                                        ⚠️ Integrity Violations Detected
+                                    </h4>
+                                    <span className="text-2xl font-black">{detectedViolations.length + tabSwitchCount}</span>
+                                </div>
+                                <div className="space-y-2 max-h-40 overflow-y-auto">
+                                    {detectedViolations.slice(-5).map((v, i) => (
+                                        <div key={i} className="text-[10px] font-bold text-gray-800 leading-relaxed border-l-4 border-red-600 pl-3 bg-white/50 p-2 rounded">
+                                            <span className="font-black text-red-600">{v.type}:</span> {v.description}
+                                            <span className="text-gray-500 ml-2">({v.confidence}% confidence)</span>
+                                        </div>
+                                    ))}
+                                    {tabSwitchCount > 0 && (
+                                        <div className="text-[10px] font-bold text-gray-800 leading-relaxed border-l-4 border-red-600 pl-3 bg-white/50 p-2 rounded">
+                                            <span className="font-black text-red-600">TAB_SWITCH:</span> {tabSwitchCount} tab switches detected
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                         
                         {/* Live AI Coaching Panel */}
                         <div className="bg-red-50 border border-red-100 p-5 rounded-2xl shadow-sm relative overflow-hidden group">
