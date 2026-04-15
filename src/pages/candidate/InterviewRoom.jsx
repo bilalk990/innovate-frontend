@@ -496,8 +496,6 @@ export default function InterviewRoom() {
             toast.error('No camera available');
         }
     };
-        }
-    };
 
     const handleScreenShare = async () => {
         try {
