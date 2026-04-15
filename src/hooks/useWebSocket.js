@@ -24,13 +24,19 @@ export default function useWebSocket(url, options = {}) {
     const shouldReconnectRef = useRef(true);
 
     const connect = useCallback(() => {
-        if (!url) return;
+        if (!url) {
+            console.error('[WebSocket] No URL provided');
+            return;
+        }
+
+        console.log(`[WebSocket] Attempting to connect to: ${url.substring(0, 50)}...`);
 
         try {
             const ws = new WebSocket(url);
             wsRef.current = ws;
 
             ws.onopen = (event) => {
+                console.log('[WebSocket] Connection opened successfully');
                 setReadyState('OPEN');
                 setReconnectCount(0);
                 onOpen?.(event);
@@ -41,13 +47,29 @@ export default function useWebSocket(url, options = {}) {
             };
 
             ws.onerror = (event) => {
+                console.error('[WebSocket] Error occurred:', event);
                 setReadyState('ERROR');
                 onError?.(event);
             };
 
             ws.onclose = (event) => {
                 setReadyState('CLOSED');
+                console.log(`[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`);
                 onClose?.(event);
+
+                // CRITICAL FIX: Don't reconnect on authentication failures (4001, 4003, 4004, 4010)
+                const authFailureCodes = [4001, 4003, 4004, 4010];
+                if (authFailureCodes.includes(event.code)) {
+                    console.error(`[WebSocket] Authentication failed (code ${event.code}). Not reconnecting.`);
+                    shouldReconnectRef.current = false;
+                    return;
+                }
+
+                // Don't reconnect on normal closure (1000) or going away (1001)
+                if (event.code === 1000 || event.code === 1001) {
+                    console.log('[WebSocket] Normal closure. Not reconnecting.');
+                    return;
+                }
 
                 // Attempt reconnection if enabled and not manually closed
                 if (
@@ -56,10 +78,13 @@ export default function useWebSocket(url, options = {}) {
                     reconnectCount < maxReconnectAttempts
                 ) {
                     const delay = reconnectInterval * Math.pow(1.5, reconnectCount); // Exponential backoff
+                    console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${reconnectCount + 1}/${maxReconnectAttempts})...`);
                     reconnectTimeoutRef.current = setTimeout(() => {
                         setReconnectCount((prev) => prev + 1);
                         connect();
                     }, delay);
+                } else if (reconnectCount >= maxReconnectAttempts) {
+                    console.error('[WebSocket] Max reconnection attempts reached. Giving up.');
                 }
             };
         } catch (error) {
