@@ -740,7 +740,7 @@ export default function InterviewRoom() {
             
             // Send to backend
             const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-            const response = await fetch(`${apiUrl}/evaluations/`, {
+            const response = await fetch(`${apiUrl}/evaluations/trigger/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
