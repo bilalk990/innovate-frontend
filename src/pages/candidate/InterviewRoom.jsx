@@ -75,8 +75,10 @@ export default function InterviewRoom() {
                 // --- Admission Signaling (cross-device via WebSocket) ---
                 // Backend sends 'candidate_waiting' to recruiter when candidate joins
                 if (data.type === 'candidate_waiting') {
+                    console.log('[DEBUG] HR received candidate_waiting notification');
                     if (user?.role !== 'candidate') {
                         setIsCandidateWaiting(true);
+                        toast.success('Candidate is waiting for admission!', { duration: 5000 });
                     }
                 }
 
@@ -89,6 +91,7 @@ export default function InterviewRoom() {
 
                 // Backend sends 'admitted' to candidate when recruiter admits them
                 if (data.type === 'admitted') {
+                    console.log('[DEBUG] Candidate received admitted notification');
                     if (user?.role === 'candidate') {
                         setAdmissionStatus('admitted');
                         toast.success('Recruiter has admitted you. Entering room...');
@@ -202,7 +205,9 @@ export default function InterviewRoom() {
         if (user?.role === 'candidate' && admissionStatus === 'waiting') {
             // Delay to ensure WS connection is open
             const t = setTimeout(() => {
+                console.log('[DEBUG] Sending request_admit to backend, room:', id);
                 send({ type: 'request_admit', room: id });
+                toast.info('Requesting admission from recruiter...', { duration: 2000 });
             }, 1500);
             return () => clearTimeout(t);
         }
