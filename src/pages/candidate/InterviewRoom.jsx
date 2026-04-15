@@ -334,12 +334,17 @@ export default function InterviewRoom() {
     // ✅ Start Camera - Start immediately for preview, not just after admission
     useEffect(() => {
         const startCamera = async () => {
+            console.log('[CAMERA] Starting camera initialization...');
+            console.log('[CAMERA] localVideo.current:', localVideo.current);
+            
             try {
                 let stream;
                 try {
+                    console.log('[CAMERA] Requesting camera and microphone access...');
                     stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    console.log('[CAMERA] Camera access granted, stream:', stream);
                 } catch (e) {
-                    console.warn("Camera failed, using mic only in room:", e);
+                    console.warn("[CAMERA] Camera failed, trying mic only:", e);
                     stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
                     setHasVideoFeed(false);
                     if (user?.role === 'candidate') {
@@ -349,14 +354,22 @@ export default function InterviewRoom() {
                 }
                 
                 localStream.current = stream;
+                console.log('[CAMERA] Stream saved to localStream.current');
+                
+                // CRITICAL FIX: Wait for video element to be available
                 const attachStreams = () => {
                     if (localVideo.current) {
+                        console.log('[CAMERA] Attaching stream to video element');
                         localVideo.current.srcObject = stream;
-                        localVideo.current.play().catch(e => console.error("Local play blocked:", e));
+                        localVideo.current.play().catch(e => console.error("[CAMERA] Local play blocked:", e));
+                    } else {
+                        console.warn('[CAMERA] localVideo.current is null, retrying in 500ms...');
+                        setTimeout(attachStreams, 500);
                     }
                 };
                 
                 attachStreams();
+                
                 // If connection already exists (e.g. joined late), add tracks
                 if (pc.current && admissionStatus === 'admitted') {
                     stream.getTracks().forEach(track => {
@@ -366,12 +379,14 @@ export default function InterviewRoom() {
                     });
                 }
             } catch (err) {
-                console.error('Camera/Mic error:', err);
+                console.error('[CAMERA] Camera/Mic error:', err);
             }
         };
         
-        // Start camera immediately (for both waiting room and main room)
-        startCamera();
+        // CRITICAL FIX: Delay camera start to ensure DOM is ready
+        const timer = setTimeout(() => {
+            startCamera();
+        }, 1000);
         
         // Mock Heatmap generation (only when admitted)
         let interval;
@@ -402,6 +417,7 @@ export default function InterviewRoom() {
         }
         
         return () => {
+            clearTimeout(timer);
             if (interval) clearInterval(interval);
         };
     }, [admissionStatus]);
