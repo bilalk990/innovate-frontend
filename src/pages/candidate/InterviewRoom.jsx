@@ -78,7 +78,7 @@ export default function InterviewRoom() {
     console.log('[DEBUG] Token present:', !!token);
     console.log('[DEBUG] User:', user?.email, 'Role:', user?.role);
     
-    const { send } = useWebSocket(wsUrl, {
+    const { send, close: wsClose } = useWebSocket(wsUrl, {
         onMessage: async (event) => {
             try {
                 const data = JSON.parse(event.data);
@@ -168,15 +168,21 @@ export default function InterviewRoom() {
                 else if (data.type === 'offer') {
                     console.log('[DEBUG] Received offer from peer');
                     const connection = createPeerConnection();
-                    
+
                     console.log('[DEBUG] Setting remote description (offer)');
                     await connection.setRemoteDescription(new RTCSessionDescription(data.offer));
-                    
+                    isRemoteDescSet.current = true;
+
+                    // Flush any buffered ICE candidates
+                    for (const c of pendingIceCandidates.current) {
+                        try { await connection.addIceCandidate(new RTCIceCandidate(c)); } catch (_) {}
+                    }
+                    pendingIceCandidates.current = [];
+
                     // Add tracks before answering
                     if (localStream.current) {
                         console.log('[DEBUG] Adding local tracks to connection');
                         localStream.current.getTracks().forEach(track => {
-                            // Avoid adding same track twice if already added
                             if (!connection.getSenders().find(s => s.track === track)) {
                                 connection.addTrack(track, localStream.current);
                                 console.log('[DEBUG] Added track:', track.kind);
@@ -185,11 +191,11 @@ export default function InterviewRoom() {
                     } else {
                         console.warn('[DEBUG] No local stream available when receiving offer');
                     }
-                    
+
                     console.log('[DEBUG] Creating answer');
                     const answer = await connection.createAnswer();
                     await connection.setLocalDescription(answer);
-                    
+
                     console.log('[DEBUG] Sending answer to peer');
                     send({ type: 'answer', answer });
                     updateLogs({ type: 'NET', text: 'Handshake accepted.', color: 'text-emerald-500' });
@@ -200,6 +206,13 @@ export default function InterviewRoom() {
                     if (pc.current) {
                         console.log('[DEBUG] Setting remote description (answer)');
                         await pc.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+                        isRemoteDescSet.current = true;
+
+                        // Flush any buffered ICE candidates
+                        for (const c of pendingIceCandidates.current) {
+                            try { await pc.current.addIceCandidate(new RTCIceCandidate(c)); } catch (_) {}
+                        }
+                        pendingIceCandidates.current = [];
                         updateLogs({ type: 'NET', text: 'Connection established!', color: 'text-emerald-500' });
                     } else {
                         console.error('[DEBUG] No peer connection available for answer!');
@@ -208,14 +221,17 @@ export default function InterviewRoom() {
 
                 else if (data.type === 'ice-candidate') {
                     if (pc.current && data.candidate) {
-                        try {
-                            console.log('[DEBUG] Adding ICE candidate');
-                            await pc.current.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        } catch (e) { 
-                            console.error("[DEBUG] Error adding ICE candidate:", e); 
+                        if (isRemoteDescSet.current) {
+                            try {
+                                await pc.current.addIceCandidate(new RTCIceCandidate(data.candidate));
+                            } catch (e) {
+                                console.error('[DEBUG] Error adding ICE candidate:', e);
+                            }
+                        } else {
+                            // Buffer until remote description is set
+                            pendingIceCandidates.current.push(data.candidate);
+                            console.log('[DEBUG] Buffered ICE candidate, total:', pendingIceCandidates.current.length);
                         }
-                    } else {
-                        console.warn('[DEBUG] Cannot add ICE candidate - no peer connection or candidate is null');
                     }
                 }
 
@@ -280,13 +296,33 @@ export default function InterviewRoom() {
 
                 // --- Flow Controls ---
                 if (data.type === 'end_meeting' || data.type === 'meeting_ended') {
+                    wsClose(); // Prevent WebSocket auto-reconnect — meeting is permanently over
                     if (localStream.current) localStream.current.getTracks().forEach(t => t.stop());
                     if (pc.current) pc.current.close();
+                    try { recognitionRef.current?.stop(); } catch (_) {}
                     setInterviewComplete(true);
-                    
-                    // Generate AI evaluation for recruiter
+
+                    // Candidate: auto-submit transcript — use ref to avoid stale closure
+                    if (user?.role === 'candidate') {
+                        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+                        const mId = interviewMongoId;
+                        const latestTranscript = liveTranscriptRef.current || '';
+                        if (mId && latestTranscript.trim().length > 10) {
+                            fetch(`${apiUrl}/interviews/${mId}/respond/`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({
+                                    question_index: 0,
+                                    response: latestTranscript.trim().slice(0, 4000),
+                                    full_transcript: latestTranscript.trim()
+                                })
+                            }).catch(() => {});
+                        }
+                    }
+
+                    // Generate AI evaluation for recruiter (4s delay so candidate transcript submits first)
                     if (user?.role === 'recruiter' || user?.role === 'admin') {
-                        generateAIEvaluation();
+                        setTimeout(generateAIEvaluation, 4000);
                     }
                 }
             } catch (err) {
@@ -317,6 +353,24 @@ export default function InterviewRoom() {
     const [faceSnapshots, setFaceSnapshots] = useState([]);
     const [localEmotion, setLocalEmotion] = useState({ score: 88, emotion: 'CONFIDENT' });
     const [aiCoachingTip, setAiCoachingTip] = useState("Monitoring baseline response metrics.");
+
+    // ── New AI Features State ──
+    // Feature 1: Voice Tone
+    const [voiceToneData, setVoiceToneData] = useState(null);
+    // Feature 2: Live Quality Meter
+    const [liveQuality, setLiveQuality] = useState({ quality_score: 0, bar_color: 'gray', coach_message: '', on_track: false });
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    // Feature 5: Recruiter Coach
+    const [recruiterCoach, setRecruiterCoach] = useState(null);
+    const [showCoachPanel, setShowCoachPanel] = useState(false);
+    // Feature 4: Inconsistency
+    const [inconsistencyReport, setInconsistencyReport] = useState(null);
+    const [showInconsistency, setShowInconsistency] = useState(false);
+    // Refs for audio analysis
+    const audioContextRef = useRef(null);
+    const analyserRef = useRef(null);
+    const voicePollRef = useRef(null);
+    const qualityPollRef = useRef(null);
     
     // AI Question Generator State
     const [suggestedQuestions, setSuggestedQuestions] = useState([
@@ -356,12 +410,25 @@ export default function InterviewRoom() {
         }
     }, [user, id]);
 
+    // Interview metadata loaded from backend
+    const [interviewMongoId, setInterviewMongoId] = useState(null);
+    const [interviewQuestions, setInterviewQuestions] = useState([]);
+    const [liveTranscript, setLiveTranscript] = useState('');
+
+    // ── Transcript + question index refs — declared early so onMessage closure can use them ──
+    // (onMessage is defined above in JSX but runs async, so these refs exist by then)
+    const liveTranscriptRef = useRef('');
+    const currentQuestionIndexRef = useRef(0);
+
     // Refs
     const localVideo = useRef(null);
     const remoteVideo = useRef(null);
     const localStream = useRef(null);
     const pc = useRef(null); // WebRTC Peer Connection
     const screenStream = useRef(null); // Screen share stream
+    const pendingIceCandidates = useRef([]); // Buffer ICE candidates until remote desc is set
+    const isRemoteDescSet = useRef(false);
+    const recognitionRef = useRef(null);
     
     // Cheating Detection - pass null initially, will activate when video is ready
     const { 
@@ -382,6 +449,325 @@ export default function InterviewRoom() {
         }
     );
 
+    // Load interview MongoDB ID + questions from backend
+    useEffect(() => {
+        if (!token || !id) return;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        fetch(`${apiUrl}/interviews/room/${id}/`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (!data) return;
+                setInterviewMongoId(data.id);
+                if (data.questions?.length > 0) {
+                    setInterviewQuestions(data.questions);
+                    setSuggestedQuestions(data.questions.slice(0, 3).map(q => q.text));
+                }
+                console.log('[INTERVIEW] Loaded interview data, MongoDB ID:', data.id);
+            })
+            .catch(err => console.error('[INTERVIEW] Failed to load room data:', err));
+    }, [token, id]);
+
+    // Start Web Speech API transcript capture after admission
+    useEffect(() => {
+        if (admissionStatus !== 'admitted') return;
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return;
+
+        const recognition = new SR();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        recognition.onresult = (event) => {
+            const text = Array.from(event.results)
+                .map(r => r[0].transcript)
+                .join(' ');
+            setLiveTranscript(prev => `${prev} ${text}`.trim());
+        };
+        recognition.onerror = (e) => console.warn('[SPEECH] Error:', e.error);
+        recognition.start();
+        recognitionRef.current = recognition;
+
+        return () => {
+            try { recognition.stop(); } catch (_) {}
+        };
+    }, [admissionStatus]);
+
+    // ── Feature 3: Whisper Audio Recording — capture per-question audio chunks ──
+    // Records audio in 60s segments and sends to backend Whisper for accurate transcription
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+    const whisperSegmentRef = useRef(null);
+
+    useEffect(() => {
+        // Whisper recording is for CANDIDATE only — recruiter audio should not pollute transcript
+        if (admissionStatus !== 'admitted' || user?.role !== 'candidate') return;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+
+        const startRecording = () => {
+            if (!localStream.current) {
+                setTimeout(startRecording, 1500);
+                return;
+            }
+            try {
+                // Only record audio track
+                const audioTracks = localStream.current.getAudioTracks();
+                if (!audioTracks.length) return;
+                const audioOnlyStream = new MediaStream(audioTracks);
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                    ? 'audio/webm;codecs=opus'
+                    : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+
+                const recorder = new MediaRecorder(audioOnlyStream, { mimeType });
+                audioChunksRef.current = [];
+
+                recorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunksRef.current.push(e.data);
+                };
+
+                recorder.onstop = async () => {
+                    if (!audioChunksRef.current.length || !interviewMongoId) return;
+                    const blob = new Blob(audioChunksRef.current, { type: mimeType });
+                    if (blob.size < 1000) return; // skip tiny/empty recordings
+
+                    // Convert to base64
+                    const reader = new FileReader();
+                    reader.onloadend = async () => {
+                        const base64 = reader.result.split(',')[1];
+                        try {
+                            const res = await fetch(`${apiUrl}/interviews/${interviewMongoId}/transcribe/`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({
+                                    audio_base64: base64,
+                                    mime_type: mimeType.split(';')[0],
+                                    question_index: currentQuestionIndexRef.current
+                                })
+                            });
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data.transcript) {
+                                    // Merge Whisper transcript with live transcript for accuracy
+                                    setLiveTranscript(prev => {
+                                        const combined = `${prev} ${data.transcript}`.trim();
+                                        return combined.slice(-6000); // keep last 6000 chars
+                                    });
+                                    console.log('[WHISPER] Transcript segment received:', data.transcript.slice(0, 80));
+                                }
+                            }
+                        } catch (_) {}
+                    };
+                    reader.readAsDataURL(blob);
+                    audioChunksRef.current = [];
+                };
+
+                // Record in 60s segments
+                recorder.start();
+                mediaRecorderRef.current = recorder;
+                whisperSegmentRef.current = setInterval(() => {
+                    if (mediaRecorderRef.current?.state === 'recording') {
+                        mediaRecorderRef.current.stop();
+                        setTimeout(() => {
+                            if (mediaRecorderRef.current) {
+                                audioChunksRef.current = [];
+                                mediaRecorderRef.current.start();
+                            }
+                        }, 200);
+                    }
+                }, 60000);
+
+                console.log('[WHISPER] MediaRecorder started, mimeType:', mimeType);
+            } catch (e) {
+                console.warn('[WHISPER] MediaRecorder setup failed:', e);
+            }
+        };
+
+        startRecording();
+
+        return () => {
+            clearInterval(whisperSegmentRef.current);
+            if (mediaRecorderRef.current?.state === 'recording') {
+                try { mediaRecorderRef.current.stop(); } catch (_) {}
+            }
+        };
+    }, [admissionStatus, interviewMongoId, token]);
+
+    // ── Feature 1: Voice Tone Analysis — Web Audio API metrics sent every 15s ──
+    // FIX: localStream.current is a ref so we retry inside effect until stream is ready
+    useEffect(() => {
+        if (admissionStatus !== 'admitted') return;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        let voiceInterval = null;
+        let retryTimeout = null;
+
+        const extractMetrics = () => {
+            if (!analyserRef.current) return null;
+            const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+            analyserRef.current.getByteFrequencyData(dataArray);
+            const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+            const max = Math.max(...dataArray);
+            const variance = dataArray.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / dataArray.length;
+            // Also measure silence ratio (values below threshold 10)
+            const silentBins = dataArray.filter(v => v < 10).length;
+            return {
+                average_energy: Math.round(avg),
+                peak_energy: max,
+                energy_variance: Math.round(variance),
+                silence_ratio: Math.round((silentBins / dataArray.length) * 100),
+                frequency_bins: dataArray.length,
+                timestamp: new Date().toISOString()
+            };
+        };
+
+        const startPolling = () => {
+            voiceInterval = setInterval(async () => {
+                const mId = interviewMongoId;
+                if (!mId) return;
+                const metrics = extractMetrics();
+                if (!metrics || metrics.average_energy < 1) return; // no audio signal
+                try {
+                    const res = await fetch(`${apiUrl}/interviews/${mId}/voice-tone/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ audio_metrics: metrics })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setVoiceToneData(data.voice_analysis);
+                    }
+                } catch (_) {}
+            }, 15000);
+        };
+
+        // Retry until localStream is ready (it's a ref, not state)
+        const setupAnalyzer = () => {
+            if (!localStream.current) {
+                retryTimeout = setTimeout(setupAnalyzer, 1000);
+                return;
+            }
+            try {
+                if (!audioContextRef.current) {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const analyser = ctx.createAnalyser();
+                    analyser.fftSize = 256;
+                    const source = ctx.createMediaStreamSource(localStream.current);
+                    source.connect(analyser);
+                    audioContextRef.current = ctx;
+                    analyserRef.current = analyser;
+                }
+                startPolling();
+            } catch (e) {
+                console.warn('[VOICE] AudioContext setup failed:', e);
+            }
+        };
+
+        retryTimeout = setTimeout(setupAnalyzer, 2000); // initial delay
+
+        return () => {
+            clearInterval(voiceInterval);
+            clearTimeout(retryTimeout);
+            audioContextRef.current?.close();
+            audioContextRef.current = null;
+            analyserRef.current = null;
+        };
+    }, [admissionStatus, interviewMongoId, token]);
+
+    // ── Feature 2: Live Quality Meter — sent every 10s (recruiter view) ──
+    // Keep refs in sync with state (declared above, near top of component)
+    useEffect(() => { liveTranscriptRef.current = liveTranscript; }, [liveTranscript]);
+    useEffect(() => { currentQuestionIndexRef.current = currentQuestionIndex; }, [currentQuestionIndex]);
+
+    useEffect(() => {
+        if (admissionStatus !== 'admitted') return;
+        if (user?.role !== 'recruiter' && user?.role !== 'admin') return;
+        if (!interviewMongoId) return;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+
+        qualityPollRef.current = setInterval(async () => {
+            const transcript = liveTranscriptRef.current;
+            if (!transcript || transcript.trim().length < 15) return;
+            try {
+                const res = await fetch(`${apiUrl}/interviews/${interviewMongoId}/live-quality/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({
+                        transcript: transcript.slice(-800),
+                        question_index: currentQuestionIndexRef.current,
+                        elapsed_seconds: 10
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setLiveQuality(data.quality);
+                }
+            } catch (_) {}
+        }, 10000);
+
+        return () => clearInterval(qualityPollRef.current);
+    }, [admissionStatus, user, interviewMongoId, token]); // NO liveTranscript here — uses ref
+
+    // ── Feature 5: Recruiter Coach — called on demand via button ──
+    const fetchRecruiterCoach = async () => {
+        const transcript = liveTranscriptRef.current;
+        if (!interviewMongoId || !transcript || user?.role === 'candidate') return;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        try {
+            const res = await fetch(`${apiUrl}/interviews/${interviewMongoId}/recruiter-coach/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    transcript: transcript.slice(-1500),
+                    current_question: interviewQuestions[currentQuestionIndexRef.current]?.text || '',
+                    candidate_performance: {
+                        quality_score: liveQuality.quality_score,
+                        on_track: liveQuality.on_track
+                    }
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setRecruiterCoach(data.coaching);
+                setShowCoachPanel(true);
+                toast.success('AI Coach advice ready!');
+            }
+        } catch (_) {
+            toast.error('Coaching unavailable. Try again.');
+        }
+    };
+
+    // ── Feature 4: Inconsistency Check — called on demand ──
+    const fetchInconsistencyCheck = async () => {
+        if (!interviewMongoId || user?.role === 'candidate') return;
+        const transcript = liveTranscriptRef.current;
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        try {
+            const res = await fetch(`${apiUrl}/interviews/${interviewMongoId}/inconsistency-check/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    live_responses: transcript ? [{
+                        question: interviewQuestions[currentQuestionIndexRef.current]?.text || 'General',
+                        response: transcript.slice(-3000)
+                    }] : []
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setInconsistencyReport(data.inconsistency_report);
+                setShowInconsistency(true);
+                const count = data.inconsistency_report?.inconsistencies?.length || 0;
+                if (count > 0) {
+                    toast.warning(`⚠️ ${count} inconsistency(ies) detected!`);
+                } else {
+                    toast.success('✓ No inconsistencies found.');
+                }
+            }
+        } catch (_) {
+            toast.error('Inconsistency check failed. Try again.');
+        }
+    };
+
     // ICE Configuration (Public Google STUN servers)
     const iceConfig = {
         iceServers: [
@@ -394,6 +780,10 @@ export default function InterviewRoom() {
     // Initialize Peer Connection
     const createPeerConnection = () => {
         if (pc.current) return pc.current;
+
+        // Reset ICE buffering state for fresh connection
+        pendingIceCandidates.current = [];
+        isRemoteDescSet.current = false;
 
         const connection = new RTCPeerConnection(iceConfig);
 
@@ -450,9 +840,9 @@ export default function InterviewRoom() {
                     localStorage.setItem(`room_${id}_events`, JSON.stringify(updatedLogs));
                     setEventLog(updatedLogs);
                     
-                    // CRITICAL: Send WebSocket notification to recruiter
-                    send({ 
-                        type: 'violation_alert', 
+                    // Send WebSocket notification to recruiter
+                    send({
+                        type: 'violation_alert',
                         violation: {
                             type: 'TAB_SWITCH',
                             description: `Candidate switched to another tab/window (#${newVio})`,
@@ -460,6 +850,17 @@ export default function InterviewRoom() {
                             severity: 'MEDIUM'
                         }
                     });
+
+                    // Persist violation to backend DB (candidate side — correct auth)
+                    const mId = interviewMongoId;
+                    if (mId) {
+                        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+                        fetch(`${apiUrl}/interviews/${mId}/violation/`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            body: JSON.stringify({ type: 'tab_switch' })
+                        }).catch(() => {});
+                    }
 
                     return newVio;
                 });
@@ -489,7 +890,7 @@ export default function InterviewRoom() {
                     setHasVideoFeed(false);
                     if (user?.role === 'candidate') {
                         updateLogs({ type: 'CRIT', text: 'Candidate camera hardware unavailable or blocked.', color: 'text-red-700 font-black animate-pulse' });
-                        setViolations(v => v + 4); // Automatic 60% penalty
+                        setTabSwitchCount(v => v + 4); // Automatic penalty: camera blocked = 4 tab-switch-equivalent violations
                     }
                 }
                 
@@ -697,114 +1098,220 @@ export default function InterviewRoom() {
         } else {
             // Signal backend to end session for all clients
             send({ type: 'end_meeting', room: id });
-            if (localStream.current) {
-                localStream.current.getTracks().forEach(t => t.stop());
-            }
+            wsClose(); // Stop auto-reconnect immediately after ending the meeting
+            if (localStream.current) localStream.current.getTracks().forEach(t => t.stop());
             if (pc.current) pc.current.close();
+            try { recognitionRef.current?.stop(); } catch (_) {}
             setInterviewComplete(true);
-            
+
             // Generate AI evaluation for recruiter
             if (user?.role === 'recruiter' || user?.role === 'admin') {
                 generateAIEvaluation();
             } else {
-                // Navigate candidate to dashboard after 3 seconds
                 setTimeout(() => navigate('/candidate/dashboard'), 3000);
             }
         }
     };
 
-    // Generate AI Evaluation
+    // Generate AI Evaluation — calls real backend XAI engine
     const generateAIEvaluation = async () => {
         setIsGeneratingEvaluation(true);
-        
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        };
+
         try {
-            // Calculate scores based on violations and interview data
-            const totalViolations = detectedViolations.length + tabSwitchCount;
-            const integrityScore = Math.max(0, 100 - (totalViolations * 10));
-            
-            // Mock scores for now - in production, these would come from AI analysis
-            const technicalScore = Math.floor(Math.random() * 30) + 70; // 70-100
-            const communicationScore = Math.floor(Math.random() * 30) + 70;
-            const behavioralScore = Math.floor(Math.random() * 30) + 70;
-            
-            // Calculate overall score (weighted average)
-            const overallScore = (
-                technicalScore * 0.4 +
-                communicationScore * 0.2 +
-                behavioralScore * 0.2 +
-                integrityScore * 0.2
-            );
-            
-            // Determine recommendation
-            let recommendation = 'REJECT';
-            let confidence = 'HIGH';
-            
-            if (overallScore >= 80 && integrityScore >= 80) {
-                recommendation = 'HIRE';
-            } else if (overallScore >= 60 && integrityScore >= 70) {
-                recommendation = 'MAYBE';
-                confidence = 'MEDIUM';
+            // Use MongoDB interview ID loaded on mount; fall back to room_id lookup
+            let mongoId = interviewMongoId;
+            if (!mongoId) {
+                const roomRes = await fetch(`${apiUrl}/interviews/room/${id}/`, { headers: authHeaders });
+                if (roomRes.ok) {
+                    const roomData = await roomRes.json();
+                    mongoId = roomData.id;
+                    setInterviewMongoId(mongoId);
+                }
             }
-            
-            const evaluation = {
-                interview_id: id,
-                overall_score: overallScore,
-                technical_score: technicalScore,
-                communication_score: communicationScore,
-                behavioral_score: behavioralScore,
-                integrity_score: integrityScore,
-                recommendation,
-                confidence,
-                violations_count: totalViolations,
-                violations: [
-                    ...detectedViolations,
-                    ...Array.from({ length: tabSwitchCount }, (_, i) => ({
-                        type: 'TAB_SWITCH',
-                        description: `Tab switch detected (#${i + 1})`,
-                        timestamp: new Date().toISOString(),
-                        severity: 'MEDIUM'
-                    }))
-                ],
-                strengths: [
-                    'Strong technical knowledge demonstrated',
-                    'Clear communication skills',
-                    'Good problem-solving approach'
-                ],
-                weaknesses: [
-                    totalViolations > 0 ? 'Integrity concerns detected' : 'Minor areas for improvement',
-                    'Could improve system design thinking',
-                    'Needs more experience with scalability'
-                ],
-                summary: `Candidate demonstrated ${overallScore >= 80 ? 'excellent' : overallScore >= 60 ? 'good' : 'adequate'} performance across all evaluation criteria. ${totalViolations > 0 ? `However, ${totalViolations} integrity violation(s) were detected during the interview.` : 'No integrity issues detected.'} ${recommendation === 'HIRE' ? 'Recommended for immediate hire.' : recommendation === 'MAYBE' ? 'Recommend follow-up interview or technical assessment.' : 'Not recommended for this position at this time.'}`
-            };
-            
-            setEvaluationData(evaluation);
-            
-            // Send to backend
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-            const response = await fetch(`${apiUrl}/evaluations/trigger/`, {
+
+            if (!mongoId) {
+                throw new Error('Could not resolve interview ID for evaluation.');
+            }
+
+            // Submit full transcript as candidate response (index 0) before triggering eval
+            if (liveTranscript.trim().length > 10) {
+                try {
+                    await fetch(`${apiUrl}/interviews/${mongoId}/respond/`, {
+                        method: 'POST',
+                        headers: authHeaders,
+                        body: JSON.stringify({
+                            question_index: 0,
+                            response: liveTranscript.trim().slice(0, 4000),
+                            full_transcript: liveTranscript.trim()
+                        })
+                    });
+                    console.log('[EVALUATION] Transcript submitted as response');
+                } catch (_) {}
+            }
+
+            // Trigger the XAI evaluation engine on the backend
+            const evalRes = await fetch(`${apiUrl}/evaluations/trigger/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(evaluation)
+                headers: authHeaders,
+                body: JSON.stringify({ interview_id: mongoId })
             });
-            
-            if (response.ok) {
-                console.log('[EVALUATION] Saved to backend successfully');
-                toast.success('Evaluation generated successfully!');
+
+            if (evalRes.ok) {
+                const evalData = await evalRes.json();
+                console.log('[EVALUATION] Backend XAI evaluation complete:', evalData);
+
+                // ── Extract scores from XAI criterion_results (0-10 scale → 0-100) ──
+                const criteria = evalData.criterion_results || [];
+                const getCriterionScore = (name) => {
+                    const cr = criteria.find(c => c.criterion === name);
+                    return cr ? Math.round((cr.score / 10) * 100) : null;
+                };
+
+                // Technical: semantic accuracy + keyword alignment + response depth
+                const semanticScore = getCriterionScore('semantic_accuracy');
+                const keywordScore = getCriterionScore('keyword_alignment');
+                const depthScore = getCriterionScore('response_depth');
+                const resumeConsistency = getCriterionScore('resume_consistency');
+                const technicalRaw = [semanticScore, keywordScore, depthScore, resumeConsistency]
+                    .filter(s => s !== null);
+                const technicalScore = technicalRaw.length
+                    ? Math.round(technicalRaw.reduce((a, b) => a + b, 0) / technicalRaw.length)
+                    : (evalData.resume_alignment_score ?? evalData.overall_score ?? 50);
+
+                // Communication: fluency (AI) + clarity + completeness criteria
+                const clarityScore = getCriterionScore('communication_clarity');
+                const completenessScore = getCriterionScore('response_completeness');
+                const aiFluentScore = evalData.fluency_score || null;
+                const commRaw = [clarityScore, completenessScore, aiFluentScore].filter(s => s !== null);
+                const communicationScore = commRaw.length
+                    ? Math.round(commRaw.reduce((a, b) => a + b, 0) / commRaw.length)
+                    : (evalData.fluency_score ?? evalData.overall_score ?? 50);
+
+                // Behavioral: confidence from AI + confidence_indicators criterion
+                const confidenceIndicator = getCriterionScore('confidence_indicators');
+                const aiConfScore = evalData.confidence_score || null;
+                const behavRaw = [confidenceIndicator, aiConfScore].filter(s => s !== null);
+                const behavioralScore = behavRaw.length
+                    ? Math.round(behavRaw.reduce((a, b) => a + b, 0) / behavRaw.length)
+                    : (evalData.confidence_score ?? evalData.overall_score ?? 50);
+
+                // Integrity: proctoring score from backend (deducts per violation)
+                const totalViolations = (evalData.tab_switch_count || 0) + detectedViolations.length;
+                const integrityScore = evalData.proctoring_score ?? Math.max(0, 100 - totalViolations * 10);
+
+                // Overall: weighted average (Technical 40%, Comm 20%, Behavioral 20%, Integrity 20%)
+                // If backend already computed it (via XAI engine), use that; else compute locally
+                const overallScore = evalData.overall_score ??
+                    Math.round(technicalScore * 0.4 + communicationScore * 0.2 + behavioralScore * 0.2 + integrityScore * 0.2);
+
+                const recMap = { strong_yes: 'HIRE', yes: 'HIRE', maybe: 'MAYBE', no: 'REJECT', strong_no: 'REJECT' };
+                const recommendation = recMap[evalData.recommendation] || 'MAYBE';
+                const confidence = evalData.recommendation?.startsWith('strong') ? 'HIGH'
+                    : evalData.recommendation === 'maybe' ? 'MEDIUM' : 'HIGH';
+
+                const evaluation = {
+                    eval_id: evalData.id || evalData._id || mongoId,
+                    interview_id: mongoId,
+                    overall_score: overallScore,
+                    technical_score: technicalScore,
+                    communication_score: communicationScore,
+                    behavioral_score: behavioralScore,
+                    integrity_score: integrityScore,
+                    recommendation,
+                    confidence,
+                    violations_count: totalViolations,
+                    violations: [
+                        ...detectedViolations,
+                        ...Array.from({ length: tabSwitchCount }, (_, i) => ({
+                            type: 'TAB_SWITCH',
+                            description: `Tab switch detected (#${i + 1})`,
+                            timestamp: new Date().toISOString(),
+                            severity: 'MEDIUM'
+                        }))
+                    ],
+                    strengths: evalData.strengths?.length ? evalData.strengths : ['Participated in interview'],
+                    weaknesses: evalData.weaknesses?.length ? evalData.weaknesses : ['Further analysis needed'],
+                    summary: evalData.summary || `Candidate scored ${overallScore}/100.`,
+                    behavioral_summary: evalData.behavioral_summary || '',
+                    integrity_notes: evalData.integrity_notes || '',
+                    culture_fit_score: evalData.culture_fit_score || 0,
+                    ai_summary_used: evalData.ai_summary_used || false,
+                    criterion_results: criteria,
+                    resume_alignment_score: evalData.resume_alignment_score || 0
+                };
+
+                setEvaluationData(evaluation);
+                toast.success('AI Evaluation generated successfully!');
             } else {
-                console.error('[EVALUATION] Failed to save to backend:', await response.text());
-                toast.warning('Evaluation generated but not saved to server');
+                // Backend evaluation failed — show error with whatever data we have
+                const errText = await evalRes.text();
+                console.error('[EVALUATION] Backend failed:', errText);
+
+                // Check if evaluation already exists (409-style response)
+                if (errText.includes('already exists')) {
+                    toast.info('Evaluation already exists. Loading from server...');
+                    // Fetch existing evaluation
+                    const existingRes = await fetch(`${apiUrl}/evaluations/?interview_id=${mongoId}`, { headers: authHeaders });
+                    if (existingRes.ok) {
+                        const existing = await existingRes.json();
+                        const ev = existing.results?.[0] || existing;
+                        if (ev?.overall_score !== undefined) {
+                            setEvaluationData({
+                                interview_id: mongoId,
+                                overall_score: ev.overall_score,
+                                technical_score: ev.resume_alignment_score ?? ev.overall_score,
+                                communication_score: ev.fluency_score ?? ev.overall_score,
+                                behavioral_score: ev.confidence_score ?? ev.overall_score,
+                                integrity_score: ev.proctoring_score ?? 100,
+                                recommendation: { strong_yes: 'HIRE', yes: 'HIRE', maybe: 'MAYBE', no: 'REJECT', strong_no: 'REJECT' }[ev.recommendation] || 'MAYBE',
+                                confidence: 'HIGH',
+                                violations_count: ev.tab_switch_count || 0,
+                                violations: [],
+                                strengths: ev.strengths || [],
+                                weaknesses: ev.weaknesses || [],
+                                summary: ev.summary || '',
+                                criterion_results: ev.criterion_results || []
+                            });
+                        }
+                    }
+                } else {
+                    toast.error('Backend evaluation failed. Showing local analysis.');
+                    // Local fallback
+                    const totalViolations = detectedViolations.length + tabSwitchCount;
+                    const integrityScore = Math.max(0, 100 - totalViolations * 10);
+                    const transcriptWords = liveTranscript.trim().split(/\s+/).length;
+                    const fluencyScore = Math.min(100, 40 + transcriptWords * 0.3);
+                    const overallScore = (fluencyScore * 0.4 + integrityScore * 0.3 + 65 * 0.3);
+                    const recommendation = overallScore >= 75 && integrityScore >= 80 ? 'HIRE' : overallScore >= 55 ? 'MAYBE' : 'REJECT';
+
+                    setEvaluationData({
+                        interview_id: mongoId || id,
+                        overall_score: overallScore,
+                        technical_score: 65,
+                        communication_score: fluencyScore,
+                        behavioral_score: 65,
+                        integrity_score: integrityScore,
+                        recommendation,
+                        confidence: 'LOW',
+                        violations_count: totalViolations,
+                        violations: detectedViolations,
+                        strengths: ['Participated in interview'],
+                        weaknesses: totalViolations > 0 ? ['Integrity violations detected'] : ['Further analysis needed'],
+                        summary: `Local analysis only — backend evaluation unavailable. Overall: ${overallScore.toFixed(1)}/100.`
+                    });
+                }
             }
-            
+
             setIsGeneratingEvaluation(false);
             setShowEvaluation(true);
-            
         } catch (error) {
-            console.error('[EVALUATION] Error generating evaluation:', error);
-            toast.error('Failed to generate evaluation');
+            console.error('[EVALUATION] Error:', error);
+            toast.error('Evaluation error: ' + error.message);
             setIsGeneratingEvaluation(false);
         }
     };
@@ -1012,6 +1519,20 @@ export default function InterviewRoom() {
                             {Math.round(localEmotion?.score)}% MATCH · {localEmotion?.emotion}
                         </span>
                     </div>
+
+                    {/* Feature 1: Voice Tone Indicator */}
+                    {voiceToneData && (
+                    <div className="flex flex-col">
+                        <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.4em] mb-1.5 italic">Voice Tone</span>
+                        <span className={`text-[11px] font-black italic tracking-widest uppercase transition-colors ${
+                            voiceToneData.stress_level === 'low' ? 'text-emerald-500'
+                            : voiceToneData.stress_level === 'medium' ? 'text-amber-500'
+                            : 'text-red-600'
+                        }`}>
+                            {voiceToneData.tone_score}% · {voiceToneData.stress_level?.toUpperCase()} STRESS
+                        </span>
+                    </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -1228,6 +1749,97 @@ export default function InterviewRoom() {
                             <p className="text-[11px] font-bold text-gray-800 leading-relaxed italic border-l-4 border-red-600 pl-3">
                                 {aiCoachingTip}
                             </p>
+                        </div>
+
+                        {/* ── Feature 2: Live Answer Quality Meter ── */}
+                        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">Live Answer Quality</h4>
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${
+                                    liveQuality.on_track ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                }`}>{liveQuality.on_track ? 'ON TRACK' : 'NEEDS FOCUS'}</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-3 mb-2 overflow-hidden">
+                                <div
+                                    className="h-3 rounded-full transition-all duration-700"
+                                    style={{
+                                        width: `${liveQuality.quality_score}%`,
+                                        backgroundColor: liveQuality.bar_color === 'green' ? '#16a34a'
+                                            : liveQuality.bar_color === 'yellow' ? '#ca8a04'
+                                            : liveQuality.bar_color === 'orange' ? '#ea580c'
+                                            : liveQuality.bar_color === 'red' ? '#dc2626' : '#9ca3af'
+                                    }}
+                                />
+                            </div>
+                            <div className="flex justify-between text-[9px] text-gray-500 font-bold mb-2">
+                                <span>Quality Score</span>
+                                <span className="text-gray-800">{liveQuality.quality_score}/100</span>
+                            </div>
+                            {liveQuality.coach_message && (
+                                <p className="text-[10px] text-gray-600 italic border-l-2 border-gray-300 pl-2">{liveQuality.coach_message}</p>
+                            )}
+                        </div>
+
+                        {/* ── Feature 5: AI Recruiter Coach ── */}
+                        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">AI Interview Coach</h4>
+                                <button
+                                    onClick={fetchRecruiterCoach}
+                                    className="text-[9px] font-black uppercase bg-red-600 text-white px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
+                                >Get Advice</button>
+                            </div>
+                            {recruiterCoach ? (
+                                <div className="space-y-2">
+                                    <div className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase inline-block ${
+                                        recruiterCoach.urgency === 'high' ? 'bg-red-100 text-red-700'
+                                        : recruiterCoach.urgency === 'medium' ? 'bg-orange-100 text-orange-700'
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}>{recruiterCoach.coaching_action?.replace('_', ' ').toUpperCase()} — {recruiterCoach.urgency} priority</div>
+                                    <p className="text-[10px] text-gray-700 font-semibold leading-relaxed">{recruiterCoach.suggestion}</p>
+                                    {recruiterCoach.followup_question && (
+                                        <p className="text-[10px] text-blue-700 italic border-l-2 border-blue-400 pl-2 cursor-pointer hover:text-blue-900"
+                                            onClick={() => {
+                                                send({ type: 'chat', text: recruiterCoach.followup_question, sender: user?.name || 'Recruiter', from: 'recruiter', time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) });
+                                                toast.success('Follow-up sent to candidate');
+                                            }}
+                                        >💬 "{recruiterCoach.followup_question}" <span className="text-[8px] text-blue-400">(click to send)</span></p>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-[10px] text-gray-400 italic">Click "Get Advice" for real-time coaching based on candidate's response.</p>
+                            )}
+                        </div>
+
+                        {/* ── Feature 4: Inconsistency / Lie Detection ── */}
+                        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">Resume Consistency Check</h4>
+                                <button
+                                    onClick={fetchInconsistencyCheck}
+                                    className="text-[9px] font-black uppercase bg-gray-800 text-white px-3 py-1 rounded-full hover:bg-gray-900 transition-colors"
+                                >Scan</button>
+                            </div>
+                            {inconsistencyReport ? (
+                                <div className="space-y-2">
+                                    <div className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase inline-block ${
+                                        inconsistencyReport.risk_level === 'high' ? 'bg-red-100 text-red-700'
+                                        : inconsistencyReport.risk_level === 'medium' ? 'bg-orange-100 text-orange-700'
+                                        : 'bg-green-100 text-green-700'
+                                    }`}>Risk: {inconsistencyReport.risk_level?.toUpperCase()}</div>
+                                    {inconsistencyReport.inconsistencies?.slice(0,3).map((inc, i) => (
+                                        <div key={i} className="text-[10px] border-l-2 border-orange-400 pl-2 py-1">
+                                            <span className="font-black text-orange-600">{inc.flag}:</span>
+                                            <span className="text-gray-600 ml-1">{inc.interview_evidence?.slice(0,80)}</span>
+                                        </div>
+                                    ))}
+                                    {inconsistencyReport.inconsistencies?.length === 0 && (
+                                        <p className="text-[10px] text-green-600 font-semibold">✓ No inconsistencies detected.</p>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-[10px] text-gray-400 italic">Compare resume claims vs live responses for red flags.</p>
+                            )}
                         </div>
 
                         {/* AI Suggested Questions */}

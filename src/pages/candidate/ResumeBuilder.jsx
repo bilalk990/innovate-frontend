@@ -309,7 +309,26 @@ export default function ResumeBuilder() {
         setGenerating(true);
         try {
             const { data } = await resumeService.generateResume({ job_target: jobTarget });
-            setResumeData(data);
+
+            // Normalize backend flat response → nested structure expected by templates
+            const normalized = {
+                ...data,
+                // contact: backend returns top-level email/phone/location
+                contact: data.contact || {
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    location: data.location || '',
+                },
+                // skills: backend returns flat array → split into technical/soft
+                skills: data.skills && !Array.isArray(data.skills)
+                    ? data.skills // already nested (future-proof)
+                    : {
+                        technical: Array.isArray(data.skills) ? data.skills : [],
+                        soft: [],
+                    },
+            };
+
+            setResumeData(normalized);
             toast.success('Resume Generated Successfully!');
         } catch (err) {
             toast.error(err.response?.data?.error || 'Resume generation failed.');

@@ -85,43 +85,52 @@ function HireProbabilityWidget({ evalId }) {
                 </>
             ) : (
                 <div className="relative">
-                    <div className="text-center mb-10">
-                        <div className="text-7xl font-black italic text-gray-950 leading-none tracking-tighter mb-2 group-hover:scale-110 transition-transform duration-700">{pct}%</div>
-                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] italic leading-tight">Match Vector Probability</div>
-                    </div>
+                    {(() => {
+                        const pct = data.hire_probability ?? 0;
+                        const tier = pct >= 85 ? 'Exceptional Hire' : pct >= 70 ? 'Strong Hire' : pct >= 50 ? 'Potential Hire' : pct >= 30 ? 'Risky Hire' : 'Do Not Hire';
+                        const tierClass = TIER_COLORS[tier] || 'text-gray-600 border-gray-400 bg-gray-50';
+                        return (
+                            <>
+                                <div className="text-center mb-10">
+                                    <div className="text-7xl font-black italic text-gray-950 leading-none tracking-tighter mb-2 group-hover:scale-110 transition-transform duration-700">{pct}%</div>
+                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] italic leading-tight">Match Vector Probability</div>
+                                </div>
 
-                    <div className="p-6 bg-red-50 rounded-[2rem] border-2 border-red-100 mb-10">
-                         <div className={`text-center text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-full border-2 ${tierClass} shadow-sm italic`}>
-                            {data.tier}
-                        </div>
-                    </div>
-
-                    {data.recommended_action && (
-                        <div className="p-5 bg-gray-50 rounded-2xl border-l-4 border-red-600 mb-6">
-                            <p className="text-[10px] text-gray-500 italic leading-relaxed font-semibold">"{data.recommended_action}"</p>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        {data.green_flags?.length > 0 && (
-                            <div className="space-y-2 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                                {data.green_flags.slice(0, 2).map((g, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-[9px] text-emerald-600 font-black uppercase italic tracking-tighter truncate">
-                                        <TfiCheck className="flex-shrink-0" /> {g}
+                                <div className="p-6 bg-red-50 rounded-[2rem] border-2 border-red-100 mb-10">
+                                    <div className={`text-center text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2.5 rounded-full border-2 ${tierClass} shadow-sm italic`}>
+                                        {tier}
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                        {data.risk_factors?.length > 0 && (
-                            <div className="space-y-2 p-4 bg-red-50 rounded-2xl border border-red-100">
-                                {data.risk_factors.slice(0, 2).map((r, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-[9px] text-red-600 font-black uppercase italic tracking-tighter truncate">
-                                        ⚠ {r}
+                                </div>
+
+                                {data.recommendation && (
+                                    <div className="p-5 bg-gray-50 rounded-2xl border-l-4 border-red-600 mb-6">
+                                        <p className="text-[10px] text-gray-500 italic leading-relaxed font-semibold">"{data.recommendation}"</p>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                                )}
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {data.key_factors?.length > 0 && (
+                                        <div className="space-y-2 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                                            {data.key_factors.slice(0, 2).map((g, i) => (
+                                                <div key={i} className="flex items-center gap-2 text-[9px] text-emerald-600 font-black uppercase italic tracking-tighter truncate">
+                                                    <TfiCheck className="flex-shrink-0" /> {g}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {data.risk_factors?.length > 0 && (
+                                        <div className="space-y-2 p-4 bg-red-50 rounded-2xl border border-red-100">
+                                            {data.risk_factors.slice(0, 2).map((r, i) => (
+                                                <div key={i} className="flex items-center gap-2 text-[9px] text-red-600 font-black uppercase italic tracking-tighter truncate">
+                                                    ⚠ {r}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        );
+                    })()}
                 </div>
             )}
         </motion.div>

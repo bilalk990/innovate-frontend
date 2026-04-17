@@ -159,23 +159,29 @@ export default function CandidateRanking() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-6 mb-4 flex-wrap">
                                                 <h3 className="text-xl font-black text-hr-text-main uppercase italic tracking-tight truncate">{candidate.name}</h3>
-                                                <span className={`hr-badge ${HIRE_SIGNAL_STYLES[candidate.hire_signal] || 'hr-badge-completed'}`}>
-                                                    {candidate.hire_signal?.toUpperCase()}
-                                                </span>
+                                                {(() => {
+                                                    const score = candidate.match_score || 0;
+                                                    const signal = score >= 80 ? 'Strong Hire' : score >= 60 ? 'Hire' : score >= 40 ? 'Maybe' : 'No Hire';
+                                                    return (
+                                                        <span className={`hr-badge ${HIRE_SIGNAL_STYLES[signal] || 'hr-badge-completed'}`}>
+                                                            {signal.toUpperCase()}
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
-                                            <p className="text-sm text-hr-text-muted italic mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">"{candidate.rank_reason}"</p>
+                                            <p className="text-sm text-hr-text-muted italic mb-6 leading-relaxed line-clamp-2 md:line-clamp-none">"{candidate.reasoning}"</p>
 
                                             <div className="flex flex-col md:flex-row gap-8 items-end md:items-center">
                                                 {/* Score Bar */}
                                                 <div className="flex-1 w-full">
                                                     <div className="flex justify-between items-center mb-2">
                                                         <span className="text-[10px] font-black text-hr-text-muted uppercase tracking-widest italic">Overall Candidate Score</span>
-                                                        <span className="text-lg font-black italic text-hr-text-main">{candidate.composite_score?.toFixed(1)}%</span>
+                                                        <span className="text-lg font-black italic text-hr-text-main">{candidate.match_score?.toFixed(1)}%</span>
                                                     </div>
                                                     <div className="h-2 bg-hr-bg rounded-full overflow-hidden">
                                                         <motion.div
                                                             initial={{ width: 0 }}
-                                                            animate={{ width: `${candidate.composite_score}%` }}
+                                                            animate={{ width: `${candidate.match_score}%` }}
                                                             transition={{ duration: 1, delay: i * 0.2 }}
                                                             className="h-full bg-hr-red shadow-[0_0_10px_rgba(230,57,70,0.5)]"
                                                         />
@@ -183,10 +189,10 @@ export default function CandidateRanking() {
                                                 </div>
 
                                                 {/* Strengths */}
-                                                {candidate.key_strengths?.length > 0 && (
+                                                {candidate.strengths?.length > 0 && (
                                                     <div className="flex-shrink-0">
                                                         <div className="flex gap-2 flex-wrap justify-end">
-                                                            {candidate.key_strengths.slice(0, 2).map((s, si) => (
+                                                            {candidate.strengths.slice(0, 2).map((s, si) => (
                                                                 <span key={si} className="hr-badge hr-badge-active text-[9px] py-1.5 px-4"><TfiCheck className="text-white mr-2" /> {s.toUpperCase()}</span>
                                                             ))}
                                                         </div>

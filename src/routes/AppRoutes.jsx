@@ -40,6 +40,7 @@ const GoogleCalendarCallback = lazy(() => import('../pages/recruiter/GoogleCalen
 const CandidateRanking      = lazy(() => import('../pages/recruiter/CandidateRanking'));
 const QuestionBank          = lazy(() => import('../pages/recruiter/QuestionBank'));
 const CandidateProfile      = lazy(() => import('../pages/recruiter/CandidateProfile'));
+const JDAnalyzer            = lazy(() => import('../pages/recruiter/JDAnalyzer'));
 
 const AdminDashboard        = lazy(() => import('../pages/admin/Dashboard'));
 const Users                 = lazy(() => import('../pages/admin/Users'));
@@ -131,6 +132,7 @@ export default function AppRoutes() {
                 <Route path="evaluations/:evalId" element={<EvaluationReport />} />
                 <Route path="ranking" element={<CandidateRanking />} />
                 <Route path="question-bank" element={<QuestionBank />} />
+                <Route path="ai-tools" element={<JDAnalyzer />} />
                 <Route path="applications" element={<JobApplicants />} />
                 <Route path="pipeline" element={<Candidates />} />
                 <Route path="messages" element={<RecruiterDashboard />} />

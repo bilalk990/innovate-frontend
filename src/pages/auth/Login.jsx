@@ -14,6 +14,7 @@ export default function Login() {
     const [mfaToken, setMfaToken] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [googleRole, setGoogleRole] = useState('candidate'); // role selector for Google OAuth
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -59,8 +60,8 @@ export default function Login() {
         setLoading(true);
         try {
             const { data } = await authService.googleLogin(
-                credentialResponse.credential, 
-                'candidate'
+                credentialResponse.credential,
+                googleRole  // use selected role, not hardcoded 'candidate'
             );
             login(data.user, data.token);
             const role = data.user.role;
@@ -198,6 +199,35 @@ export default function Login() {
                                     <span className="px-3 bg-[#030303]">Enterprise Auth</span>
                                 </div>
                             </div>
+
+                            {/* Role selector for Google OAuth — fixes access denied for recruiters */}
+                            <div className="flex gap-3 mb-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setGoogleRole('candidate')}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border text-[10px] font-black uppercase tracking-[0.3em] transition-all ${
+                                        googleRole === 'candidate'
+                                            ? 'bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+                                            : 'bg-transparent border-white/10 text-gray-500 hover:border-white/30 hover:text-white'
+                                    }`}
+                                >
+                                    <TfiUser className="text-sm" /> Candidate
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setGoogleRole('recruiter')}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border text-[10px] font-black uppercase tracking-[0.3em] transition-all ${
+                                        googleRole === 'recruiter'
+                                            ? 'bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+                                            : 'bg-transparent border-white/10 text-gray-500 hover:border-white/30 hover:text-white'
+                                    }`}
+                                >
+                                    <TfiBriefcase className="text-sm" /> Recruiter
+                                </button>
+                            </div>
+                            <p className="text-center text-[9px] text-gray-700 font-bold uppercase tracking-widest mb-3">
+                                Signing in as: <span className="text-red-500">{googleRole}</span>
+                            </p>
 
                             <div className="flex justify-center">
                                 <GoogleLogin

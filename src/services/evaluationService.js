@@ -15,6 +15,8 @@ const evaluationService = {
     getDebrief: (evalId) => api.get(`/evaluations/${evalId}/debrief/`),
     // Feature 10 — Predictive Hiring Score
     getHireProbability: (evalId) => api.get(`/evaluations/${evalId}/hire-probability/`),
+    // New Feature 6 — Follow-up Email Generation
+    generateFollowUpEmail: (evalId, data) => api.post(`/evaluations/${evalId}/followup-email/`, data),
 };
 
 export default evaluationService;

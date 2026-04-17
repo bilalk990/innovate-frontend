@@ -23,6 +23,7 @@ const navItems = [
   { to: '/recruiter/schedule', icon: <TfiCalendar />, label: 'Interviews' },
   { to: '/recruiter/ranking', icon: <TfiStatsUp />, label: 'Candidate Ranking' },
   { to: '/recruiter/question-bank', icon: <TfiLayoutGrid2 />, label: 'Question Bank' },
+  { to: '/recruiter/ai-tools', icon: <TfiBolt />, label: 'AI Tools' },
   { to: '/recruiter/profile', icon: <TfiLink />, label: 'Profile Settings' },
 ];
 

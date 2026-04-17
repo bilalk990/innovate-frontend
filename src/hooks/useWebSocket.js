@@ -38,6 +38,8 @@ export default function useWebSocket(url, options = {}) {
         onCloseRef.current = onClose;
     }, [onOpen, onMessage, onError, onClose]);
 
+    const reconnectCountRef = useRef(0);
+
     const connect = useCallback(() => {
         if (!url) {
             console.error('[WebSocket] No URL provided');
@@ -60,6 +62,7 @@ export default function useWebSocket(url, options = {}) {
             ws.onopen = (event) => {
                 console.log('[WebSocket] Connection opened successfully');
                 setReadyState('OPEN');
+                reconnectCountRef.current = 0;
                 setReconnectCount(0);
                 isConnectingRef.current = false; // Reset flag on successful connection
                 onOpenRef.current?.(event);
@@ -100,15 +103,16 @@ export default function useWebSocket(url, options = {}) {
                 if (
                     reconnectOnClose &&
                     shouldReconnectRef.current &&
-                    reconnectCount < maxReconnectAttempts
+                    reconnectCountRef.current < maxReconnectAttempts
                 ) {
-                    const delay = reconnectInterval * Math.pow(1.5, reconnectCount); // Exponential backoff
-                    console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${reconnectCount + 1}/${maxReconnectAttempts})...`);
+                    const delay = reconnectInterval * Math.pow(1.5, reconnectCountRef.current);
+                    console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${reconnectCountRef.current + 1}/${maxReconnectAttempts})...`);
                     reconnectTimeoutRef.current = setTimeout(() => {
-                        setReconnectCount((prev) => prev + 1);
+                        reconnectCountRef.current += 1;
+                        setReconnectCount(reconnectCountRef.current);
                         connect();
                     }, delay);
-                } else if (reconnectCount >= maxReconnectAttempts) {
+                } else if (reconnectCountRef.current >= maxReconnectAttempts) {
                     console.error('[WebSocket] Max reconnection attempts reached. Giving up.');
                 }
             };
@@ -117,7 +121,7 @@ export default function useWebSocket(url, options = {}) {
             isConnectingRef.current = false; // Reset flag on exception
             console.error('WebSocket connection error:', error);
         }
-    }, [url, reconnectInterval, maxReconnectAttempts, reconnectOnClose, reconnectCount]); // CRITICAL FIX: Removed callback dependencies
+    }, [url, reconnectInterval, maxReconnectAttempts, reconnectOnClose]);
 
     const send = useCallback((data) => {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
