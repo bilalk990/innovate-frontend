@@ -42,18 +42,26 @@ export default function useCheatingDetection(videoElement, isActive = false, onV
     // Start detection when active
     useEffect(() => {
         if (!isActive || !modelRef.current || !videoElement) {
+            console.log('[CHEATING] Detection not starting:', { 
+                isActive, 
+                hasModel: !!modelRef.current, 
+                hasVideo: !!videoElement 
+            });
             return;
         }
 
-        console.log('[CHEATING] Starting detection...');
+        console.log('[CHEATING] Starting detection... Video ready state:', videoElement.readyState);
 
         const detectObjects = async () => {
             try {
                 if (!videoElement || videoElement.readyState !== 4) {
+                    console.log('[CHEATING] Video not ready, readyState:', videoElement?.readyState);
                     return;
                 }
 
                 const predictions = await modelRef.current.detect(videoElement);
+                console.log('[CHEATING] Detection run, found', predictions.length, 'objects:', 
+                    predictions.map(p => `${p.class} (${Math.round(p.score * 100)}%)`).join(', '));
                 
                 // Prohibited objects
                 const prohibitedObjects = {
@@ -71,7 +79,7 @@ export default function useCheatingDetection(videoElement, isActive = false, onV
                     const confidence = prediction.score;
 
                     // Only process high-confidence detections
-                    if (confidence < 0.6) return;
+                    if (confidence < 0.5) return; // Lowered from 0.6 to 0.5 for better detection
 
                     detectedObjects.push({
                         class: objectClass,
@@ -83,6 +91,12 @@ export default function useCheatingDetection(videoElement, isActive = false, onV
                         if (objectClass.includes(prohibited)) {
                             const violationType = prohibitedObjects[prohibited];
                             
+                            // Special handling for multiple persons
+                            if (violationType === 'MULTIPLE_PERSONS') {
+                                const personCount = predictions.filter(p => p.class === 'person' && p.score > 0.5).length;
+                                if (personCount <= 1) return; // Only trigger if more than 1 person
+                            }
+                            
                             // Avoid duplicate violations (cooldown: 10 seconds)
                             const now = Date.now();
                             const lastDetection = lastDetectionRef.current[violationType] || 0;
@@ -92,14 +106,14 @@ export default function useCheatingDetection(videoElement, isActive = false, onV
                                 
                                 const violation = {
                                     type: violationType,
-                                    description: `${prohibited.charAt(0).toUpperCase() + prohibited.slice(1)} detected in frame`,
+                                    description: `${prohibited.charAt(0).toUpperCase() + prohibited.slice(1)} detected in frame (${Math.round(confidence * 100)}% confidence)`,
                                     timestamp: new Date().toISOString(),
                                     severity: 'HIGH',
                                     confidence: Math.round(confidence * 100)
                                 };
 
                                 newViolations.push(violation);
-                                console.log('[CHEATING] Violation detected:', violation);
+                                console.log('[CHEATING] 🚨 VIOLATION DETECTED:', violation);
                                 
                                 // Call callback if provided (for WebSocket notification)
                                 if (onViolationDetected) {
@@ -113,9 +127,9 @@ export default function useCheatingDetection(videoElement, isActive = false, onV
                 // Update stats
                 setDetectionStats({
                     objectsDetected: detectedObjects,
-                    multiplePersons: predictions.filter(p => p.class === 'person').length > 1,
-                    phoneDetected: predictions.some(p => p.class === 'cell phone' && p.score > 0.6),
-                    bookDetected: predictions.some(p => p.class === 'book' && p.score > 0.6)
+                    multiplePersons: predictions.filter(p => p.class === 'person' && p.score > 0.5).length > 1,
+                    phoneDetected: predictions.some(p => p.class === 'cell phone' && p.score > 0.5),
+                    bookDetected: predictions.some(p => p.class === 'book' && p.score > 0.5)
                 });
 
                 // Add new violations
@@ -128,8 +142,11 @@ export default function useCheatingDetection(videoElement, isActive = false, onV
             }
         };
 
-        // Run detection every 3 seconds
-        detectionIntervalRef.current = setInterval(detectObjects, 3000);
+        // Run detection every 2 seconds (faster than before)
+        detectionIntervalRef.current = setInterval(detectObjects, 2000);
+        
+        // Run first detection immediately
+        setTimeout(detectObjects, 1000);
 
         return () => {
             if (detectionIntervalRef.current) {
