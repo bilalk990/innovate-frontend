@@ -1190,6 +1190,7 @@ export default function InterviewRoom() {
 
     // Generate AI Evaluation — calls real backend XAI engine
     const generateAIEvaluation = async () => {
+        console.log('[EVALUATION] Starting AI evaluation generation...');
         setIsGeneratingEvaluation(true);
         const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
         const authHeaders = {
@@ -1200,12 +1201,18 @@ export default function InterviewRoom() {
         try {
             // Use MongoDB interview ID loaded on mount; fall back to room_id lookup
             let mongoId = interviewMongoId;
+            console.log('[EVALUATION] Interview MongoDB ID:', mongoId);
+            
             if (!mongoId) {
+                console.log('[EVALUATION] No MongoDB ID, fetching from room:', id);
                 const roomRes = await fetch(`${apiUrl}/interviews/room/${id}/`, { headers: authHeaders });
                 if (roomRes.ok) {
                     const roomData = await roomRes.json();
                     mongoId = roomData.id;
                     setInterviewMongoId(mongoId);
+                    console.log('[EVALUATION] Fetched MongoDB ID:', mongoId);
+                } else {
+                    console.error('[EVALUATION] Failed to fetch room data:', roomRes.status);
                 }
             }
 
@@ -1213,28 +1220,46 @@ export default function InterviewRoom() {
                 throw new Error('Could not resolve interview ID for evaluation.');
             }
 
+            // Get latest transcript from ref
+            const transcript = liveTranscriptRef.current || liveTranscript;
+            console.log('[EVALUATION] Transcript length:', transcript.length, 'chars');
+            console.log('[EVALUATION] Transcript preview:', transcript.substring(0, 200));
+
             // Submit full transcript as candidate response (index 0) before triggering eval
-            if (liveTranscript.trim().length > 10) {
+            if (transcript.trim().length > 10) {
                 try {
-                    await fetch(`${apiUrl}/interviews/${mongoId}/respond/`, {
+                    console.log('[EVALUATION] Submitting transcript to backend...');
+                    const respondRes = await fetch(`${apiUrl}/interviews/${mongoId}/respond/`, {
                         method: 'POST',
                         headers: authHeaders,
                         body: JSON.stringify({
                             question_index: 0,
-                            response: liveTranscript.trim().slice(0, 4000),
-                            full_transcript: liveTranscript.trim()
+                            response: transcript.trim().slice(0, 4000),
+                            full_transcript: transcript.trim()
                         })
                     });
-                    console.log('[EVALUATION] Transcript submitted as response');
-                } catch (_) {}
+                    
+                    if (respondRes.ok) {
+                        console.log('[EVALUATION] Transcript submitted successfully');
+                    } else {
+                        console.error('[EVALUATION] Transcript submission failed:', respondRes.status, await respondRes.text());
+                    }
+                } catch (err) {
+                    console.error('[EVALUATION] Transcript submission error:', err);
+                }
+            } else {
+                console.warn('[EVALUATION] Transcript too short, skipping submission');
             }
 
             // Trigger the XAI evaluation engine on the backend
+            console.log('[EVALUATION] Triggering XAI evaluation engine...');
             const evalRes = await fetch(`${apiUrl}/evaluations/trigger/`, {
                 method: 'POST',
                 headers: authHeaders,
                 body: JSON.stringify({ interview_id: mongoId })
             });
+
+            console.log('[EVALUATION] Evaluation API response status:', evalRes.status);
 
             if (evalRes.ok) {
                 const evalData = await evalRes.json();
@@ -1355,39 +1380,67 @@ export default function InterviewRoom() {
                         }
                     }
                 } else {
+                    console.error('[EVALUATION] Backend evaluation failed, showing local fallback');
                     toast.error('Backend evaluation failed. Showing local analysis.');
-                    // Local fallback
+                    
+                    // Local fallback - use transcript ref for latest data
+                    const transcript = liveTranscriptRef.current || liveTranscript;
                     const totalViolations = detectedViolations.length + tabSwitchCount;
                     const integrityScore = Math.max(0, 100 - totalViolations * 10);
-                    const transcriptWords = liveTranscript.trim().split(/\s+/).length;
+                    const transcriptWords = transcript.trim().split(/\s+/).length;
                     const fluencyScore = Math.min(100, 40 + transcriptWords * 0.3);
-                    const overallScore = (fluencyScore * 0.4 + integrityScore * 0.3 + 65 * 0.3);
+                    const overallScore = Math.round(fluencyScore * 0.4 + integrityScore * 0.3 + 65 * 0.3);
                     const recommendation = overallScore >= 75 && integrityScore >= 80 ? 'HIRE' : overallScore >= 55 ? 'MAYBE' : 'REJECT';
+
+                    console.log('[EVALUATION] Local fallback scores:', { overallScore, fluencyScore, integrityScore, transcriptWords });
 
                     setEvaluationData({
                         interview_id: mongoId || id,
                         overall_score: overallScore,
                         technical_score: 65,
-                        communication_score: fluencyScore,
+                        communication_score: Math.round(fluencyScore),
                         behavioral_score: 65,
                         integrity_score: integrityScore,
                         recommendation,
                         confidence: 'LOW',
                         violations_count: totalViolations,
                         violations: detectedViolations,
-                        strengths: ['Participated in interview'],
-                        weaknesses: totalViolations > 0 ? ['Integrity violations detected'] : ['Further analysis needed'],
-                        summary: `Local analysis only — backend evaluation unavailable. Overall: ${overallScore.toFixed(1)}/100.`
+                        strengths: transcriptWords > 50 ? ['Participated actively in interview', 'Provided verbal responses'] : ['Participated in interview'],
+                        weaknesses: totalViolations > 0 ? ['Integrity violations detected'] : transcriptWords < 50 ? ['Limited verbal responses'] : ['Further analysis needed'],
+                        summary: `Local analysis only — backend evaluation unavailable. Transcript: ${transcriptWords} words. Overall: ${overallScore}/100.`,
+                        criterion_results: []
                     });
                 }
             }
 
+            console.log('[EVALUATION] Setting evaluation complete, showing results...');
             setIsGeneratingEvaluation(false);
             setShowEvaluation(true);
         } catch (error) {
-            console.error('[EVALUATION] Error:', error);
+            console.error('[EVALUATION] Critical error:', error);
             toast.error('Evaluation error: ' + error.message);
+            
+            // Always set loading to false and show something
             setIsGeneratingEvaluation(false);
+            
+            // Show minimal fallback evaluation
+            setEvaluationData({
+                interview_id: interviewMongoId || id,
+                overall_score: 50,
+                technical_score: 50,
+                communication_score: 50,
+                behavioral_score: 50,
+                integrity_score: Math.max(0, 100 - (detectedViolations.length + tabSwitchCount) * 10),
+                recommendation: 'MAYBE',
+                confidence: 'LOW',
+                violations_count: detectedViolations.length + tabSwitchCount,
+                violations: detectedViolations,
+                strengths: ['Interview completed'],
+                weaknesses: ['Evaluation system error - manual review required'],
+                summary: `Error generating evaluation: ${error.message}. Manual review recommended.`,
+                criterion_results: []
+            });
+            setShowEvaluation(true);
         }
     };
 
