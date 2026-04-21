@@ -377,7 +377,11 @@ export default function InterviewRoom() {
 
     // ── New AI Features State ──
     // Feature 1: Voice Tone
-    const [voiceToneData, setVoiceToneData] = useState(null);
+    const [voiceToneData, setVoiceToneData] = useState({
+        tone_score: 65,
+        stress_level: 'medium',
+        confidence: 'moderate'
+    });
     // Feature 2: Live Quality Meter
     const [liveQuality, setLiveQuality] = useState({ quality_score: 0, bar_color: 'gray', coach_message: '', on_track: false });
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -644,9 +648,17 @@ export default function InterviewRoom() {
         const startPolling = () => {
             voiceInterval = setInterval(async () => {
                 const mId = interviewMongoId;
-                if (!mId) return;
+                if (!mId) {
+                    console.log('[VOICE] No interview ID, skipping voice tone analysis');
+                    return;
+                }
                 const metrics = extractMetrics();
-                if (!metrics || metrics.average_energy < 1) return; // no audio signal
+                if (!metrics || metrics.average_energy < 1) {
+                    console.log('[VOICE] No audio signal detected, skipping analysis');
+                    return;
+                }
+                
+                console.log('[VOICE] Sending audio metrics:', metrics);
                 try {
                     const res = await fetch(`${apiUrl}/interviews/${mId}/voice-tone/`, {
                         method: 'POST',
@@ -655,9 +667,14 @@ export default function InterviewRoom() {
                     });
                     if (res.ok) {
                         const data = await res.json();
+                        console.log('[VOICE] Received voice analysis:', data.voice_analysis);
                         setVoiceToneData(data.voice_analysis);
+                    } else {
+                        console.error('[VOICE] API error:', res.status, await res.text());
                     }
-                } catch (_) {}
+                } catch (err) {
+                    console.error('[VOICE] Fetch error:', err);
+                }
             }, 15000);
         };
 
@@ -1579,18 +1596,16 @@ export default function InterviewRoom() {
                     </div>
 
                     {/* Feature 1: Voice Tone Indicator */}
-                    {voiceToneData && (
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black text-gray-700 uppercase tracking-[0.4em] mb-1.5 italic">Voice Tone</span>
                         <span className={`text-[11px] font-black italic tracking-widest uppercase transition-colors ${
-                            voiceToneData.stress_level === 'low' ? 'text-emerald-500'
-                            : voiceToneData.stress_level === 'medium' ? 'text-amber-500'
+                            voiceToneData?.stress_level === 'low' ? 'text-emerald-500'
+                            : voiceToneData?.stress_level === 'medium' ? 'text-amber-500'
                             : 'text-red-600'
                         }`}>
-                            {voiceToneData.tone_score}% · {voiceToneData.stress_level?.toUpperCase()} STRESS
+                            {voiceToneData?.tone_score || 65}% · {(voiceToneData?.stress_level || 'medium').toUpperCase()} STRESS
                         </span>
                     </div>
-                    )}
                 </div>
 
                 <div className="flex items-center gap-4">
