@@ -111,9 +111,9 @@ export default function InterviewRoom() {
                         setTimeout(async () => {
                             console.log('[DEBUG] Setting up peer connection after admission');
                             
-                            // Wait for local stream to be ready
+                            // Wait for local stream to be ready with longer timeout
                             let retries = 0;
-                            while (!localStream.current && retries < 10) {
+                            while (!localStream.current && retries < 20) {
                                 console.log('[DEBUG] Waiting for local stream...', retries);
                                 await new Promise(resolve => setTimeout(resolve, 500));
                                 retries++;
@@ -125,24 +125,27 @@ export default function InterviewRoom() {
                                 return;
                             }
                             
-                            console.log('[DEBUG] Local stream ready, creating peer connection');
+                            console.log('[DEBUG] Local stream ready with tracks:', localStream.current.getTracks().map(t => t.kind));
                             const connection = createPeerConnection();
                             
                             // Add tracks before making offer
                             console.log('[DEBUG] Adding local tracks to connection');
                             localStream.current.getTracks().forEach(track => {
                                 connection.addTrack(track, localStream.current);
-                                console.log('[DEBUG] Added track:', track.kind);
+                                console.log('[DEBUG] Added track:', track.kind, 'enabled:', track.enabled, 'readyState:', track.readyState);
                             });
                             
-                            console.log('[DEBUG] Creating offer');
-                            const offer = await connection.createOffer();
+                            console.log('[DEBUG] Creating offer with constraints');
+                            const offer = await connection.createOffer({
+                                offerToReceiveAudio: true,
+                                offerToReceiveVideo: true
+                            });
                             await connection.setLocalDescription(offer);
                             
-                            console.log('[DEBUG] Sending offer to recruiter');
+                            console.log('[DEBUG] Sending offer to recruiter, SDP:', offer.sdp?.substring(0, 100));
                             send({ type: 'offer', offer });
                             updateLogs({ type: 'NET', text: 'Initiating handshake...', color: 'text-blue-500' });
-                        }, 1000); // Increased delay to ensure camera is ready
+                        }, 2000); // Increased delay to 2s to ensure camera is fully ready
                     }
                 }
 
@@ -175,9 +178,24 @@ export default function InterviewRoom() {
 
                     // Flush any buffered ICE candidates
                     for (const c of pendingIceCandidates.current) {
-                        try { await connection.addIceCandidate(new RTCIceCandidate(c)); } catch (_) {}
+                        try { 
+                            await connection.addIceCandidate(new RTCIceCandidate(c)); 
+                            console.log('[DEBUG] Added buffered ICE candidate');
+                        } catch (e) {
+                            console.error('[DEBUG] Error adding buffered ICE:', e);
+                        }
                     }
                     pendingIceCandidates.current = [];
+
+                    // Wait for local stream if not ready yet
+                    if (!localStream.current) {
+                        console.warn('[DEBUG] Local stream not ready when receiving offer, waiting...');
+                        let retries = 0;
+                        while (!localStream.current && retries < 20) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            retries++;
+                        }
+                    }
 
                     // Add tracks before answering
                     if (localStream.current) {
@@ -185,18 +203,21 @@ export default function InterviewRoom() {
                         localStream.current.getTracks().forEach(track => {
                             if (!connection.getSenders().find(s => s.track === track)) {
                                 connection.addTrack(track, localStream.current);
-                                console.log('[DEBUG] Added track:', track.kind);
+                                console.log('[DEBUG] Added track:', track.kind, 'enabled:', track.enabled, 'readyState:', track.readyState);
                             }
                         });
                     } else {
-                        console.warn('[DEBUG] No local stream available when receiving offer');
+                        console.error('[DEBUG] No local stream available when receiving offer after waiting!');
                     }
 
-                    console.log('[DEBUG] Creating answer');
-                    const answer = await connection.createAnswer();
+                    console.log('[DEBUG] Creating answer with constraints');
+                    const answer = await connection.createAnswer({
+                        offerToReceiveAudio: true,
+                        offerToReceiveVideo: true
+                    });
                     await connection.setLocalDescription(answer);
 
-                    console.log('[DEBUG] Sending answer to peer');
+                    console.log('[DEBUG] Sending answer to peer, SDP:', answer.sdp?.substring(0, 100));
                     send({ type: 'answer', answer });
                     updateLogs({ type: 'NET', text: 'Handshake accepted.', color: 'text-emerald-500' });
                 }
@@ -796,18 +817,55 @@ export default function InterviewRoom() {
 
         // Handle Remote Tracks
         connection.ontrack = (event) => {
-            console.log("Receiving remote track:", event.streams[0]);
-            if (remoteVideo.current) {
+            console.log('[WEBRTC] Receiving remote track:', event.track.kind, 'from stream:', event.streams[0]?.id);
+            console.log('[WEBRTC] Track state:', event.track.readyState, 'enabled:', event.track.enabled);
+            
+            if (remoteVideo.current && event.streams[0]) {
+                console.log('[WEBRTC] Attaching remote stream to video element');
                 remoteVideo.current.srcObject = event.streams[0];
+                
+                // Force play after a short delay
+                setTimeout(() => {
+                    if (remoteVideo.current) {
+                        remoteVideo.current.play()
+                            .then(() => console.log('[WEBRTC] Remote video playing'))
+                            .catch(e => console.error('[WEBRTC] Remote video play failed:', e));
+                    }
+                }, 500);
+                
+                updateLogs({ type: 'NET', text: 'Remote video stream received', color: 'text-emerald-500' });
+                toast.success('Connected to peer video!');
+            } else {
+                console.error('[WEBRTC] Remote video element not available or no stream');
             }
         };
 
         // Connection testing/logging
         connection.onconnectionstatechange = () => {
-            console.log("PC Connection State:", connection.connectionState);
+            console.log('[WEBRTC] PC Connection State:', connection.connectionState);
             if (connection.connectionState === 'connected') {
                 updateLogs({ type: 'NET', text: 'Secure Peer-to-Peer link established.', color: 'text-emerald-500' });
+                toast.success('Video connection established!');
+            } else if (connection.connectionState === 'disconnected') {
+                console.warn('[WEBRTC] Connection disconnected');
+                updateLogs({ type: 'WARN', text: 'Connection interrupted', color: 'text-yellow-500' });
+            } else if (connection.connectionState === 'failed') {
+                console.error('[WEBRTC] Connection failed');
+                updateLogs({ type: 'CRIT', text: 'Connection failed - check network', color: 'text-red-600' });
+                toast.error('Video connection failed. Please refresh.');
             }
+        };
+
+        connection.oniceconnectionstatechange = () => {
+            console.log('[WEBRTC] ICE Connection State:', connection.iceConnectionState);
+            if (connection.iceConnectionState === 'failed') {
+                console.error('[WEBRTC] ICE connection failed');
+                toast.error('Network connection failed. Check firewall settings.');
+            }
+        };
+
+        connection.onicegatheringstatechange = () => {
+            console.log('[WEBRTC] ICE Gathering State:', connection.iceGatheringState);
         };
 
         pc.current = connection;
@@ -1583,7 +1641,18 @@ export default function InterviewRoom() {
                     <div className="flex-1 relative group overflow-hidden flex items-center justify-center p-8">
                         {/* Remote Output */}
                         <div className="relative w-full h-full max-w-5xl rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center bg-black/50">
-                            <video ref={remoteVideo} autoPlay playsInline className="w-full h-full object-cover transition-opacity duration-1000" />
+                            <video 
+                                ref={remoteVideo} 
+                                autoPlay 
+                                playsInline 
+                                className="w-full h-full object-cover transition-opacity duration-1000"
+                                onLoadedMetadata={(e) => {
+                                    console.log('[VIDEO] Remote video metadata loaded');
+                                    e.target.play().catch(err => console.error('[VIDEO] Remote play error:', err));
+                                }}
+                                onPlay={() => console.log('[VIDEO] Remote video started playing')}
+                                onError={(e) => console.error('[VIDEO] Remote video error:', e)}
+                            />
                             
                             {/* Candidate Waiting Banner — only shown to recruiter */}
                             {isCandidateWaiting && user?.role !== 'candidate' && (
