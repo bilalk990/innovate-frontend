@@ -148,10 +148,50 @@ export default function AIEvaluationScreen({ evaluation, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-start justify-center p-4 overflow-y-auto">
+            {/* Print Styles */}
+            <style>{`
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+                    #evaluation-print-content,
+                    #evaluation-print-content * {
+                        visibility: visible;
+                    }
+                    #evaluation-print-content {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        background: white !important;
+                    }
+                    .no-print {
+                        display: none !important;
+                    }
+                    /* Ensure all content is visible */
+                    .overflow-y-auto {
+                        overflow: visible !important;
+                        max-height: none !important;
+                    }
+                    /* Fix colors for print */
+                    * {
+                        color-adjust: exact !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    /* Page breaks */
+                    .page-break-avoid {
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                    }
+                }
+            `}</style>
+            
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
+                id="evaluation-print-content"
                 ref={printRef}
                 className="w-full max-w-5xl bg-gray-950 border border-white/10 rounded-3xl shadow-2xl overflow-hidden my-6"
             >
@@ -175,7 +215,7 @@ export default function AIEvaluationScreen({ evaluation, onClose }) {
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-12 h-12 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all border border-white/10"
+                            className="w-12 h-12 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all border border-white/10 no-print"
                         >
                             <TfiClose className="text-xl text-white" />
                         </button>
@@ -406,7 +446,7 @@ export default function AIEvaluationScreen({ evaluation, onClose }) {
                     </div>
 
                     {/* ── ACTION BUTTONS ── */}
-                    <div className="flex gap-3 justify-end pt-2 flex-wrap">
+                    <div className="flex gap-3 justify-end pt-2 flex-wrap no-print">
                         <button
                             onClick={onClose}
                             className="px-6 py-3 bg-white/10 hover:bg-white/15 text-white rounded-xl font-black uppercase tracking-wider transition-all border border-white/10 text-sm"
