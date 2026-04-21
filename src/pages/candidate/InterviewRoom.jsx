@@ -13,7 +13,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuth from '../../hooks/useAuth';
 import useWebSocket from '../../hooks/useWebSocket';
-import useCheatingDetection from '../../hooks/useCheatingDetection';
+import useMediaPipeMonitoring from '../../hooks/useMediaPipeMonitoring';
+import MonitoringDashboard from '../../components/MonitoringDashboard';
+import ComprehensiveReport from '../../components/ComprehensiveReport';
 import AIEvaluationScreen from '../../components/AIEvaluationScreen';
 import { toast } from 'sonner';
 
@@ -439,6 +441,11 @@ export default function InterviewRoom() {
     const [interviewMongoId, setInterviewMongoId] = useState(null);
     const [interviewQuestions, setInterviewQuestions] = useState([]);
     const [liveTranscript, setLiveTranscript] = useState('');
+    
+    // Monitoring Dashboard States
+    const [showMonitoringDashboard, setShowMonitoringDashboard] = useState(false);
+    const [showComprehensiveReport, setShowComprehensiveReport] = useState(false);
+    const [behaviorScore, setBehaviorScore] = useState(100);
 
     // ── Transcript + question index refs — declared early so onMessage closure can use them ──
     // (onMessage is defined above in JSX but runs async, so these refs exist by then)
@@ -455,22 +462,35 @@ export default function InterviewRoom() {
     const isRemoteDescSet = useRef(false);
     const recognitionRef = useRef(null);
     
-    // Cheating Detection - pass null initially, will activate when video is ready
+    // Enhanced Monitoring System - MediaPipe based detection
     const { 
         violations: detectedViolations, 
         detectionStats, 
         addManualViolation,
         isModelLoaded 
-    } = useCheatingDetection(
+    } = useMediaPipeMonitoring(
         localVideo.current, 
         admissionStatus === 'admitted' && user?.role === 'candidate',
         (violation) => {
             // Send WebSocket notification to recruiter
-            console.log('[VIOLATION] Sending to recruiter:', violation);
+            console.log('[MONITORING] Violation detected, sending to recruiter:', violation);
             send({ 
                 type: 'violation_alert', 
                 violation: violation
             });
+            
+            // Save to backend database
+            if (interviewMongoId) {
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+                fetch(`${apiUrl}/interviews/${interviewMongoId}/violations/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(violation)
+                }).catch(err => console.error('[MONITORING] Failed to save violation:', err));
+            }
         }
     );
 
@@ -485,6 +505,7 @@ export default function InterviewRoom() {
             .then(data => {
                 if (!data) return;
                 setInterviewMongoId(data.id);
+                setBehaviorScore(data.behavior_score || 100); // Load existing behavior score
                 if (data.questions?.length > 0) {
                     setInterviewQuestions(data.questions);
                     setSuggestedQuestions(data.questions.slice(0, 3).map(q => q.text));
@@ -493,6 +514,24 @@ export default function InterviewRoom() {
             })
             .catch(err => console.error('[INTERVIEW] Failed to load room data:', err));
     }, [token, id]);
+    
+    // Update behavior score when violations change
+    useEffect(() => {
+        if (detectedViolations.length === 0) return;
+        
+        // Calculate penalty based on severity
+        const latestViolation = detectedViolations[detectedViolations.length - 1];
+        const penalties = {
+            'CRITICAL': 20,
+            'HIGH': 10,
+            'MEDIUM': 5,
+            'LOW': 2
+        };
+        const penalty = penalties[latestViolation.severity] || 5;
+        
+        setBehaviorScore(prev => Math.max(0, prev - penalty));
+        console.log('[MONITORING] Behavior score updated:', behaviorScore - penalty, 'Penalty:', penalty);
+    }, [detectedViolations.length]);
 
     // Start Web Speech API transcript capture after admission
     useEffect(() => {
@@ -2048,11 +2087,104 @@ export default function InterviewRoom() {
                                 ))}
                             </div>
                         </div>
+                        
+                        {/* Monitoring Dashboard for Recruiter */}
+                        {user?.role !== 'candidate' && (
+                            <div className="space-y-4 pt-6 border-t border-gray-100">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">
+                                        🛡️ Live Monitoring
+                                    </h4>
+                                    <button
+                                        onClick={() => setShowMonitoringDashboard(!showMonitoringDashboard)}
+                                        className="text-[8px] font-bold px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                    >
+                                        {showMonitoringDashboard ? 'Hide' : 'Show'}
+                                    </button>
+                                </div>
+                                
+                                {showMonitoringDashboard && (
+                                    <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
+                                        <div className="space-y-3">
+                                            {/* Behavior Score */}
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[9px] font-bold text-gray-600">Behavior Score</span>
+                                                <span className={`text-lg font-black ${
+                                                    behaviorScore >= 80 ? 'text-green-600' : 
+                                                    behaviorScore >= 60 ? 'text-yellow-600' : 
+                                                    'text-red-600'
+                                                }`}>
+                                                    {behaviorScore}/100
+                                                </span>
+                                            </div>
+                                            
+                                            {/* Detection Stats */}
+                                            <div className="grid grid-cols-2 gap-2 text-[8px]">
+                                                <div className={`p-2 rounded ${detectionStats.phoneDetected ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                                    📱 Phone: {detectionStats.phoneDetected ? 'YES' : 'NO'}
+                                                </div>
+                                                <div className={`p-2 rounded ${detectionStats.multiplePersons ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                                    👥 Multiple: {detectionStats.multiplePersons ? 'YES' : 'NO'}
+                                                </div>
+                                                <div className={`p-2 rounded ${detectionStats.bookDetected ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                                    📚 Book: {detectionStats.bookDetected ? 'YES' : 'NO'}
+                                                </div>
+                                                <div className="p-2 rounded bg-blue-100 text-blue-700">
+                                                    👁️ Gaze: {detectionStats.gazeDirection || 'CENTER'}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Recent Violations */}
+                                            <div>
+                                                <div className="text-[9px] font-bold text-gray-600 mb-2">
+                                                    Recent Violations ({detectedViolations.length})
+                                                </div>
+                                                <div className="space-y-1 max-h-32 overflow-y-auto">
+                                                    {detectedViolations.slice(-3).reverse().map((v, i) => (
+                                                        <div key={i} className={`text-[8px] p-2 rounded ${
+                                                            v.severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                                                            v.severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                                                            'bg-yellow-100 text-yellow-700'
+                                                        }`}>
+                                                            <div className="font-bold">{v.type.replace(/_/g, ' ')}</div>
+                                                            <div className="opacity-75">{v.description}</div>
+                                                        </div>
+                                                    ))}
+                                                    {detectedViolations.length === 0 && (
+                                                        <div className="text-[8px] text-center text-gray-400 py-4">
+                                                            No violations detected
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Generate Report Button */}
+                                            {interviewMongoId && (
+                                                <button
+                                                    onClick={() => setShowComprehensiveReport(true)}
+                                                    className="w-full text-[9px] font-bold px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 shadow-lg"
+                                                >
+                                                    📊 Generate Complete Report
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                     </div>
                 </div>
                 )}
             </main>
+            
+            {/* Comprehensive Report Modal */}
+            {showComprehensiveReport && interviewMongoId && (
+                <ComprehensiveReport
+                    interviewId={interviewMongoId}
+                    onClose={() => setShowComprehensiveReport(false)}
+                />
+            )}
         </div>
     );
 }
