@@ -171,6 +171,19 @@ export default function ResumeUpload() {
                                 Analyzing your professional experience...
                             </p>
                             
+                            {parseTimedOut && (
+                                <div className="mb-8 p-6 bg-yellow-500/10 border border-yellow-500/30 rounded-xl relative z-10">
+                                    <p className="text-yellow-500 text-sm font-bold mb-2">⚠️ Analysis Taking Longer Than Expected</p>
+                                    <p className="text-xs text-gray-400">The system is still processing. Please wait or refresh the page.</p>
+                                    <button 
+                                        onClick={reload}
+                                        className="mt-4 px-6 py-2 bg-yellow-500 text-black rounded-lg text-xs font-bold hover:bg-yellow-400"
+                                    >
+                                        Refresh Status
+                                    </button>
+                                </div>
+                            )}
+                            
                             <div className="max-w-md mx-auto relative z-10 pb-4">
                                 <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                                     <motion.div 
@@ -183,12 +196,43 @@ export default function ResumeUpload() {
                                     <span>Analysis Progress:</span>
                                     <span className="text-red-600 tracking-tighter">{Math.round((pollCount / POLL_LIMIT) * 100)}% COMPLETE</span>
                                 </div>
+                                <div className="mt-4 text-[9px] text-gray-600 italic">
+                                    Status: {activeResume?.parse_status?.toUpperCase() || 'UNKNOWN'}
+                                </div>
                             </div>
                         </motion.div>
                     )}
 
                     {/* Analysis Results */}
                     <AnimatePresence mode="wait">
+                        {/* Failed Status */}
+                        {activeResume?.parse_status?.toLowerCase() === 'failed' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-12 elite-glass-panel border-red-500/20 bg-red-500/5 text-center"
+                            >
+                                <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 text-4xl mx-auto mb-6">
+                                    <TfiClose />
+                                </div>
+                                <h3 className="text-2xl font-black uppercase italic text-red-500 mb-4">Analysis Failed</h3>
+                                <p className="text-sm text-gray-400 mb-8">
+                                    We couldn't extract information from your resume. Please try uploading again or use a different format.
+                                </p>
+                                <button
+                                    onClick={() => fileRef.current?.click()}
+                                    className="px-8 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700"
+                                >
+                                    Upload New Resume
+                                </button>
+                                {activeResume.parsed_data?.error && (
+                                    <div className="mt-6 p-4 bg-black/40 rounded-lg text-xs text-gray-500 font-mono">
+                                        Error: {activeResume.parsed_data.error}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                        
                         {isParsed && (
                             <motion.div 
                                 initial={{ opacity: 0, y: 30 }}
