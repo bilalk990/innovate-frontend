@@ -424,6 +424,7 @@ export default function Home() {
                     <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                         <h2 style={{ fontSize: '13px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '16px' }}>Advanced Capabilities</h2>
                         <h3 style={{ fontSize: '48px', fontWeight: 900, color: '#0a0a0a', letterSpacing: '-1.5px' }}>Next-Gen AI <span style={{ color: '#dc2626' }}>Interview Shield</span></h3>
+                        <p style={{ fontSize: '16px', color: '#737373', marginTop: '16px', maxWidth: '700px', margin: '16px auto 0' }}>38 AI-Powered Features to Transform Your Hiring Process</p>
                     </div>
 
                     <div style={{
@@ -446,7 +447,30 @@ export default function Home() {
                             { icon: <TfiLineDouble />, title: 'Natural Transcript', desc: '99.9% accurate transcription of complex technical jargon.' },
                             { icon: <FaLanguage />, title: 'Global Link', desc: 'Multilingual real-time translation for borderless hiring teams.' },
                             { icon: <TfiTimer />, title: 'Calendar Sync', desc: 'Intelligent automated booking based on interviewer load metrics.' },
-                            { icon: <TfiInfinite />, title: 'Predictive Success', desc: 'Proprietary probability score of long-term candidate retention.' }
+                            { icon: <TfiInfinite />, title: 'Predictive Success', desc: 'Proprietary probability score of long-term candidate retention.' },
+                            { icon: <FaMicrochip />, title: 'MediaPipe Monitoring', desc: 'Real-time object detection for phones, books, and multiple persons during interviews.' },
+                            { icon: <TfiShield />, title: 'Behavior Scoring', desc: 'Live behavior score (0-100) with severity-based violation penalties.' },
+                            { icon: <TfiBolt />, title: 'Live Violation Alerts', desc: 'Instant WebSocket alerts to HR when suspicious behavior detected.' },
+                            { icon: <TfiStatsUp />, title: 'Performance Analytics', desc: 'AI-powered comprehensive performance analysis with detailed metrics.' },
+                            { icon: <FaRobot />, title: 'AI Question Generator', desc: 'Auto-generate tailored interview questions based on job description and resume.' },
+                            { icon: <TfiHeadphoneAlt />, title: 'Voice Tone Analysis', desc: 'Analyze candidate stress levels and confidence through voice patterns.' },
+                            { icon: <TfiPulse />, title: 'Live Quality Meter', desc: 'Real-time answer quality scoring with instant coaching feedback.' },
+                            { icon: <TfiCommentAlt />, title: 'Whisper Transcription', desc: 'OpenAI Whisper-powered accurate speech-to-text with per-question summaries.' },
+                            { icon: <FaShieldHalved />, title: 'Lie Detection', desc: 'Cross-reference resume claims with live responses to flag inconsistencies.' },
+                            { icon: <TfiBriefcase />, title: 'Recruiter AI Coach', desc: 'Real-time coaching tips for recruiters based on candidate performance.' },
+                            { icon: <TfiTarget />, title: 'Adaptive Questions', desc: 'Dynamic difficulty adjustment based on candidate response quality.' },
+                            { icon: <TfiLayoutGrid4 />, title: 'Question Bank AI', desc: 'AI-generated question banks with categorization and difficulty levels.' },
+                            { icon: <FaBrain />, title: 'Live Question Suggester', desc: 'AI recommends next best questions based on interview flow.' },
+                            { icon: <TfiStatsUp />, title: 'Resume-JD Gap Analysis', desc: 'Deep semantic matching of candidate skills vs job requirements.' },
+                            { icon: <FaLayerGroup />, title: 'Candidate Ranking', desc: 'AI-powered ranking of multiple candidates for the same role.' },
+                            { icon: <TfiPencilAlt />, title: 'Smart Resume Parser', desc: 'AI extracts structured data from resumes with 95%+ accuracy.' },
+                            { icon: <TfiCommentAlt />, title: 'Interview Debrief', desc: 'Personalized candidate feedback with strengths and improvement areas.' },
+                            { icon: <TfiBolt />, title: 'Job Description Analyzer', desc: 'Analyze JD for bias, clarity, and attractiveness with AI suggestions.' },
+                            { icon: <TfiTimer />, title: 'Smart Slot Optimizer', desc: 'AI suggests optimal interview times based on cognitive load research.' },
+                            { icon: <FaBrain />, title: 'Behavioral Traits Analysis', desc: 'Analyze confidence, fluency, and filler words from interview transcript.' },
+                            { icon: <FaShieldHalved />, title: 'Integrity Checker', desc: 'Detect plagiarism and AI-generated responses in candidate answers.' },
+                            { icon: <TfiTarget />, title: 'Culture Fit Analysis', desc: 'Match candidate values and attitude with company culture.' },
+                            { icon: <TfiBriefcase />, title: 'Job Fitment Score', desc: 'Deep semantic analysis of experience relevance vs job requirements.' }
                         ].map((feature, i) => (
                             <div key={i} className="luxury-card" style={{
                                 padding: '32px',
