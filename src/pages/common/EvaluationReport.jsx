@@ -225,6 +225,92 @@ export default function EvaluationReport() {
                         {data.behavioral_summary || "The candidate profile shows high technical proficiency and strong communication skills for professional roles."}
                     </p>
 
+                    {/* AI HIRING RECOMMENDATION - NEW FEATURE */}
+                    <div className="mb-12 p-8 rounded-3xl border-2 relative overflow-hidden" style={{
+                        backgroundColor: data.overall_score >= 70 ? 'rgba(16, 185, 129, 0.05)' : data.overall_score >= 50 ? 'rgba(251, 191, 36, 0.05)' : 'rgba(239, 68, 68, 0.05)',
+                        borderColor: data.overall_score >= 70 ? 'rgba(16, 185, 129, 0.2)' : data.overall_score >= 50 ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+                    }}>
+                        <div className="absolute top-0 right-0 w-48 h-48 blur-[80px] pointer-events-none" style={{
+                            backgroundColor: data.overall_score >= 70 ? 'rgba(16, 185, 129, 0.1)' : data.overall_score >= 50 ? 'rgba(251, 191, 36, 0.1)' : 'rgba(239, 68, 68, 0.1)'
+                        }} />
+                        
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg" style={{
+                                    backgroundColor: data.overall_score >= 70 ? '#10b981' : data.overall_score >= 50 ? '#fbbf24' : '#ef4444',
+                                    color: '#fff'
+                                }}>
+                                    {data.overall_score >= 70 ? '✓' : data.overall_score >= 50 ? '⚠' : '✗'}
+                                </div>
+                                <div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] mb-1" style={{
+                                        color: data.overall_score >= 70 ? '#10b981' : data.overall_score >= 50 ? '#fbbf24' : '#ef4444'
+                                    }}>
+                                        AI HIRING RECOMMENDATION
+                                    </h4>
+                                    <p className="text-2xl font-black italic uppercase tracking-tighter" style={{
+                                        color: data.overall_score >= 70 ? '#10b981' : data.overall_score >= 50 ? '#fbbf24' : '#ef4444'
+                                    }}>
+                                        {data.overall_score >= 70 ? 'RECOMMENDED FOR HIRE' : data.overall_score >= 50 ? 'CONDITIONAL RECOMMENDATION' : 'NOT RECOMMENDED'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1">Overall Score</div>
+                                <div className="text-4xl font-black italic" style={{
+                                    color: data.overall_score >= 70 ? '#10b981' : data.overall_score >= 50 ? '#fbbf24' : '#ef4444'
+                                }}>
+                                    {data.overall_score}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="relative z-10 p-6 bg-white/50 rounded-2xl border border-white/50 backdrop-blur-sm">
+                            <p className="text-[12px] font-medium text-gray-700 leading-relaxed">
+                                {data.overall_score >= 70 ? (
+                                    <>
+                                        <strong className="text-emerald-700">Strong candidate profile.</strong> The candidate demonstrates excellent technical competency ({data.overall_score}%), high integrity (proctoring score: {data.proctoring_score ?? 100}%), and strong communication skills. {data.confidence_score >= 70 ? 'Confidence indicators are positive.' : ''} Recommended to proceed with offer discussion.
+                                    </>
+                                ) : data.overall_score >= 50 ? (
+                                    <>
+                                        <strong className="text-yellow-700">Moderate candidate profile.</strong> The candidate shows acceptable performance ({data.overall_score}%) but has areas requiring improvement. {data.proctoring_score < 80 ? 'Integrity concerns detected. ' : ''}{data.confidence_score < 50 ? 'Confidence levels are below optimal. ' : ''}Consider additional assessment or targeted interview rounds before final decision.
+                                    </>
+                                ) : (
+                                    <>
+                                        <strong className="text-red-700">Below threshold performance.</strong> The candidate scored {data.overall_score}%, which is below the recommended hiring threshold. {data.proctoring_score < 80 ? 'Multiple integrity violations detected. ' : ''}{data.confidence_score < 50 ? 'Low confidence indicators observed. ' : ''}Not recommended for this position at this time.
+                                    </>
+                                )}
+                            </p>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-3 gap-4 relative z-10">
+                            <div className="text-center p-4 bg-white/30 rounded-xl border border-white/50">
+                                <div className="text-[9px] font-black uppercase text-gray-500 tracking-widest mb-2">Technical</div>
+                                <div className="text-2xl font-black" style={{
+                                    color: data.overall_score >= 70 ? '#10b981' : data.overall_score >= 50 ? '#fbbf24' : '#ef4444'
+                                }}>
+                                    {data.overall_score >= 70 ? 'Strong' : data.overall_score >= 50 ? 'Moderate' : 'Weak'}
+                                </div>
+                            </div>
+                            <div className="text-center p-4 bg-white/30 rounded-xl border border-white/50">
+                                <div className="text-[9px] font-black uppercase text-gray-500 tracking-widest mb-2">Integrity</div>
+                                <div className="text-2xl font-black" style={{
+                                    color: (data.proctoring_score ?? 100) >= 80 ? '#10b981' : (data.proctoring_score ?? 100) >= 50 ? '#fbbf24' : '#ef4444'
+                                }}>
+                                    {(data.proctoring_score ?? 100) >= 80 ? 'Clean' : (data.proctoring_score ?? 100) >= 50 ? 'Caution' : 'Risk'}
+                                </div>
+                            </div>
+                            <div className="text-center p-4 bg-white/30 rounded-xl border border-white/50">
+                                <div className="text-[9px] font-black uppercase text-gray-500 tracking-widest mb-2">Confidence</div>
+                                <div className="text-2xl font-black" style={{
+                                    color: (data.confidence_score ?? 50) >= 70 ? '#10b981' : (data.confidence_score ?? 50) >= 50 ? '#fbbf24' : '#ef4444'
+                                }}>
+                                    {(data.confidence_score ?? 50) >= 70 ? 'High' : (data.confidence_score ?? 50) >= 50 ? 'Medium' : 'Low'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 mb-10">
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                            <div className={`w-2 h-2 rounded-full ${data.confidence_score >= 70 ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />

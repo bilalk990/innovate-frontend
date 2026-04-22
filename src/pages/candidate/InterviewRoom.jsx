@@ -1771,11 +1771,20 @@ export default function InterviewRoom() {
                                         <h2 className="text-white text-3xl font-black uppercase tracking-widest italic">Candidate is Waiting</h2>
                                         <p className="text-emerald-400 text-[11px] font-black uppercase tracking-[0.4em]">Candidate has entered the lobby and is requesting access</p>
                                         <button
-                                            onClick={() => {
-                                                send({ type: 'admit_candidate', room: id });
-                                                setIsCandidateWaiting(false);
-                                                toast.success('Candidate admitted!');
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                console.log('[ADMIT] Button clicked, sending admit_candidate');
+                                                try {
+                                                    send({ type: 'admit_candidate', room: id });
+                                                    setIsCandidateWaiting(false);
+                                                    toast.success('Candidate admitted!');
+                                                } catch (error) {
+                                                    console.error('[ADMIT] Error admitting candidate:', error);
+                                                    toast.error('Failed to admit candidate');
+                                                }
                                             }}
+                                            type="button"
                                             className="px-16 py-5 bg-emerald-500 text-black text-[13px] font-black uppercase tracking-[0.6em] rounded-2xl shadow-[0_0_30px_#10b981] hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95"
                                         >
                                             ⚡ Admit Now
