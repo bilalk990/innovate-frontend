@@ -24,6 +24,7 @@ import {
 } from 'react-icons/tfi';
 import useFetch from '../../hooks/useFetch';
 import jobService from '../../services/jobService';
+import resumeService from '../../services/resumeService';
 import useAuth from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 
@@ -180,10 +181,29 @@ export default function BrowseJobs() {
         setGapError('');
         setGapLoading(true);
         try {
-            const res = await jobService.getGapAnalysis(job.id);
+            // Fetch user's resume first
+            const resumeRes = await resumeService.list();
+            const resumes = resumeRes.data || [];
+            const activeResume = resumes.find(r => r.is_active) || resumes[0];
+            
+            if (!activeResume || !activeResume.parsed_data) {
+                setGapError('Please upload or generate your resume first to use gap analysis.');
+                setGapLoading(false);
+                return;
+            }
+            
+            // Use ADVANCED gap analysis with resume data
+            const resumeData = {
+                skills: activeResume.parsed_data.skills || [],
+                experience: activeResume.parsed_data.experience || [],
+                total_experience_years: activeResume.parsed_data.total_experience_years || 0,
+                education: activeResume.parsed_data.education || []
+            };
+            
+            const res = await jobService.getAdvancedGapAnalysis(resumeData, job.id);
             setGapData(res.data);
         } catch (err) {
-            setGapError(err.response?.data?.error || 'Skill gap analysis failed.');
+            setGapError(err.response?.data?.error || 'Advanced skill gap analysis failed.');
         } finally {
             setGapLoading(false);
         }
