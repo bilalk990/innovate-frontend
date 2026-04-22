@@ -295,6 +295,7 @@ export default function ResumeBuilder() {
     const { user } = useAuth();
     const [jobTarget, setJobTarget] = useState('');
     const [generating, setGenerating] = useState(false);
+    const [generatingAdvanced, setGeneratingAdvanced] = useState(false);
     const [resumeData, setResumeData] = useState(null);
     const [selectedTemplate, setSelectedTemplate] = useState('elite');
     const printRef = useRef(null);
@@ -334,6 +335,51 @@ export default function ResumeBuilder() {
             toast.error(err.response?.data?.error || 'Resume generation failed.');
         } finally {
             setGenerating(false);
+        }
+    };
+
+    const handleAdvancedGenerate = async () => {
+        if (!hasProfile) {
+            toast.error('Profile Incomplete. Please add your skills and experience first.');
+            return;
+        }
+        setGeneratingAdvanced(true);
+        try {
+            const profileData = {
+                name: user?.name || '',
+                email: user?.email || '',
+                phone: user?.phone || '',
+                bio: user?.bio || '',
+                skills: user?.detailed_skills || [],
+                experience: user?.work_history || [],
+                education: user?.education || [],
+                job_target: jobTarget
+            };
+            
+            const { data } = await resumeService.generateAdvancedResume(profileData);
+
+            // Normalize backend response
+            const normalized = {
+                ...data,
+                contact: data.contact || {
+                    email: data.email || user?.email || '',
+                    phone: data.phone || user?.phone || '',
+                    location: data.location || '',
+                },
+                skills: data.skills && !Array.isArray(data.skills)
+                    ? data.skills
+                    : {
+                        technical: Array.isArray(data.skills) ? data.skills : (user?.detailed_skills || []),
+                        soft: data.soft_skills || [],
+                    },
+            };
+
+            setResumeData(normalized);
+            toast.success('Advanced Resume Generated with ATS Optimization!');
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Advanced generation failed.');
+        } finally {
+            setGeneratingAdvanced(false);
         }
     };
 
@@ -481,6 +527,15 @@ export default function ResumeBuilder() {
                             >
                                 {generating ? <TfiReload className="animate-spin" /> : <TfiBolt className={hasProfile ? 'animate-pulse' : ''} />}
                                 {generating ? 'Generating...' : 'Generate Resume'}
+                            </button>
+
+                            <button
+                                onClick={handleAdvancedGenerate}
+                                disabled={generatingAdvanced || !hasProfile}
+                                className={`w-full py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 italic shadow-2xl ${generatingAdvanced ? 'bg-gray-900 text-gray-700 animate-pulse' : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 active:scale-[0.98]'}`}
+                            >
+                                {generatingAdvanced ? <TfiReload className="animate-spin" /> : <TfiLayers className={hasProfile ? 'animate-pulse' : ''} />}
+                                {generatingAdvanced ? 'Generating Advanced...' : '✨ Advanced Generate (ATS)'}
                             </button>
                         </div>
                     </div>
