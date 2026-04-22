@@ -132,7 +132,7 @@ export default function AppRoutes() {
                 <Route path="evaluations/:evalId" element={<EvaluationReport />} />
                 <Route path="ranking" element={<CandidateRanking />} />
                 <Route path="question-bank" element={<QuestionBank />} />
-                <Route path="ai-tools" element={<JDAnalyzer />} />
+                <Route path="jd-analyzer" element={<JDAnalyzer />} />
                 <Route path="applications" element={<JobApplicants />} />
                 <Route path="pipeline" element={<Candidates />} />
                 <Route path="messages" element={<RecruiterDashboard />} />

@@ -62,6 +62,7 @@ const recruiterNavigation = [
       { path: '/recruiter/applications', icon: TfiLayers, label: 'Applications' },
       { path: '/recruiter/pipeline', icon: TfiReload, label: 'Talent Pipeline' },
       { path: '/recruiter/question-bank', icon: TfiBriefcase, label: 'Question Bank' },
+      { path: '/recruiter/jd-analyzer', icon: TfiTarget, label: 'JD Analyzer' },
     ]
   },
   {
