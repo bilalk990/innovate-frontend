@@ -18,6 +18,7 @@ import useFetch from '../../hooks/useFetch';
 import authService from '../../services/authService';
 import resumeService from '../../services/resumeService';
 import reportService from '../../services/reportService';
+import jobService from '../../services/jobService';
 import evaluationService from '../../services/evaluationService';
 import Loader from '../../components/Loader';
 import '../../styles/hr.css';
@@ -135,6 +136,129 @@ function HireProbabilityWidget({ evalId }) {
             )}
         </motion.div>
     ) ;
+}
+
+function JobFitmentWidget({ candidateId, resume }) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [jobDescription, setJobDescription] = useState('');
+
+    const analyzeFitment = async () => {
+        if (!resume || !jobDescription) {
+            toast.error('Resume and job description required');
+            return;
+        }
+        setLoading(true);
+        try {
+            const resumeData = {
+                skills: resume.parsed_data?.skills || [],
+                experience: resume.parsed_data?.experience || [],
+                education: resume.parsed_data?.education || []
+            };
+            const res = await jobService.analyzeJobFitment(resumeData, jobDescription);
+            setData(res.data);
+            toast.success('Job fitment analysis complete!');
+        } catch (error) {
+            toast.error('Failed to analyze job fitment');
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-10 bg-white text-gray-950 rounded-[2.5rem] shadow-2xl border-2 border-blue-50 relative overflow-hidden group"
+        >
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/[0.02] blur-[80px] pointer-events-none" />
+            <div className="flex items-center gap-4 mb-8 relative">
+                <div className="w-12 h-12 rounded-xl bg-gray-950 text-blue-600 flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                    <TfiTarget className={!data ? "animate-pulse" : ""} />
+                </div>
+                <div>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-950 italic">Job Fitment</h4>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Deep Match Analysis</p>
+                </div>
+                {data && <button onClick={() => setData(null)} className="ml-auto w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 hover:text-blue-600 transition-colors">↺</button>}
+            </div>
+
+            {!data ? (
+                <>
+                    <div className="mb-6">
+                        <label className="text-[9px] font-black text-gray-700 uppercase tracking-wider mb-2 block">Job Description</label>
+                        <textarea
+                            value={jobDescription}
+                            onChange={(e) => setJobDescription(e.target.value)}
+                            placeholder="Paste job description here..."
+                            className="w-full h-32 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-blue-600 transition-colors resize-none"
+                        />
+                    </div>
+                    <button
+                        onClick={analyzeFitment}
+                        disabled={loading || !jobDescription}
+                        className="btn-hr-primary w-full py-5 text-[10px] shadow-xl shadow-blue-600/10 active:scale-95 transition-all flex items-center justify-center gap-4"
+                    >
+                        {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiTarget className="text-lg" />}
+                        {loading ? 'ANALYZING...' : 'ANALYZE JOB FIT'}
+                    </button>
+                </>
+            ) : (
+                <div className="relative space-y-6">
+                    <div className="text-center">
+                        <div className="text-7xl font-black italic text-blue-600 leading-none tracking-tighter mb-2 group-hover:scale-110 transition-transform duration-700">
+                            {data.fitment_score}%
+                        </div>
+                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] italic leading-tight">Overall Fitment Score</div>
+                    </div>
+
+                    <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+                        <motion.div
+                            className="h-full bg-gradient-to-r from-blue-500 to-blue-600"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${data.fitment_score}%` }}
+                            transition={{ duration: 1.5 }}
+                        />
+                    </div>
+
+                    {data.matched_skills && data.matched_skills.length > 0 && (
+                        <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100">
+                            <h5 className="text-[9px] font-black text-emerald-900 uppercase tracking-wider mb-3">Matched Skills</h5>
+                            <div className="flex flex-wrap gap-2">
+                                {data.matched_skills.slice(0, 6).map((skill, i) => (
+                                    <span key={i} className="text-[9px] font-bold px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">
+                                        {skill}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {data.missing_skills && data.missing_skills.length > 0 && (
+                        <div className="bg-red-50 rounded-2xl p-6 border border-red-100">
+                            <h5 className="text-[9px] font-black text-red-900 uppercase tracking-wider mb-3">Missing Skills</h5>
+                            <div className="flex flex-wrap gap-2">
+                                {data.missing_skills.slice(0, 6).map((skill, i) => (
+                                    <span key={i} className="text-[9px] font-bold px-3 py-1 bg-red-100 text-red-700 rounded-full">
+                                        {skill}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {data.recommendation && (
+                        <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+                            <p className="text-[10px] text-blue-900 italic leading-relaxed font-semibold">
+                                {data.recommendation}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
+        </motion.div>
+    );
 }
 
 export default function CandidateProfile() {
@@ -312,6 +436,13 @@ export default function CandidateProfile() {
                     {latestEval && (
                         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
                             <HireProbabilityWidget evalId={latestEval.id} />
+                        </motion.div>
+                    )}
+
+                    {/* Job Fitment Analysis */}
+                    {resume && (
+                        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                            <JobFitmentWidget candidateId={candidateId} resume={resume} />
                         </motion.div>
                     )}
                 </div>
