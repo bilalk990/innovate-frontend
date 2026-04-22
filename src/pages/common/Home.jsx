@@ -424,7 +424,7 @@ export default function Home() {
                     <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                         <h2 style={{ fontSize: '13px', fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '16px' }}>Advanced Capabilities</h2>
                         <h3 style={{ fontSize: '48px', fontWeight: 900, color: '#0a0a0a', letterSpacing: '-1.5px' }}>Next-Gen AI <span style={{ color: '#dc2626' }}>Interview Shield</span></h3>
-                        <p style={{ fontSize: '16px', color: '#737373', marginTop: '16px', maxWidth: '700px', margin: '16px auto 0' }}>38 AI-Powered Features to Transform Your Hiring Process</p>
+                        <p style={{ fontSize: '16px', color: '#737373', marginTop: '16px', maxWidth: '700px', margin: '16px auto 0' }}>30 Production-Ready AI Features</p>
                     </div>
 
                     <div style={{
@@ -440,14 +440,10 @@ export default function Home() {
                             { icon: <FaShieldHalved />, title: 'Plagiarism Guard', desc: 'Real-time code and answer similarity checks across the web.' },
                             { icon: <TfiPencilAlt />, title: 'Ghostwriter Detection', desc: 'AI-pattern matching for pre-written or AI-generated text.' },
                             { icon: <TfiCommentAlt />, title: 'Smart Summaries', desc: '60-second executive summaries of 1-hour interview sessions.' },
-                            { icon: <FaScaleUnbalanced />, title: 'Bias Redactor', desc: 'Automated removal of demographic identifiers from hiring reports.' },
                             { icon: <TfiTarget />, title: 'Skill-Graphing', desc: 'Visualizing candidate fit against your team requirement graph.' },
-                            { icon: <TfiControlForward />, title: 'Sandbox Replay', desc: 'Event-driven playback of every step in technical assessments.' },
                             { icon: <TfiUser />, title: 'Collaborative Flow', desc: 'Real-time team-based interview moderation and shared scoring.' },
                             { icon: <TfiLineDouble />, title: 'Natural Transcript', desc: '99.9% accurate transcription of complex technical jargon.' },
-                            { icon: <FaLanguage />, title: 'Global Link', desc: 'Multilingual real-time translation for borderless hiring teams.' },
                             { icon: <TfiTimer />, title: 'Calendar Sync', desc: 'Intelligent automated booking based on interviewer load metrics.' },
-                            { icon: <TfiInfinite />, title: 'Predictive Success', desc: 'Proprietary probability score of long-term candidate retention.' },
                             { icon: <FaMicrochip />, title: 'MediaPipe Monitoring', desc: 'Real-time object detection for phones, books, and multiple persons during interviews.' },
                             { icon: <TfiShield />, title: 'Behavior Scoring', desc: 'Live behavior score (0-100) with severity-based violation penalties.' },
                             { icon: <TfiBolt />, title: 'Live Violation Alerts', desc: 'Instant WebSocket alerts to HR when suspicious behavior detected.' },
@@ -458,9 +454,7 @@ export default function Home() {
                             { icon: <TfiCommentAlt />, title: 'Whisper Transcription', desc: 'OpenAI Whisper-powered accurate speech-to-text with per-question summaries.' },
                             { icon: <FaShieldHalved />, title: 'Lie Detection', desc: 'Cross-reference resume claims with live responses to flag inconsistencies.' },
                             { icon: <TfiBriefcase />, title: 'Recruiter AI Coach', desc: 'Real-time coaching tips for recruiters based on candidate performance.' },
-                            { icon: <TfiTarget />, title: 'Adaptive Questions', desc: 'Dynamic difficulty adjustment based on candidate response quality.' },
                             { icon: <TfiLayoutGrid4 />, title: 'Question Bank AI', desc: 'AI-generated question banks with categorization and difficulty levels.' },
-                            { icon: <FaBrain />, title: 'Live Question Suggester', desc: 'AI recommends next best questions based on interview flow.' },
                             { icon: <TfiStatsUp />, title: 'Resume-JD Gap Analysis', desc: 'Deep semantic matching of candidate skills vs job requirements.' },
                             { icon: <FaLayerGroup />, title: 'Candidate Ranking', desc: 'AI-powered ranking of multiple candidates for the same role.' },
                             { icon: <TfiPencilAlt />, title: 'Smart Resume Parser', desc: 'AI extracts structured data from resumes with 95%+ accuracy.' },
