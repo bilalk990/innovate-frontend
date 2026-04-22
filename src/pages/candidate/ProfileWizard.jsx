@@ -317,38 +317,62 @@ export default function ProfileWizard() {
 
                         {/* STEP 3: Projects */}
                         {step === 3 && (
-                            <div className="elite-grid-12 gap-12 max-w-6xl mx-auto">
-                                <div className="col-5">
-                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden group">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto">
+                                <div className="lg:col-span-5">
+                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden group sticky top-6">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[50px] pointer-events-none" />
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
-                                            <TfiPackage className="text-red-600" /> Project Details
+                                            <TfiPackage className="text-red-600" /> Add New Project
                                         </h3>
                                         <div className="space-y-8">
                                             <div className="elite-input-group">
-                                                <label className="elite-label text-gray-600">Project Name</label>
-                                                <input className="elite-input h-14 bg-white/[0.01]" placeholder="NAME *" value={newProject.name} onChange={e => setNewProject({...newProject, name: e.target.value})} />
+                                                <label className="elite-label text-gray-600">Project Name *</label>
+                                                <input 
+                                                    className="elite-input h-14 bg-white/[0.01] text-white" 
+                                                    placeholder="E.G. E-COMMERCE PLATFORM" 
+                                                    value={newProject.name} 
+                                                    onChange={e => setNewProject({...newProject, name: e.target.value})} 
+                                                />
                                             </div>
                                             <div className="elite-input-group">
-                                                <label className="elite-label text-gray-600">Description</label>
-                                                <textarea className="elite-input min-h-[140px] pt-4 italic uppercase font-black tracking-wider" placeholder="DESCRIBE OUTPUT *" value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} />
+                                                <label className="elite-label text-gray-600">Description *</label>
+                                                <textarea 
+                                                    className="elite-input min-h-[140px] pt-4 text-gray-400 resize-none" 
+                                                    placeholder="DESCRIBE YOUR PROJECT AND ITS IMPACT..." 
+                                                    value={newProject.description} 
+                                                    onChange={e => setNewProject({...newProject, description: e.target.value})} 
+                                                />
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Technologies Used</label>
-                                                <input className="elite-input h-14" placeholder="E.G. NEXT.JS, REDIS, AWS" value={newProject.technologies} onChange={e => setNewProject({...newProject, technologies: e.target.value})} />
+                                                <input 
+                                                    className="elite-input h-14 text-white" 
+                                                    placeholder="E.G. NEXT.JS, REDIS, AWS" 
+                                                    value={newProject.technologies} 
+                                                    onChange={e => setNewProject({...newProject, technologies: e.target.value})} 
+                                                />
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Project Link</label>
-                                                <input className="elite-input h-14" placeholder="GITHUB / LIVE URL" value={newProject.link} onChange={e => setNewProject({...newProject, link: e.target.value})} />
+                                                <input 
+                                                    className="elite-input h-14 text-white" 
+                                                    placeholder="GITHUB / LIVE URL" 
+                                                    value={newProject.link} 
+                                                    onChange={e => setNewProject({...newProject, link: e.target.value})} 
+                                                />
                                             </div>
-                                            <button onClick={addProject} className="w-full py-6 bg-red-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-red-600/20 hover:scale-[1.02] transition-transform">
+                                            <button 
+                                                onClick={addProject} 
+                                                disabled={!newProject.name || !newProject.description}
+                                                className="w-full py-6 bg-red-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-red-600/20 hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                            >
                                                 ADD PROJECT
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="col-7 space-y-6 max-h-[600px] overflow-y-auto pr-4 scrollbar-tactical">
+                                <div className="lg:col-span-7 space-y-6 max-h-[700px] overflow-y-auto pr-4 scrollbar-tactical">
                                     {formData.projects.map((proj, idx) => (
                                         <motion.div 
                                             key={idx} 
@@ -370,7 +394,7 @@ export default function ProfileWizard() {
                                                             <span key={i} className="text-[9px] font-black uppercase italic text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 group-hover:border-red-600/20 group-hover:text-white transition-all">{tech}</span>
                                                         ))}
                                                     </div>
-                                                    {proj.link && <a href={proj.link} target="_blank" rel="noreferrer" className="text-[10px] text-red-600 hover:text-white underline underline-offset-4 italic tracking-[0.3em] font-black uppercase transition-all">PROJECT LINK FOUND</a>}
+                                                    {proj.link && <a href={proj.link} target="_blank" rel="noreferrer" className="text-[10px] text-red-600 hover:text-white underline underline-offset-4 italic tracking-[0.3em] font-black uppercase transition-all">VIEW PROJECT →</a>}
                                                 </div>
                                                 <button onClick={() => setFormData({...formData, projects: formData.projects.filter((_, i) => i !== idx)})} className="p-4 rounded-xl bg-white/5 border border-white/5 text-gray-700 hover:bg-black hover:text-red-600 transition-all group/del">
                                                     <TfiClose size={14} className="group-hover/del:scale-125 transition-transform" />
@@ -379,9 +403,10 @@ export default function ProfileWizard() {
                                         </motion.div>
                                     ))}
                                     {formData.projects.length === 0 && (
-                                        <div className="h-full flex flex-col items-center justify-center py-24 elite-glass-panel border-dashed border-white/5 bg-white/[0.01]">
-                                            <TfiPackage className="text-7xl text-gray-900 mb-8 animate-float opacity-20" />
-                                            <p className="text-[11px] font-black uppercase italic text-gray-800 tracking-[1em]">Project grid offline</p>
+                                        <div className="h-full min-h-[500px] flex flex-col items-center justify-center py-24 elite-glass-panel border-dashed border-white/5 bg-white/[0.01]">
+                                            <TfiPackage className="text-7xl text-gray-900 mb-8 opacity-20" />
+                                            <p className="text-[11px] font-black uppercase italic text-gray-800 tracking-[0.5em]">No Projects Added</p>
+                                            <p className="text-[9px] text-gray-700 mt-4 tracking-[0.3em]">ADD YOUR FIRST PROJECT</p>
                                         </div>
                                     )}
                                 </div>
@@ -390,32 +415,32 @@ export default function ProfileWizard() {
 
                         {/* STEP 4: Experience */}
                         {step === 4 && (
-                            <div className="elite-grid-12 gap-12 max-w-6xl mx-auto">
-                                <div className="col-5">
-                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto">
+                                <div className="lg:col-span-5">
+                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden sticky top-6">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
-                                            <TfiBriefcase className="text-red-600" /> Work History
+                                            <TfiBriefcase className="text-red-600" /> Add Work Experience
                                         </h3>
                                         <div className="space-y-8">
                                             <div className="elite-input-group">
-                                                <label className="elite-label text-gray-600">Company Name</label>
-                                                <input className="elite-input h-14" placeholder="E.G. MICROSOFT" value={newExp.company} onChange={e => setNewExp({...newExp, company: e.target.value})} />
+                                                <label className="elite-label text-gray-600">Company Name *</label>
+                                                <input className="elite-input h-14 text-white" placeholder="E.G. MICROSOFT" value={newExp.company} onChange={e => setNewExp({...newExp, company: e.target.value})} />
                                             </div>
                                             <div className="elite-input-group">
-                                                <label className="elite-label text-gray-600">Job Title</label>
-                                                <input className="elite-input h-14" placeholder="E.G. SOFTWARE ENGINEER" value={newExp.role} onChange={e => setNewExp({...newExp, role: e.target.value})} />
+                                                <label className="elite-label text-gray-600">Job Title *</label>
+                                                <input className="elite-input h-14 text-white" placeholder="E.G. SOFTWARE ENGINEER" value={newExp.role} onChange={e => setNewExp({...newExp, role: e.target.value})} />
                                             </div>
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="elite-input-group">
-                                                    <label className="elite-label text-gray-600">Uplink</label>
-                                                    <select className="elite-input h-14 font-black uppercase italic" value={newExp.duration.split(' - ')[0] || ''} onChange={e => setNewExp({...newExp, duration: `${e.target.value} - ${newExp.duration.split(' - ')[1] || 'Present'}`})}>
-                                                        <option value="" disabled>YEAR</option>
+                                                    <label className="elite-label text-gray-600">Start Year</label>
+                                                    <select className="elite-input h-14 font-black uppercase italic text-white" value={newExp.duration.split(' - ')[0] || ''} onChange={e => setNewExp({...newExp, duration: `${e.target.value} - ${newExp.duration.split(' - ')[1] || 'Present'}`})}>
+                                                        <option value="" disabled>SELECT</option>
                                                         {yearRange.map(y => <option key={y} value={y}>{y}</option>)}
                                                     </select>
                                                 </div>
                                                 <div className="elite-input-group">
-                                                    <label className="elite-label text-gray-600">Offline</label>
-                                                    <select className="elite-input h-14 font-black uppercase italic" value={newExp.duration.split(' - ')[1] || ''} onChange={e => setNewExp({...newExp, duration: `${newExp.duration.split(' - ')[0] || currentYear} - ${e.target.value}`})}>
+                                                    <label className="elite-label text-gray-600">End Year</label>
+                                                    <select className="elite-input h-14 font-black uppercase italic text-white" value={newExp.duration.split(' - ')[1] || ''} onChange={e => setNewExp({...newExp, duration: `${newExp.duration.split(' - ')[0] || currentYear} - ${e.target.value}`})}>
                                                         <option value="Present">PRESENT</option>
                                                         {yearRange.map(y => <option key={y} value={y}>{y}</option>)}
                                                     </select>
@@ -423,35 +448,40 @@ export default function ProfileWizard() {
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Responsibilities & Achievements</label>
-                                                <textarea className="elite-input min-h-[140px] pt-4 italic font-black uppercase tracking-wider leading-relaxed" placeholder="DESCRIBE YOUR KEY RESPONSIBILITIES..." value={newExp.description} onChange={e => setNewExp({...newExp, description: e.target.value})} />
+                                                <textarea className="elite-input min-h-[140px] pt-4 text-gray-400 resize-none" placeholder="DESCRIBE YOUR KEY RESPONSIBILITIES..." value={newExp.description} onChange={e => setNewExp({...newExp, description: e.target.value})} />
                                             </div>
-                                            <button onClick={addExp} className="w-full py-6 bg-red-600 font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform">
+                                            <button 
+                                                onClick={addExp} 
+                                                disabled={!newExp.company || !newExp.role}
+                                                className="w-full py-6 bg-red-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                            >
                                                 ADD EXPERIENCE
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="col-7 space-y-6 max-h-[600px] overflow-y-auto pr-4 scrollbar-tactical">
+                                <div className="lg:col-span-7 space-y-6 max-h-[700px] overflow-y-auto pr-4 scrollbar-tactical">
                                     {formData.work_history.map((exp, idx) => (
                                         <motion.div key={idx} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-10 elite-glass-panel border-white/5 relative group hover:border-red-600/30 transition-all">
                                             <div className="absolute top-0 left-0 w-1 h-full bg-red-600/20 group-hover:bg-red-600 transition-all" />
                                             <div className="flex justify-between items-start relative z-10">
                                                 <div className="flex-1 pr-6">
-                                                    <div className="font-black text-white uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors uppercase">{exp.role}</div>
+                                                    <div className="font-black text-white uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors">{exp.role}</div>
                                                     <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-6 italic">{exp.company} <span className="text-gray-700 mx-3">/</span> {exp.duration}</div>
                                                     {exp.description && <p className="text-[12px] text-gray-500 font-black uppercase italic tracking-wider leading-relaxed pr-4">{exp.description}</p>}
                                                 </div>
-                                                <button onClick={() => setFormData({...formData, work_history: formData.work_history.filter((_, i) => i !== idx)})} className="p-4 rounded-xl bg-white/5 hover:bg-black hover:text-red-600 transition-all border border-white/5 group/del">
+                                                <button onClick={() => setFormData({...formData, work_history: formData.work_history.filter((_, i) => i !== idx)})} className="p-4 rounded-xl bg-white/5 hover:bg-black hover:text-red-600 transition-all border border-white/5 text-gray-700 group/del">
                                                     <TfiClose size={12} className="group-hover/del:scale-125 transition-transform" />
                                                 </button>
                                             </div>
                                         </motion.div>
                                     ))}
                                     {formData.work_history.length === 0 && (
-                                        <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem] opacity-20">
-                                            <TfiBriefcase className="text-7xl mx-auto mb-6" />
-                                            <p className="text-[11px] font-black uppercase italic tracking-[0.6em]">No work history added</p>
+                                        <div className="min-h-[500px] flex flex-col items-center justify-center py-24 elite-glass-panel border-dashed border-white/5 bg-white/[0.01]">
+                                            <TfiBriefcase className="text-7xl text-gray-900 mb-8 opacity-20" />
+                                            <p className="text-[11px] font-black uppercase italic text-gray-800 tracking-[0.5em]">No Experience Added</p>
+                                            <p className="text-[9px] text-gray-700 mt-4 tracking-[0.3em]">ADD YOUR WORK HISTORY</p>
                                         </div>
                                     )}
                                 </div>
@@ -460,47 +490,51 @@ export default function ProfileWizard() {
 
                         {/* STEP 5: Education */}
                         {step === 5 && (
-                            <div className="elite-grid-12 gap-12 max-w-6xl mx-auto">
-                                <div className="col-5">
-                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto">
+                                <div className="lg:col-span-5">
+                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden sticky top-6">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
-                                            <TfiMedall className="text-red-600" /> Education
+                                            <TfiMedall className="text-red-600" /> Add Education
                                         </h3>
                                         <div className="space-y-8">
                                             <div className="elite-input-group">
-                                                <label className="elite-label text-gray-600">Institution</label>
-                                                <input className="elite-input h-14" placeholder="E.G. HARVARD UNIVERSITY" value={newEdu.institution} onChange={e => setNewEdu({...newEdu, institution: e.target.value})} />
+                                                <label className="elite-label text-gray-600">Institution *</label>
+                                                <input className="elite-input h-14 text-white" placeholder="E.G. HARVARD UNIVERSITY" value={newEdu.institution} onChange={e => setNewEdu({...newEdu, institution: e.target.value})} />
                                             </div>
                                             <div className="elite-input-group">
-                                                <label className="elite-label text-gray-600">Degree/Level</label>
-                                                <input className="elite-input h-14" placeholder="E.G. BACHELORS IN COMPUTER SCIENCE" value={newEdu.level} onChange={e => setNewEdu({...newEdu, level: e.target.value})} />
+                                                <label className="elite-label text-gray-600">Degree/Level *</label>
+                                                <input className="elite-input h-14 text-white" placeholder="E.G. BACHELORS IN COMPUTER SCIENCE" value={newEdu.level} onChange={e => setNewEdu({...newEdu, level: e.target.value})} />
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Graduation Year</label>
-                                                <select className="elite-input h-14 font-black uppercase italic" value={newEdu.year} onChange={e => setNewEdu({...newEdu, year: e.target.value})}>
-                                                    <option value="" disabled>YEAR</option>
+                                                <select className="elite-input h-14 font-black uppercase italic text-white" value={newEdu.year} onChange={e => setNewEdu({...newEdu, year: e.target.value})}>
+                                                    <option value="" disabled>SELECT YEAR</option>
                                                     {yearRange.map(y => <option key={y} value={y}>{y}</option>)}
                                                 </select>
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Grade/GPA</label>
-                                                <input className="elite-input h-14" placeholder="E.G. 3.9 CGPA / HONORS" value={newEdu.details} onChange={e => setNewEdu({...newEdu, details: e.target.value})} />
+                                                <input className="elite-input h-14 text-white" placeholder="E.G. 3.9 CGPA / HONORS" value={newEdu.details} onChange={e => setNewEdu({...newEdu, details: e.target.value})} />
                                             </div>
-                                            <button onClick={addEdu} className="w-full py-6 bg-red-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform">
+                                            <button 
+                                                onClick={addEdu} 
+                                                disabled={!newEdu.institution || !newEdu.level}
+                                                className="w-full py-6 bg-red-600 text-white font-black uppercase tracking-[0.3em] rounded-2xl shadow-2xl hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                            >
                                                 ADD EDUCATION
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="col-7 space-y-6 max-h-[600px] overflow-y-auto pr-4 scrollbar-tactical">
+                                <div className="lg:col-span-7 space-y-6 max-h-[700px] overflow-y-auto pr-4 scrollbar-tactical">
                                     {formData.education_history.map((edu, idx) => (
                                         <motion.div key={idx} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-10 elite-glass-panel border-white/5 group hover:border-red-600/30 transition-all relative overflow-hidden">
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[60px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="flex justify-between items-center relative z-10">
                                                 <div>
-                                                    <div className="font-black text-white uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors uppercase">{edu.level}</div>
-                                                    <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-4 italic uppercase">{edu.institution}</div>
+                                                    <div className="font-black text-white uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors">{edu.level}</div>
+                                                    <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-4 italic">{edu.institution}</div>
                                                     <div className="text-[10px] font-black text-gray-700 uppercase tracking-widest bg-white/[0.02] px-4 py-2 rounded-xl border border-white/5 inline-block group-hover:border-red-600/20 group-hover:text-white transition-all">{edu.year} {edu.details && `· ${edu.details}`}</div>
                                                 </div>
                                                 <button onClick={() => setFormData({...formData, education_history: formData.education_history.filter((_, i) => i !== idx)})} className="p-4 rounded-xl bg-white/5 border border-white/5 text-gray-700 hover:bg-black hover:text-red-600 transition-all group/del">
@@ -510,9 +544,10 @@ export default function ProfileWizard() {
                                         </motion.div>
                                     ))}
                                     {formData.education_history.length === 0 && (
-                                        <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[3rem] opacity-20">
-                                            <TfiMedall className="text-7xl mx-auto mb-6" />
-                                            <p className="text-[11px] font-black uppercase italic tracking-[0.6em]">Academic grid offline</p>
+                                        <div className="min-h-[500px] flex flex-col items-center justify-center py-24 elite-glass-panel border-dashed border-white/5 bg-white/[0.01]">
+                                            <TfiMedall className="text-7xl text-gray-900 mb-8 opacity-20" />
+                                            <p className="text-[11px] font-black uppercase italic text-gray-800 tracking-[0.5em]">No Education Added</p>
+                                            <p className="text-[9px] text-gray-700 mt-4 tracking-[0.3em]">ADD YOUR ACADEMIC HISTORY</p>
                                         </div>
                                     )}
                                 </div>
@@ -696,7 +731,7 @@ export default function ProfileWizard() {
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="elite-grid-12 gap-8 text-sm mt-16 relative z-10">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-sm mt-16 relative z-10">
                                                     {[
                                                         { label: 'Skills Added', val: formData.detailed_skills.length, icon: <TfiBolt /> },
                                                         { label: 'Projects', val: formData.projects.length, icon: <TfiPackage /> },
@@ -705,7 +740,7 @@ export default function ProfileWizard() {
                                                         { label: 'Certifications', val: formData.certifications.length, icon: <TfiStar /> },
                                                         { label: 'Languages', val: formData.languages.length, icon: <TfiWorld /> }
                                                     ].map((stat, i) => (
-                                                        <div key={i} className="col-4 bg-white/[0.03] p-10 rounded-[3rem] border border-white/5 group/stat hover:border-red-600/40 transition-all shadow-inner">
+                                                        <div key={i} className="bg-white/[0.03] p-10 rounded-[3rem] border border-white/5 group/stat hover:border-red-600/40 transition-all shadow-inner">
                                                             <div className="flex items-center justify-between mb-6">
                                                                 <div className="text-[11px] font-black uppercase text-gray-700 tracking-[0.2em] group-hover/stat:text-white transition-colors">{stat.label}</div>
                                                                 <div className="text-red-600 opacity-20 group-hover/stat:opacity-100 transition-all scale-125">{stat.icon}</div>
