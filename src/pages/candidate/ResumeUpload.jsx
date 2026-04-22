@@ -18,7 +18,8 @@ import {
     TfiShield,
     TfiTarget as TfiTargetIcon,
     TfiMapAlt,
-    TfiLayers
+    TfiLayers,
+    TfiClose
 } from 'react-icons/tfi';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import resumeService from '../../services/resumeService';
