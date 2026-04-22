@@ -1837,6 +1837,32 @@ export default function InterviewRoom() {
                             </div>
                         </div>
 
+                        {/* AI Features Panel for Candidates */}
+                        {user?.role === 'candidate' && admissionStatus === 'admitted' && (
+                            <div className="absolute top-24 right-8 z-20 flex flex-col gap-4 max-w-sm">
+                                {/* Voice Tone Analyzer */}
+                                <VoiceToneAnalyzer 
+                                    interviewId={interviewMongoId} 
+                                    isActive={admissionStatus === 'admitted'} 
+                                />
+                                
+                                {/* Live Quality Meter */}
+                                <LiveQualityMeter 
+                                    interviewId={interviewMongoId}
+                                    transcript={liveTranscript}
+                                    questionIndex={currentQuestionIndex}
+                                    elapsedSeconds={Math.floor((Date.now() - (new Date().getTime())) / 1000)}
+                                    isActive={admissionStatus === 'admitted'}
+                                />
+                                
+                                {/* Whisper Transcriber */}
+                                <WhisperTranscriber 
+                                    interviewId={interviewMongoId}
+                                    questionIndex={currentQuestionIndex}
+                                />
+                            </div>
+                        )}
+
                          {/* Chat HUD Overlay */}
                          <div className="absolute bottom-12 left-12 z-20 flex flex-col items-start gap-4">
                             <button 
@@ -1971,65 +1997,26 @@ export default function InterviewRoom() {
                         </div>
 
                         {/* ── Feature 5: AI Recruiter Coach ── */}
-                        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
-                            <div className="flex items-center justify-between mb-3">
-                                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">AI Interview Coach</h4>
-                                <button
-                                    onClick={fetchRecruiterCoach}
-                                    className="text-[9px] font-black uppercase bg-red-600 text-white px-3 py-1 rounded-full hover:bg-red-700 transition-colors"
-                                >Get Advice</button>
-                            </div>
-                            {recruiterCoach ? (
-                                <div className="space-y-2">
-                                    <div className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase inline-block ${
-                                        recruiterCoach.urgency === 'high' ? 'bg-red-100 text-red-700'
-                                        : recruiterCoach.urgency === 'medium' ? 'bg-orange-100 text-orange-700'
-                                        : 'bg-gray-100 text-gray-600'
-                                    }`}>{recruiterCoach.coaching_action?.replace('_', ' ').toUpperCase()} — {recruiterCoach.urgency} priority</div>
-                                    <p className="text-[10px] text-gray-700 font-semibold leading-relaxed">{recruiterCoach.suggestion}</p>
-                                    {recruiterCoach.followup_question && (
-                                        <p className="text-[10px] text-blue-700 italic border-l-2 border-blue-400 pl-2 cursor-pointer hover:text-blue-900"
-                                            onClick={() => {
-                                                send({ type: 'chat', text: recruiterCoach.followup_question, sender: user?.name || 'Recruiter', from: 'recruiter', time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) });
-                                                toast.success('Follow-up sent to candidate');
-                                            }}
-                                        >💬 "{recruiterCoach.followup_question}" <span className="text-[8px] text-blue-400">(click to send)</span></p>
-                                    )}
-                                </div>
-                            ) : (
-                                <p className="text-[10px] text-gray-400 italic">Click "Get Advice" for real-time coaching based on candidate's response.</p>
-                            )}
-                        </div>
+                        <RecruiterCoach
+                            interviewId={interviewMongoId}
+                            transcript={liveTranscript}
+                            currentQuestion={interviewQuestions[currentQuestionIndex]?.text || ''}
+                            candidatePerformance={{
+                                overall_score: liveQuality.quality_score,
+                                confidence: localEmotion.score,
+                                violations: detectedViolations.length
+                            }}
+                        />
 
                         {/* ── Feature 4: Inconsistency / Lie Detection ── */}
                         <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm">
                             <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">Resume Consistency Check</h4>
-                                <button
-                                    onClick={fetchInconsistencyCheck}
-                                    className="text-[9px] font-black uppercase bg-gray-800 text-white px-3 py-1 rounded-full hover:bg-gray-900 transition-colors"
-                                >Scan</button>
+                                <InconsistencyChecker
+                                    interviewId={interviewMongoId}
+                                    candidateId={interview?.candidate_id}
+                                />
                             </div>
-                            {inconsistencyReport ? (
-                                <div className="space-y-2">
-                                    <div className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase inline-block ${
-                                        inconsistencyReport.risk_level === 'high' ? 'bg-red-100 text-red-700'
-                                        : inconsistencyReport.risk_level === 'medium' ? 'bg-orange-100 text-orange-700'
-                                        : 'bg-green-100 text-green-700'
-                                    }`}>Risk: {inconsistencyReport.risk_level?.toUpperCase()}</div>
-                                    {inconsistencyReport.inconsistencies?.slice(0,3).map((inc, i) => (
-                                        <div key={i} className="text-[10px] border-l-2 border-orange-400 pl-2 py-1">
-                                            <span className="font-black text-orange-600">{inc.flag}:</span>
-                                            <span className="text-gray-600 ml-1">{inc.interview_evidence?.slice(0,80)}</span>
-                                        </div>
-                                    ))}
-                                    {inconsistencyReport.inconsistencies?.length === 0 && (
-                                        <p className="text-[10px] text-green-600 font-semibold">✓ No inconsistencies detected.</p>
-                                    )}
-                                </div>
-                            ) : (
-                                <p className="text-[10px] text-gray-400 italic">Compare resume claims vs live responses for red flags.</p>
-                            )}
                         </div>
 
                         {/* AI Suggested Questions */}
