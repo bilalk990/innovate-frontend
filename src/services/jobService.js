@@ -12,6 +12,13 @@ const jobService = {
     updateApplicationStatus: (appId, status) => api.patch(`/jobs/applications/${appId}/`, { status }),
     // Feature 4 — AI Resume vs JD Gap Analyzer
     getGapAnalysis: (jobId) => api.get(`/jobs/${jobId}/gap-analysis/`),
+    
+    // NEW AI FEATURES
+    // Job Fitment Deep Analysis
+    analyzeJobFitment: (resumeData, jobDescription) => api.post('/jobs/fitment-analysis/', { resume_data: resumeData, job_description: jobDescription }),
+    
+    // Advanced Gap Analyzer
+    getAdvancedGapAnalysis: (resumeData, jobId) => api.post('/jobs/advanced-gap-analysis/', { resume_data: resumeData, job_id: jobId }),
 };
 
 export default jobService;

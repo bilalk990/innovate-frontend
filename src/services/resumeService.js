@@ -9,6 +9,10 @@ const resumeService = {
     getCandidateResume: (candidateId) => api.get('/resumes/', { params: { candidate_id: candidateId } }),
     // Feature 11 — AI Resume Generator
     generateResume: (data) => api.post('/resumes/generate/', data),
+    
+    // NEW AI FEATURES
+    // AI Resume Content Generator (Advanced)
+    generateAdvancedResume: (profileData) => api.post('/resumes/generate-advanced/', profileData),
 };
 
 export default resumeService;

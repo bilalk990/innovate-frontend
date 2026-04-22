@@ -38,6 +38,22 @@ const reportService = {
         message: 'Cannot reach AI service. Check if backend is running.',
         detail: err?.message,
     })),
+
+    // ── NEW AI FEATURES ──
+    // Behavioral Traits Analyzer
+    analyzeBehavioralTraits: (transcript) => api.post('/evaluations/behavioral-traits/', { transcript }),
+    
+    // Integrity & Plagiarism Checker
+    checkIntegrity: (responses) => api.post('/evaluations/check-integrity/', { responses }),
+    
+    // Culture Fit Analyzer
+    analyzeCultureFit: (transcript, companyValues) => api.post('/evaluations/culture-fit/', { transcript, company_values: companyValues }),
+    
+    // Executive Summary Generator
+    generateExecutiveSummary: (interviewData, evaluationResults) => api.post('/evaluations/executive-summary/', { interview_data: interviewData, evaluation_results: evaluationResults }),
+    
+    // Predictive Hiring Score (Advanced)
+    predictHireSuccess: (evalId) => api.get(`/evaluations/${evalId}/predict-hire/`),
 };
 
 export default reportService;
