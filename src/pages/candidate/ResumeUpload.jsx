@@ -314,9 +314,20 @@ export default function ResumeUpload() {
                                                      className="relative pl-12 group/item"
                                                  >
                                                      <div className="absolute left-[-2px] top-2 w-3 h-3 rounded-full bg-black border border-red-600/50 group-hover/item:bg-red-600 group-hover/item:shadow-[0_0_15px_#dc2626] transition-all" />
-                                                     <div className="font-black text-lg text-white uppercase italic mb-1 transition-colors group-hover/item:text-red-500 tracking-tight leading-none">{exp.title}</div>
-                                                     <div className="text-[10px] text-gray-600 font-black tracking-[0.2em] uppercase mb-4 opacity-50 italic">{exp.company ?? 'Organization/Company'}</div>
-                                                     <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] bg-white/5 px-4 py-2 rounded-xl border border-white/5 italic group-hover/item:border-red-600/30 group-hover/item:text-red-600 transition-all">{exp.duration}</span>
+                                                     <div className="font-black text-lg text-white uppercase italic mb-1 transition-colors group-hover/item:text-red-500 tracking-tight leading-none">
+                                                         {exp.title || exp.role || 'Position/Role'}
+                                                     </div>
+                                                     <div className="text-[10px] text-gray-400 font-black tracking-[0.2em] uppercase mb-4 italic">
+                                                         {exp.company ?? 'Organization/Company'}
+                                                     </div>
+                                                     <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] bg-white/5 px-4 py-2 rounded-xl border border-white/5 italic group-hover/item:border-red-600/30 group-hover/item:text-red-600 transition-all">
+                                                         {exp.duration || 'Duration not specified'}
+                                                     </span>
+                                                     {exp.description && (
+                                                         <p className="text-[10px] text-gray-500 mt-4 leading-relaxed">
+                                                             {exp.description}
+                                                         </p>
+                                                     )}
                                                  </motion.div>
                                              ))}
                                              {(!activeResume.parsed_data?.experience || activeResume.parsed_data.experience.length === 0) && (
@@ -343,10 +354,10 @@ export default function ResumeUpload() {
                                                      className="bg-white/[0.02] border border-white/5 p-8 rounded-[1.5rem] hover:border-red-600/30 transition-all group/edu cursor-default shadow-2xl relative overflow-hidden"
                                                  >
                                                      <div className="absolute inset-0 bg-red-600/[0.01] opacity-0 group-hover/edu:opacity-100 transition-opacity" />
-                                                     <div className="font-black text-lg text-gray-950 uppercase mb-2 italic tracking-tighter leading-none group-hover/edu:text-red-500 transition-colors">
+                                                     <div className="font-black text-lg text-white uppercase mb-2 italic tracking-tighter leading-none group-hover/edu:text-red-500 transition-colors">
                                                          {edu.degree || 'Degree/Certificate'}
                                                      </div>
-                                                     <div className="text-[11px] text-gray-500 font-black uppercase tracking-[0.2em] mb-6 opacity-60 italic group-hover/edu:opacity-100 transition-opacity">
+                                                     <div className="text-[11px] text-gray-400 font-black uppercase tracking-[0.2em] mb-6 italic group-hover/edu:opacity-100 transition-opacity">
                                                          {edu.institution || 'Target Institution'}
                                                      </div>
                                                      {edu.year && (
