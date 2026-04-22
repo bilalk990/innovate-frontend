@@ -65,14 +65,15 @@ export default function RecruiterDashboard() {
         const load = async () => {
             try {
                 const [ivRes, evRes, jobRes] = await Promise.all([
-                    interviewService.list({ limit: 50 }),
-                    reportService.listEvaluations(),
-                    jobService.list(),
+                    interviewService.list({ limit: 50 }).catch(() => ({ data: [] })),
+                    reportService.listEvaluations().catch(() => ({ data: [] })),
+                    jobService.list().catch(() => ({ data: [] })),
                 ]);
-                setInterviews(ivRes.data?.results || ivRes.data || []);
-                setEvaluations(evRes.data?.results || evRes.data || []);
-                setJobs(jobRes.data?.results || jobRes.data || []);
+                setInterviews(Array.isArray(ivRes.data) ? ivRes.data : (ivRes.data?.results || []));
+                setEvaluations(Array.isArray(evRes.data) ? evRes.data : (evRes.data?.results || []));
+                setJobs(Array.isArray(jobRes.data) ? jobRes.data : (jobRes.data?.results || []));
             } catch (err) {
+                console.error('[Dashboard] Load error:', err);
                 // silently fail - individual data sections will show empty states
             }
             finally { setLoading(false); }
