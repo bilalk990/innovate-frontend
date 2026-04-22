@@ -63,8 +63,8 @@ export default function ResumeUpload() {
     const isParsed = activeResume?.parse_status?.toLowerCase() === 'completed' || activeResume?.parse_status?.toLowerCase() === 'parsed';
     const isAnalyzing = activeResume?.parse_status?.toLowerCase() === 'pending' || activeResume?.parse_status?.toLowerCase() === 'processing';
 
-    // Calculate dynamic gauge score
-    const qualityScore = activeResume?.parsed_data?.quality_score ?? (isParsed ? 85 : 0);
+    // Calculate dynamic gauge score from backend
+    const qualityScore = activeResume?.parsed_data?.quality_score ?? 0;
     const dynamicGaugeData = [
         { name: 'Match', value: qualityScore },
         { name: 'Gap', value: 100 - qualityScore },
