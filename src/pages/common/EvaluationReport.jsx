@@ -21,6 +21,7 @@ import {
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import reportService from '../../services/reportService';
+import jobService from '../../services/jobService';
 import useAuth from '../../hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -35,6 +36,18 @@ export default function EvaluationReport() {
     const [generatingOffer, setGeneratingOffer] = useState(false);
     const [generatingPDF, setGeneratingPDF] = useState(false);
     const reportRef = useRef(null);
+    
+    // New AI Features State
+    const [behavioralTraits, setBehavioralTraits] = useState(null);
+    const [loadingBehavioral, setLoadingBehavioral] = useState(false);
+    const [integrityScore, setIntegrityScore] = useState(null);
+    const [loadingIntegrity, setLoadingIntegrity] = useState(false);
+    const [cultureFit, setCultureFit] = useState(null);
+    const [loadingCulture, setLoadingCulture] = useState(false);
+    const [executiveSummary, setExecutiveSummary] = useState(null);
+    const [loadingExecutive, setLoadingExecutive] = useState(false);
+    const [predictiveScore, setPredictiveScore] = useState(null);
+    const [loadingPredictive, setLoadingPredictive] = useState(false);
 
     useEffect(() => {
         const fetchEval = async () => {
@@ -57,6 +70,102 @@ export default function EvaluationReport() {
             setOfferDraft(res.data.draft);
         } catch { toast.error('AI generation failed. Please try again.'); }
         finally { setGeneratingOffer(false); }
+    };
+
+    const analyzeBehavioralTraits = async () => {
+        if (!data?.full_transcript) {
+            toast.error('No transcript available for analysis');
+            return;
+        }
+        setLoadingBehavioral(true);
+        try {
+            const res = await reportService.analyzeBehavioralTraits(data.full_transcript);
+            setBehavioralTraits(res.data);
+            toast.success('Behavioral analysis complete!');
+        } catch (error) {
+            toast.error('Failed to analyze behavioral traits');
+            console.error(error);
+        } finally {
+            setLoadingBehavioral(false);
+        }
+    };
+
+    const checkIntegrityScore = async () => {
+        if (!data?.responses || data.responses.length === 0) {
+            toast.error('No responses available for integrity check');
+            return;
+        }
+        setLoadingIntegrity(true);
+        try {
+            const res = await reportService.checkIntegrity(data.responses);
+            setIntegrityScore(res.data);
+            toast.success('Integrity check complete!');
+        } catch (error) {
+            toast.error('Failed to check integrity');
+            console.error(error);
+        } finally {
+            setLoadingIntegrity(false);
+        }
+    };
+
+    const analyzeCultureFitScore = async () => {
+        if (!data?.full_transcript) {
+            toast.error('No transcript available for culture fit analysis');
+            return;
+        }
+        setLoadingCulture(true);
+        try {
+            const companyValues = data.company_values || ['Innovation', 'Collaboration', 'Excellence', 'Integrity'];
+            const res = await reportService.analyzeCultureFit(data.full_transcript, companyValues);
+            setCultureFit(res.data);
+            toast.success('Culture fit analysis complete!');
+        } catch (error) {
+            toast.error('Failed to analyze culture fit');
+            console.error(error);
+        } finally {
+            setLoadingCulture(false);
+        }
+    };
+
+    const generateExecutiveSummaryReport = async () => {
+        setLoadingExecutive(true);
+        try {
+            const interviewData = {
+                candidate_name: data.candidate_name,
+                job_title: data.job_title,
+                interview_date: data.created_at,
+                duration: data.duration || 'N/A'
+            };
+            const evaluationResults = {
+                overall_score: data.overall_score,
+                criterion_results: data.criterion_results,
+                strengths: data.strengths,
+                weaknesses: data.weaknesses,
+                recommendation: data.recommendation
+            };
+            const res = await reportService.generateExecutiveSummary(interviewData, evaluationResults);
+            setExecutiveSummary(res.data);
+            toast.success('Executive summary generated!');
+        } catch (error) {
+            toast.error('Failed to generate executive summary');
+            console.error(error);
+        } finally {
+            setLoadingExecutive(false);
+        }
+    };
+
+    const predictHireSuccessScore = async () => {
+        setLoadingPredictive(true);
+        try {
+            const res = await reportService.predictHireSuccess(evalId);
+            setPredictiveScore(res.data);
+            toast.success('Predictive analysis complete!');
+        } catch (error) {
+            toast.error('Failed to predict hire success');
+            console.error(error);
+        } finally {
+            setLoadingPredictive(false);
+        }
     };
 
     const downloadPDF = async () => {
@@ -387,6 +496,371 @@ export default function EvaluationReport() {
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* NEW AI FEATURES SECTION */}
+                <div className="mt-16 space-y-8">
+                    <h2 className="text-2xl font-black text-gray-900 border-l-4 border-red-500 pl-4 mb-8">Advanced AI Analysis</h2>
+                    
+                    {/* Behavioral Traits Analyzer */}
+                    <div className="bg-white border-2 border-purple-100 rounded-[2.5rem] p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/[0.02] blur-[80px] pointer-events-none" />
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Behavioral Traits Analysis</h3>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] mt-1">AI-Powered Personality Assessment</p>
+                            </div>
+                            <button
+                                onClick={analyzeBehavioralTraits}
+                                disabled={loadingBehavioral || !data?.full_transcript}
+                                className="px-6 py-3 rounded-xl bg-purple-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {loadingBehavioral ? (
+                                    <>
+                                        <TfiReload className="animate-spin" />
+                                        Analyzing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <TfiBolt />
+                                        Analyze Traits
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        
+                        {behavioralTraits && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10"
+                            >
+                                {behavioralTraits.traits && Object.entries(behavioralTraits.traits).map(([trait, score]) => (
+                                    <div key={trait} className="bg-purple-50 rounded-2xl p-6 border border-purple-100">
+                                        <div className="text-xs font-black text-purple-900 uppercase tracking-wider mb-3">
+                                            {trait.replace(/_/g, ' ')}
+                                        </div>
+                                        <div className="text-3xl font-black text-purple-600 mb-2">{score}%</div>
+                                        <div className="w-full h-2 bg-purple-100 rounded-full overflow-hidden">
+                                            <motion.div
+                                                className="h-full bg-purple-600"
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${score}%` }}
+                                                transition={{ duration: 1 }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                                {behavioralTraits.summary && (
+                                    <div className="md:col-span-3 bg-purple-50 rounded-2xl p-6 border border-purple-100">
+                                        <p className="text-sm text-purple-900 leading-relaxed italic">
+                                            {behavioralTraits.summary}
+                                        </p>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </div>
+
+                    {/* Integrity & Plagiarism Checker */}
+                    <div className="bg-white border-2 border-orange-100 rounded-[2.5rem] p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/[0.02] blur-[80px] pointer-events-none" />
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Integrity & Plagiarism Check</h3>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] mt-1">Response Authenticity Verification</p>
+                            </div>
+                            <button
+                                onClick={checkIntegrityScore}
+                                disabled={loadingIntegrity || !data?.responses}
+                                className="px-6 py-3 rounded-xl bg-orange-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {loadingIntegrity ? (
+                                    <>
+                                        <TfiReload className="animate-spin" />
+                                        Checking...
+                                    </>
+                                ) : (
+                                    <>
+                                        <TfiShield />
+                                        Check Integrity
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        
+                        {integrityScore && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="relative z-10"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <span className="text-sm font-bold text-gray-700 uppercase tracking-wider">Integrity Score</span>
+                                    <span className={`text-5xl font-black ${
+                                        integrityScore.integrity_score >= 80 ? 'text-emerald-600' :
+                                        integrityScore.integrity_score >= 60 ? 'text-yellow-600' :
+                                        'text-red-600'
+                                    }`}>
+                                        {integrityScore.integrity_score}%
+                                    </span>
+                                </div>
+                                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden mb-6">
+                                    <motion.div
+                                        className={`h-full ${
+                                            integrityScore.integrity_score >= 80 ? 'bg-emerald-600' :
+                                            integrityScore.integrity_score >= 60 ? 'bg-yellow-600' :
+                                            'bg-red-600'
+                                        }`}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${integrityScore.integrity_score}%` }}
+                                        transition={{ duration: 1 }}
+                                    />
+                                </div>
+                                {integrityScore.red_flags && integrityScore.red_flags.length > 0 && (
+                                    <div className="space-y-2">
+                                        <h4 className="text-xs font-black text-red-900 uppercase tracking-wider mb-3">Red Flags Detected</h4>
+                                        {integrityScore.red_flags.map((flag, i) => (
+                                            <div key={i} className="bg-red-50 rounded-xl p-4 border border-red-100">
+                                                <p className="text-sm text-red-900">{flag}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {integrityScore.summary && (
+                                    <div className="mt-4 bg-orange-50 rounded-xl p-4 border border-orange-100">
+                                        <p className="text-sm text-orange-900 leading-relaxed italic">
+                                            {integrityScore.summary}
+                                        </p>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </div>
+
+                    {/* Culture Fit Analyzer */}
+                    <div className="bg-white border-2 border-blue-100 rounded-[2.5rem] p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/[0.02] blur-[80px] pointer-events-none" />
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Culture Fit Analysis</h3>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] mt-1">Company Values Alignment</p>
+                            </div>
+                            <button
+                                onClick={analyzeCultureFitScore}
+                                disabled={loadingCulture || !data?.full_transcript}
+                                className="px-6 py-3 rounded-xl bg-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {loadingCulture ? (
+                                    <>
+                                        <TfiReload className="animate-spin" />
+                                        Analyzing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <TfiMedall />
+                                        Analyze Fit
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        
+                        {cultureFit && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="relative z-10"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <span className="text-sm font-bold text-gray-700 uppercase tracking-wider">Culture Fit Score</span>
+                                    <span className={`text-5xl font-black ${
+                                        cultureFit.culture_fit_score >= 80 ? 'text-emerald-600' :
+                                        cultureFit.culture_fit_score >= 60 ? 'text-yellow-600' :
+                                        'text-red-600'
+                                    }`}>
+                                        {cultureFit.culture_fit_score}%
+                                    </span>
+                                </div>
+                                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden mb-6">
+                                    <motion.div
+                                        className={`h-full ${
+                                            cultureFit.culture_fit_score >= 80 ? 'bg-emerald-600' :
+                                            cultureFit.culture_fit_score >= 60 ? 'bg-yellow-600' :
+                                            'bg-red-600'
+                                        }`}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${cultureFit.culture_fit_score}%` }}
+                                        transition={{ duration: 1 }}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {cultureFit.aligned_values && cultureFit.aligned_values.length > 0 && (
+                                        <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
+                                            <h4 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-3">Aligned Values</h4>
+                                            <div className="space-y-2">
+                                                {cultureFit.aligned_values.map((value, i) => (
+                                                    <div key={i} className="flex items-center gap-2 text-sm text-emerald-900">
+                                                        <TfiCheck className="text-emerald-600" />
+                                                        {value}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {cultureFit.misaligned_values && cultureFit.misaligned_values.length > 0 && (
+                                        <div className="bg-red-50 rounded-xl p-6 border border-red-100">
+                                            <h4 className="text-xs font-black text-red-900 uppercase tracking-wider mb-3">Misaligned Values</h4>
+                                            <div className="space-y-2">
+                                                {cultureFit.misaligned_values.map((value, i) => (
+                                                    <div key={i} className="flex items-center gap-2 text-sm text-red-900">
+                                                        <TfiClose className="text-red-600" />
+                                                        {value}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                {cultureFit.summary && (
+                                    <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                        <p className="text-sm text-blue-900 leading-relaxed italic">
+                                            {cultureFit.summary}
+                                        </p>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </div>
+
+                    {/* Executive Summary Generator */}
+                    <div className="bg-white border-2 border-gray-900 rounded-[2.5rem] p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-gray-900/[0.02] blur-[80px] pointer-events-none" />
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Executive Summary</h3>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] mt-1">AI-Generated Leadership Brief</p>
+                            </div>
+                            <button
+                                onClick={generateExecutiveSummaryReport}
+                                disabled={loadingExecutive}
+                                className="px-6 py-3 rounded-xl bg-gray-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {loadingExecutive ? (
+                                    <>
+                                        <TfiReload className="animate-spin" />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <TfiFile />
+                                        Generate Summary
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        
+                        {executiveSummary && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-gray-50 rounded-2xl p-8 border border-gray-200 relative z-10"
+                            >
+                                <div className="prose prose-sm max-w-none">
+                                    <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                                        {executiveSummary.summary || executiveSummary.executive_summary}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
+
+                    {/* Predictive Hiring Score */}
+                    <div className="bg-white border-2 border-emerald-100 rounded-[2.5rem] p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-600/[0.02] blur-[80px] pointer-events-none" />
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div>
+                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Predictive Hiring Score</h3>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] mt-1">AI Success Probability Analysis</p>
+                            </div>
+                            <button
+                                onClick={predictHireSuccessScore}
+                                disabled={loadingPredictive}
+                                className="px-6 py-3 rounded-xl bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {loadingPredictive ? (
+                                    <>
+                                        <TfiReload className="animate-spin" />
+                                        Predicting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <TfiStatsUp />
+                                        Predict Success
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        
+                        {predictiveScore && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="relative z-10"
+                            >
+                                <div className="text-center mb-8">
+                                    <div className="text-7xl font-black text-emerald-600 mb-2">
+                                        {predictiveScore.hire_probability}%
+                                    </div>
+                                    <div className="text-sm font-bold text-gray-600 uppercase tracking-wider">
+                                        Success Probability
+                                    </div>
+                                </div>
+                                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden mb-8">
+                                    <motion.div
+                                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${predictiveScore.hire_probability}%` }}
+                                        transition={{ duration: 1.5 }}
+                                    />
+                                </div>
+                                {predictiveScore.recommendation && (
+                                    <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 mb-6">
+                                        <p className="text-sm text-emerald-900 leading-relaxed">
+                                            {predictiveScore.recommendation}
+                                        </p>
+                                    </div>
+                                )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {predictiveScore.key_factors && predictiveScore.key_factors.length > 0 && (
+                                        <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
+                                            <h4 className="text-xs font-black text-emerald-900 uppercase tracking-wider mb-3">Key Success Factors</h4>
+                                            <div className="space-y-2">
+                                                {predictiveScore.key_factors.map((factor, i) => (
+                                                    <div key={i} className="flex items-start gap-2 text-sm text-emerald-900">
+                                                        <TfiCheck className="text-emerald-600 mt-0.5 flex-shrink-0" />
+                                                        <span>{factor}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {predictiveScore.risk_factors && predictiveScore.risk_factors.length > 0 && (
+                                        <div className="bg-red-50 rounded-xl p-6 border border-red-100">
+                                            <h4 className="text-xs font-black text-red-900 uppercase tracking-wider mb-3">Risk Factors</h4>
+                                            <div className="space-y-2">
+                                                {predictiveScore.risk_factors.map((risk, i) => (
+                                                    <div key={i} className="flex items-start gap-2 text-sm text-red-900">
+                                                        <TfiClose className="text-red-600 mt-0.5 flex-shrink-0" />
+                                                        <span>{risk}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Offer Letter Module */}

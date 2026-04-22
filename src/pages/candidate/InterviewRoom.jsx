@@ -17,6 +17,11 @@ import useMediaPipeMonitoring from '../../hooks/useMediaPipeMonitoring';
 import MonitoringDashboard from '../../components/MonitoringDashboard';
 import ComprehensiveReport from '../../components/ComprehensiveReport';
 import AIEvaluationScreen from '../../components/AIEvaluationScreen';
+import VoiceToneAnalyzer from '../../components/VoiceToneAnalyzer';
+import LiveQualityMeter from '../../components/LiveQualityMeter';
+import WhisperTranscriber from '../../components/WhisperTranscriber';
+import RecruiterCoach from '../../components/RecruiterCoach';
+import InconsistencyChecker from '../../components/InconsistencyChecker';
 import { toast } from 'sonner';
 
 // Control Toggle Component for Tactical Navbar
