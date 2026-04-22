@@ -345,12 +345,49 @@ export default function ResumeBuilder() {
             const resumeElement = document.getElementById('resume-print');
             if (!resumeElement) throw new Error('Element not found');
 
-            const canvas = await html2canvas(resumeElement, {
-                scale: 2, // Reduced from 3 to prevent canvas size limit memory crashes
+            // Clone the element to avoid modifying the original
+            const clonedElement = resumeElement.cloneNode(true);
+            clonedElement.style.position = 'absolute';
+            clonedElement.style.left = '-9999px';
+            document.body.appendChild(clonedElement);
+
+            const canvas = await html2canvas(clonedElement, {
+                scale: 2,
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff',
+                allowTaint: true,
+                foreignObjectRendering: false,
+                // Ignore CSS properties that cause issues
+                ignoreElements: (element) => {
+                    // Skip elements with problematic styles
+                    const style = window.getComputedStyle(element);
+                    return style.color?.includes('oklch') || 
+                           style.backgroundColor?.includes('oklch') ||
+                           style.borderColor?.includes('oklch');
+                },
+                onclone: (clonedDoc) => {
+                    // Replace oklch colors with fallback colors
+                    const allElements = clonedDoc.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        const computedStyle = window.getComputedStyle(el);
+                        
+                        // Replace oklch colors with RGB equivalents
+                        if (computedStyle.color?.includes('oklch')) {
+                            el.style.color = 'rgb(0, 0, 0)'; // fallback to black
+                        }
+                        if (computedStyle.backgroundColor?.includes('oklch')) {
+                            el.style.backgroundColor = 'rgb(255, 255, 255)'; // fallback to white
+                        }
+                        if (computedStyle.borderColor?.includes('oklch')) {
+                            el.style.borderColor = 'rgb(0, 0, 0)'; // fallback to black
+                        }
+                    });
+                }
             });
+
+            // Remove cloned element
+            document.body.removeChild(clonedElement);
 
             const imgData = canvas.toDataURL('image/png', 1.0);
             const pdf = new jsPDF('p', 'mm', 'a4', true);
@@ -363,7 +400,7 @@ export default function ResumeBuilder() {
             toast.success('PDF Exported successfully!', { id: toastId });
         } catch (error) {
             console.error("PDF Generation Error: ", error);
-            toast.error(`PDF extraction failed: ${error.message || 'Unknown error'}`, { id: toastId });
+            toast.error(`PDF export failed: ${error.message || 'Unknown error'}`, { id: toastId });
         }
     };
 
