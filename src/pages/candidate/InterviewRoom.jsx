@@ -453,9 +453,58 @@ export default function InterviewRoom() {
     const [behaviorScore, setBehaviorScore] = useState(100);
 
     // ── Transcript + question index refs — declared early so onMessage closure can use them ──
-    // (onMessage is defined above in JSX but runs async, so these refs exist by then)
     const liveTranscriptRef = useRef('');
     const currentQuestionIndexRef = useRef(0);
+
+    // ── Anxiety Detection State (candidate-only) ──
+    const [anxietyData, setAnxietyData] = useState(null);
+    const [showAnxietyCoach, setShowAnxietyCoach] = useState(false);
+    const anxietyPollRef = useRef(null);
+    const speechStartRef = useRef(null);
+    const wordCountRef = useRef(0);
+    const pauseCountRef = useRef(0);
+    const fillerWordRef = useRef(0);
+    const FILLER_WORDS = ['um', 'uh', 'like', 'you know', 'basically', 'literally', 'actually', 'so'];
+
+    // Track speech features from live transcript for anxiety analysis
+    useEffect(() => {
+        if (!liveTranscript || user?.role !== 'candidate') return;
+        const words = liveTranscript.trim().split(/\s+/);
+        wordCountRef.current = words.length;
+        fillerWordRef.current = words.filter(w => FILLER_WORDS.includes(w.toLowerCase())).length;
+    }, [liveTranscript, user]);
+
+    // Poll anxiety detection every 90 seconds during active interview (candidate only)
+    useEffect(() => {
+        if (admissionStatus !== 'admitted' || user?.role !== 'candidate') return;
+
+        const runAnxietyCheck = async () => {
+            try {
+                const { default: evaluationService } = await import('../../services/evaluationService');
+                const durationSec = speechStartRef.current ? Math.floor((Date.now() - speechStartRef.current) / 1000) : 60;
+                const wpm = durationSec > 0 ? Math.round((wordCountRef.current / durationSec) * 60) : 120;
+                const result = await evaluationService.checkAnxiety({
+                    speech_rate_wpm: Math.max(60, Math.min(250, wpm)),
+                    pause_frequency: pauseCountRef.current,
+                    long_pauses: Math.floor(pauseCountRef.current / 3),
+                    volume_variance: 0.2,
+                    filler_word_count: fillerWordRef.current,
+                    speaking_duration_seconds: durationSec,
+                    silence_ratio: 0.15,
+                    pitch_variance: 0,
+                });
+                const d = result.data;
+                if (d.anxiety_score > 50) {
+                    setAnxietyData(d);
+                    setShowAnxietyCoach(true);
+                }
+            } catch (_) { /* silent fail */ }
+        };
+
+        speechStartRef.current = Date.now();
+        anxietyPollRef.current = setInterval(runAnxietyCheck, 90000); // every 90s
+        return () => clearInterval(anxietyPollRef.current);
+    }, [admissionStatus, user]);
 
     // Refs
     const localVideo = useRef(null);
@@ -2186,6 +2235,80 @@ export default function InterviewRoom() {
                     onClose={() => setShowComprehensiveReport(false)}
                 />
             )}
+
+            {/* ── Anxiety Calm Coach Overlay (candidate only) ── */}
+            <AnimatePresence>
+                {showAnxietyCoach && anxietyData && user?.role === 'candidate' && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 100, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 100, scale: 0.95 }}
+                        transition={{ type: 'spring', damping: 20 }}
+                        className="fixed bottom-8 right-8 z-[3000] w-[360px]"
+                    >
+                        <div className="bg-gray-950 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-8 py-6 border-b border-white/5">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl animate-pulse ${anxietyData.anxiety_score > 70 ? 'bg-red-600/20 text-red-400' : anxietyData.anxiety_score > 50 ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                                        🧘
+                                    </div>
+                                    <div>
+                                        <div className="text-[11px] font-black uppercase text-white tracking-widest italic">Calm Coach</div>
+                                        <div className={`text-[9px] font-black uppercase tracking-widest italic ${anxietyData.anxiety_score > 70 ? 'text-red-400' : 'text-amber-400'}`}>{anxietyData.anxiety_level} Detected</div>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowAnxietyCoach(false)} className="text-gray-500 hover:text-white transition-colors p-2 text-lg rounded-xl hover:bg-white/10">
+                                    <TfiClose />
+                                </button>
+                            </div>
+
+                            <div className="p-8 space-y-6">
+                                {/* Score */}
+                                <div className="flex items-center gap-5">
+                                    <div className="relative w-16 h-16 flex-shrink-0">
+                                        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="10" />
+                                            <circle cx="50" cy="50" r="40" fill="none"
+                                                stroke={anxietyData.anxiety_score > 70 ? '#ef4444' : anxietyData.anxiety_score > 50 ? '#f59e0b' : '#10b981'}
+                                                strokeWidth="10" strokeLinecap="round"
+                                                strokeDasharray={`${(anxietyData.anxiety_score / 100) * 251} 251`}
+                                            />
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-lg font-black text-white italic">{anxietyData.anxiety_score}</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-[13px] text-gray-300 italic leading-relaxed">{anxietyData.calm_message}</p>
+                                </div>
+
+                                {/* Breathing Exercise */}
+                                <div className="p-6 bg-white/5 rounded-[1.5rem] border border-white/5">
+                                    <div className="text-[9px] font-black uppercase text-blue-400 tracking-widest italic mb-3">Breathing Exercise</div>
+                                    <p className="text-[12px] text-gray-300 italic leading-relaxed">{anxietyData.breathing_exercise}</p>
+                                </div>
+
+                                {/* Quick Tip */}
+                                <div className="p-5 bg-amber-500/10 rounded-[1.5rem] border border-amber-500/20">
+                                    <p className="text-[12px] text-amber-300 italic">💡 {anxietyData.quick_tip}</p>
+                                </div>
+
+                                {/* Affirmation */}
+                                <div className="text-center">
+                                    <p className="text-[14px] font-black text-white italic">{anxietyData.positive_affirmation}</p>
+                                </div>
+
+                                <button
+                                    onClick={() => setShowAnxietyCoach(false)}
+                                    className="w-full py-4 rounded-[1.5rem] bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest italic transition-all"
+                                >
+                                    I'm Ready · Close
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -25,6 +25,13 @@ const evaluationService = {
     getPredictHire: (evalId) => api.get(`/evaluations/${evalId}/predict-hire/`),
     // Candidate Interview Readiness Score
     getReadinessScore: () => api.get('/evaluations/readiness/'),
+    // Mock Interview Coach
+    startMockInterview: (data) => api.post('/evaluations/mock/start/', data),
+    submitMockAnswer: (data) => api.post('/evaluations/mock/answer/', data),
+    getMockSession: (sessionId) => api.get(`/evaluations/mock/${sessionId}/`),
+    listMockSessions: () => api.get('/evaluations/mock/'),
+    // Anxiety Detection
+    checkAnxiety: (data) => api.post('/evaluations/anxiety-check/', data),
 };
 
 export default evaluationService;

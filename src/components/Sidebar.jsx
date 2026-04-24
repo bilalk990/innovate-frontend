@@ -1,10 +1,10 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  TfiDashboard, 
-  TfiBriefcase, 
-  TfiFile, 
-  TfiUser, 
+import {
+  TfiDashboard,
+  TfiBriefcase,
+  TfiFile,
+  TfiUser,
   TfiTarget,
   TfiBolt,
   TfiStatsUp,
@@ -16,7 +16,10 @@ import {
   TfiAngleRight,
   TfiPowerOff,
   TfiLayoutGrid2,
-  TfiReload
+  TfiReload,
+  TfiMicrophone,
+  TfiMedall,
+  TfiMap
 } from 'react-icons/tfi';
 import useAuth from '../hooks/useAuth';
 
@@ -39,9 +42,12 @@ const candidateNavigation = [
     ]
   },
   {
-    title: 'HELP & SETTINGS',
+    title: 'AI CAREER TOOLS',
     items: [
       { path: '/candidate/ai-insights', icon: TfiStatsUp, label: 'AI Insights' },
+      { path: '/candidate/mock-interview', icon: TfiMicrophone, label: 'Mock Interview' },
+      { path: '/candidate/salary-negotiator', icon: TfiMedall, label: 'Salary AI' },
+      { path: '/candidate/career-path', icon: TfiMap, label: 'Career Path' },
     ]
   }
 ];

@@ -16,6 +16,10 @@ const authService = {
     syncGoogleCallback: (code) => api.post('/auth/google/callback/', { code }),
     // AI Profile Improvement Suggestions
     getProfileSuggestions: () => api.get('/auth/profile-suggestions/'),
+    // Salary Negotiation AI
+    getSalaryNegotiation: (data) => api.post('/auth/salary-negotiation/', data),
+    // Career Path Recommender
+    getCareerPath: () => api.get('/auth/career-path/'),
 };
 
 export default authService;

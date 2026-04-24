@@ -28,6 +28,9 @@ const Profile               = lazy(() => import('../pages/candidate/Profile'));
 const InterviewDebrief      = lazy(() => import('../pages/candidate/InterviewDebrief'));
 const MyApplications        = lazy(() => import('../pages/candidate/MyApplications'));
 const ResumeBuilder         = lazy(() => import('../pages/candidate/ResumeBuilder'));
+const MockInterview         = lazy(() => import('../pages/candidate/MockInterview'));
+const SalaryNegotiator      = lazy(() => import('../pages/candidate/SalaryNegotiator'));
+const CareerPath            = lazy(() => import('../pages/candidate/CareerPath'));
 
 const RecruiterDashboard    = lazy(() => import('../pages/recruiter/Dashboard'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
@@ -111,8 +114,12 @@ export default function AppRoutes() {
                 <Route path="applications" element={<MyApplications />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="evaluations/:evalId" element={<EvaluationReport />} />
-                <Route path="evaluations/:evalId/debrief" element={<InterviewDebrief />} />  {/* Feature 7 */}
+                <Route path="evaluations/:evalId/debrief" element={<InterviewDebrief />} />
                 <Route path="interview/lobby/:roomId" element={<InterviewLobby />} />
+                {/* Category 1: New AI Features */}
+                <Route path="mock-interview" element={<MockInterview />} />
+                <Route path="salary-negotiator" element={<SalaryNegotiator />} />
+                <Route path="career-path" element={<CareerPath />} />
             </Route>
 
             {/* Recruiter */}
