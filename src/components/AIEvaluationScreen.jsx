@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TfiCheck, TfiClose, TfiShield, TfiWrite, TfiTarget, TfiStatsUp } from 'react-icons/tfi';
+import { TfiCheck, TfiClose, TfiShield, TfiWrite, TfiTarget, TfiStatsUp, TfiBolt, TfiReload } from 'react-icons/tfi';
 import useAuth from '../hooks/useAuth';
+import evaluationService from '../services/evaluationService';
 
 // Animated circular progress ring
 function ScoreRing({ score, size = 192, stroke = 12, color }) {
@@ -63,6 +64,58 @@ const CRITERION_LABELS = {
 export default function AIEvaluationScreen({ evaluation, onClose }) {
     const printRef = useRef();
     const { token } = useAuth();
+
+    // ── Deep AI Analysis state (features 28-31) ──
+    const [behavioralData, setBehavioralData] = useState(null);
+    const [behavioralLoading, setBehavioralLoading] = useState(false);
+    const [integrityData, setIntegrityData] = useState(null);
+    const [integrityLoading, setIntegrityLoading] = useState(false);
+    const [cultureFitData, setCultureFitData] = useState(null);
+    const [cultureFitLoading, setCultureFitLoading] = useState(false);
+    const [execSummaryData, setExecSummaryData] = useState(null);
+    const [execSummaryLoading, setExecSummaryLoading] = useState(false);
+
+    const runBehavioralAnalysis = async () => {
+        setBehavioralLoading(true);
+        try {
+            const transcript = evaluation?.transcript || evaluation?.summary || '';
+            const res = await evaluationService.analyzeBehavioralTraits({ transcript });
+            setBehavioralData(res.data);
+        } catch { setBehavioralData({ error: 'Analysis failed. Please try again.' }); }
+        setBehavioralLoading(false);
+    };
+
+    const runIntegrityCheck = async () => {
+        setIntegrityLoading(true);
+        try {
+            const responses = evaluation?.responses || [evaluation?.summary || ''];
+            const res = await evaluationService.checkIntegrity({ responses });
+            setIntegrityData(res.data);
+        } catch { setIntegrityData({ error: 'Integrity check failed.' }); }
+        setIntegrityLoading(false);
+    };
+
+    const runCultureFit = async () => {
+        setCultureFitLoading(true);
+        try {
+            const transcript = evaluation?.transcript || evaluation?.summary || '';
+            const res = await evaluationService.analyzeCultureFit({ transcript });
+            setCultureFitData(res.data);
+        } catch { setCultureFitData({ error: 'Culture fit analysis failed.' }); }
+        setCultureFitLoading(false);
+    };
+
+    const runExecutiveSummary = async () => {
+        setExecSummaryLoading(true);
+        try {
+            const res = await evaluationService.generateExecutiveSummary({
+                interview_data: { title: evaluation?.job_title || 'Interview' },
+                evaluation_results: evaluation,
+            });
+            setExecSummaryData(res.data);
+        } catch { setExecSummaryData({ error: 'Executive summary generation failed.' }); }
+        setExecSummaryLoading(false);
+    };
 
     // Feature 6: Follow-up Email state
     const [showEmailModal, setShowEmailModal] = useState(false);
@@ -443,6 +496,169 @@ export default function AIEvaluationScreen({ evaluation, onClose }) {
                             {recommendation === 'MAYBE' && '⚠️ Schedule a follow-up technical interview or take-home assessment before making a final decision.'}
                             {recommendation === 'REJECT' && '❌ Send a professional rejection email. Consider sharing constructive feedback with the candidate.'}
                         </p>
+                    </div>
+
+                    {/* ── DEEP AI ANALYSIS PANELS (Features 28–31) ── */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <TfiBolt className="text-xl text-purple-400" />
+                            <h3 className="text-white font-black uppercase tracking-wider text-sm">Deep AI Analysis Suite</h3>
+                            <span className="text-purple-400/50 text-[10px] ml-auto italic">On-demand • Powered by Gemini AI</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Behavioral Traits Panel */}
+                            <div className="bg-purple-950/20 border border-purple-600/30 rounded-2xl p-5">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl">🧠</span>
+                                        <h4 className="text-purple-300 font-black uppercase tracking-wider text-xs">Behavioral Traits</h4>
+                                    </div>
+                                    {!behavioralData && (
+                                        <button onClick={runBehavioralAnalysis} disabled={behavioralLoading}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg text-[10px] font-black uppercase transition-all">
+                                            {behavioralLoading ? <TfiReload className="animate-spin" /> : <TfiBolt />}
+                                            {behavioralLoading ? 'Analyzing...' : 'Run Analysis'}
+                                        </button>
+                                    )}
+                                    {behavioralData && !behavioralData.error && (
+                                        <button onClick={() => setBehavioralData(null)} className="text-white/30 hover:text-white/70 text-[10px]">↺ Reset</button>
+                                    )}
+                                </div>
+                                {!behavioralData && !behavioralLoading && (
+                                    <p className="text-white/30 text-[11px] italic">Click to detect confidence, assertiveness, leadership signals from transcript.</p>
+                                )}
+                                {behavioralData?.error && <p className="text-red-400 text-xs">{behavioralData.error}</p>}
+                                {behavioralData && !behavioralData.error && (
+                                    <div className="space-y-2 mt-2">
+                                        {behavioralData.traits?.slice(0, 4).map((t, i) => (
+                                            <div key={i} className="flex items-center justify-between">
+                                                <span className="text-white/70 text-[11px] capitalize">{typeof t === 'string' ? t : t.trait || t.name}</span>
+                                                {typeof t === 'object' && t.score != null && (
+                                                    <span className={`text-[11px] font-black ${t.score >= 70 ? 'text-emerald-400' : t.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>{t.score}%</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {behavioralData.summary && <p className="text-white/50 text-[10px] italic border-t border-white/10 pt-2 mt-2">{behavioralData.summary}</p>}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Integrity / Plagiarism Panel */}
+                            <div className="bg-orange-950/20 border border-orange-600/30 rounded-2xl p-5">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl">🔍</span>
+                                        <h4 className="text-orange-300 font-black uppercase tracking-wider text-xs">Integrity Check</h4>
+                                    </div>
+                                    {!integrityData && (
+                                        <button onClick={runIntegrityCheck} disabled={integrityLoading}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-lg text-[10px] font-black uppercase transition-all">
+                                            {integrityLoading ? <TfiReload className="animate-spin" /> : <TfiBolt />}
+                                            {integrityLoading ? 'Checking...' : 'Check Now'}
+                                        </button>
+                                    )}
+                                    {integrityData && !integrityData.error && (
+                                        <button onClick={() => setIntegrityData(null)} className="text-white/30 hover:text-white/70 text-[10px]">↺ Reset</button>
+                                    )}
+                                </div>
+                                {!integrityData && !integrityLoading && (
+                                    <p className="text-white/30 text-[11px] italic">Detect AI-generated content, plagiarism, and rehearsed responses.</p>
+                                )}
+                                {integrityData?.error && <p className="text-red-400 text-xs">{integrityData.error}</p>}
+                                {integrityData && !integrityData.error && (
+                                    <div className="space-y-2 mt-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-white/70 text-[11px]">Integrity Score</span>
+                                            <span className={`text-lg font-black ${integrityData.integrity_score >= 80 ? 'text-emerald-400' : integrityData.integrity_score >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{integrityData.integrity_score ?? '—'}/100</span>
+                                        </div>
+                                        {integrityData.red_flags?.length > 0 && (
+                                            <div className="space-y-1">
+                                                {integrityData.red_flags.slice(0, 3).map((f, i) => (
+                                                    <div key={i} className="text-[10px] text-orange-300 flex items-start gap-1.5"><span>⚠</span>{typeof f === 'string' ? f : f.flag || f.description}</div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {integrityData.notes && <p className="text-white/40 text-[10px] italic border-t border-white/10 pt-2 mt-1">{integrityData.notes}</p>}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Culture Fit Panel */}
+                            <div className="bg-teal-950/20 border border-teal-600/30 rounded-2xl p-5">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl">🌱</span>
+                                        <h4 className="text-teal-300 font-black uppercase tracking-wider text-xs">Culture Fit</h4>
+                                    </div>
+                                    {!cultureFitData && (
+                                        <button onClick={runCultureFit} disabled={cultureFitLoading}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white rounded-lg text-[10px] font-black uppercase transition-all">
+                                            {cultureFitLoading ? <TfiReload className="animate-spin" /> : <TfiBolt />}
+                                            {cultureFitLoading ? 'Analyzing...' : 'Analyze Fit'}
+                                        </button>
+                                    )}
+                                    {cultureFitData && !cultureFitData.error && (
+                                        <button onClick={() => setCultureFitData(null)} className="text-white/30 hover:text-white/70 text-[10px]">↺ Reset</button>
+                                    )}
+                                </div>
+                                {!cultureFitData && !cultureFitLoading && (
+                                    <p className="text-white/30 text-[11px] italic">Measure alignment with company values: innovation, teamwork, growth mindset.</p>
+                                )}
+                                {cultureFitData?.error && <p className="text-red-400 text-xs">{cultureFitData.error}</p>}
+                                {cultureFitData && !cultureFitData.error && (
+                                    <div className="space-y-2 mt-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-white/70 text-[11px]">Culture Fit Score</span>
+                                            <span className={`text-lg font-black ${cultureFitData.culture_fit_score >= 70 ? 'text-teal-400' : 'text-amber-400'}`}>{cultureFitData.culture_fit_score ?? '—'}/100</span>
+                                        </div>
+                                        {cultureFitData.aligned_values?.length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {cultureFitData.aligned_values.slice(0, 3).map((v, i) => (
+                                                    <span key={i} className="text-[9px] px-2 py-0.5 bg-teal-900/50 border border-teal-600/30 text-teal-300 rounded-full font-bold">✓ {v}</span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {cultureFitData.misaligned_values?.length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {cultureFitData.misaligned_values.slice(0, 2).map((v, i) => (
+                                                    <span key={i} className="text-[9px] px-2 py-0.5 bg-red-900/30 border border-red-600/30 text-red-300 rounded-full font-bold">✗ {v}</span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Executive Summary Panel */}
+                            <div className="bg-blue-950/20 border border-blue-600/30 rounded-2xl p-5">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xl">📋</span>
+                                        <h4 className="text-blue-300 font-black uppercase tracking-wider text-xs">Executive Summary</h4>
+                                    </div>
+                                    {!execSummaryData && (
+                                        <button onClick={runExecutiveSummary} disabled={execSummaryLoading}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-[10px] font-black uppercase transition-all">
+                                            {execSummaryLoading ? <TfiReload className="animate-spin" /> : <TfiBolt />}
+                                            {execSummaryLoading ? 'Generating...' : 'Generate'}
+                                        </button>
+                                    )}
+                                    {execSummaryData && !execSummaryData.error && (
+                                        <button onClick={() => setExecSummaryData(null)} className="text-white/30 hover:text-white/70 text-[10px]">↺ Reset</button>
+                                    )}
+                                </div>
+                                {!execSummaryData && !execSummaryLoading && (
+                                    <p className="text-white/30 text-[11px] italic">One-paragraph C-suite ready summary to share with leadership.</p>
+                                )}
+                                {execSummaryData?.error && <p className="text-red-400 text-xs">{execSummaryData.error}</p>}
+                                {execSummaryData && !execSummaryData.error && (
+                                    <p className="text-white/70 text-[11px] leading-relaxed italic mt-1">
+                                        "{execSummaryData.summary || execSummaryData.executive_summary}"
+                                    </p>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     {/* ── ACTION BUTTONS ── */}

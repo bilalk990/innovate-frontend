@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TfiBolt, TfiTarget, TfiLightbulb } from 'react-icons/tfi';
+import { TfiBolt, TfiTarget, TfiLightBulb } from 'react-icons/tfi';
 import { motion } from 'framer-motion';
 import interviewService from '../services/interviewService';
 
@@ -96,7 +96,7 @@ export default function RecruiterCoach({ interviewId, transcript, currentQuestio
             {coaching.coaching_tip && (
                 <div className="bg-blue-100 rounded-lg p-3 border border-blue-200">
                     <div className="flex items-start gap-2">
-                        <TfiLightbulb className="text-blue-600 mt-0.5 flex-shrink-0" />
+                        <TfiLightBulb className="text-blue-600 mt-0.5 flex-shrink-0" />
                         <p className="text-xs text-blue-900 leading-relaxed">
                             <strong>Tip:</strong> {coaching.coaching_tip}
                         </p>

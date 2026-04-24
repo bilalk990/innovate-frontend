@@ -17,6 +17,14 @@ const evaluationService = {
     getHireProbability: (evalId) => api.get(`/evaluations/${evalId}/hire-probability/`),
     // New Feature 6 — Follow-up Email Generation
     generateFollowUpEmail: (evalId, data) => api.post(`/evaluations/${evalId}/followup-email/`, data),
+    // Deep AI Analysis panels (Recruiter-side, on-demand)
+    analyzeBehavioralTraits: (data) => api.post('/evaluations/behavioral-traits/', data),
+    checkIntegrity: (data) => api.post('/evaluations/check-integrity/', data),
+    analyzeCultureFit: (data) => api.post('/evaluations/culture-fit/', data),
+    generateExecutiveSummary: (data) => api.post('/evaluations/executive-summary/', data),
+    getPredictHire: (evalId) => api.get(`/evaluations/${evalId}/predict-hire/`),
+    // Candidate Interview Readiness Score
+    getReadinessScore: () => api.get('/evaluations/readiness/'),
 };
 
 export default evaluationService;

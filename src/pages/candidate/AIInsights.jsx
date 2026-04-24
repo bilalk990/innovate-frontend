@@ -1,25 +1,29 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   Cell
 } from 'recharts';
-import { 
-  TfiStatsUp, 
-  TfiBolt, 
-  TfiTarget, 
-  TfiPulse, 
+import {
+  TfiStatsUp,
+  TfiBolt,
+  TfiTarget,
+  TfiPulse,
   TfiHarddrives,
   TfiMapAlt,
   TfiAngleRight,
   TfiShield,
   TfiLayers,
-  TfiBriefcase
+  TfiBriefcase,
+  TfiReload,
+  TfiCheck,
+  TfiAlert
 } from 'react-icons/tfi';
 import useFetch from '../../hooks/useFetch';
 import reportService from '../../services/reportService';
+import evaluationService from '../../services/evaluationService';
 import Loader from '../../components/Loader';
 
 const PERFORMANCE_GUIDE = {
@@ -39,6 +43,21 @@ export default function AIInsights() {
     const navigate = useNavigate();
     const listEvaluations = useCallback(() => reportService.listEvaluations(), []);
     const { data: evaluationsData, loading } = useFetch(listEvaluations);
+
+    // Readiness Score state (Feature 34 — live AI call)
+    const [readinessData, setReadinessData] = useState(null);
+    const [readinessLoading, setReadinessLoading] = useState(false);
+
+    const fetchReadiness = async () => {
+        setReadinessLoading(true);
+        try {
+            const res = await evaluationService.getReadinessScore();
+            setReadinessData(res.data);
+        } catch {
+            setReadinessData({ error: 'Could not load readiness score.' });
+        }
+        setReadinessLoading(false);
+    };
 
     const evaluations = useMemo(() => evaluationsData?.results || evaluationsData || [], [evaluationsData]);
 
@@ -261,8 +280,64 @@ export default function AIInsights() {
                         </div>
                     </div>
 
-                    <div 
-                        onClick={() => navigate('/candidate/dashboard')} 
+                    {/* ── Interview Readiness Score Card (Feature 34 — live AI call) ── */}
+                    <div className="elite-glass-panel p-10 bg-white border-gray-100 relative overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-purple-600/[0.04] blur-[80px] pointer-events-none" />
+                        <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-gray-400 mb-6 flex items-center gap-3 italic">
+                            <TfiBolt className="text-purple-600" /> Interview Readiness
+                        </h4>
+                        {!readinessData && !readinessLoading && (
+                            <>
+                                <p className="text-[10px] text-gray-400 italic mb-6 leading-relaxed">AI analyzes your profile + past interviews to calculate your readiness score.</p>
+                                <button onClick={fetchReadiness}
+                                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg">
+                                    <TfiBolt /> Calculate Readiness Score
+                                </button>
+                            </>
+                        )}
+                        {readinessLoading && (
+                            <div className="flex flex-col items-center py-6 gap-3">
+                                <TfiReload className="animate-spin text-2xl text-purple-500" />
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest italic">Analyzing...</p>
+                            </div>
+                        )}
+                        {readinessData?.error && (
+                            <p className="text-red-500 text-[11px]">{readinessData.error}</p>
+                        )}
+                        {readinessData && !readinessData.error && (
+                            <div className="space-y-4 relative z-10">
+                                <div className="flex items-end gap-3">
+                                    <span className="text-5xl font-black italic text-gray-950 tracking-tighter">{readinessData.readiness_score ?? '—'}</span>
+                                    <span className="text-gray-400 text-sm font-black italic mb-1">/100</span>
+                                    <span className="ml-auto text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-purple-50 text-purple-600 border border-purple-100">{readinessData.readiness_level}</span>
+                                </div>
+                                {readinessData.readiness_summary && (
+                                    <p className="text-[10px] text-gray-500 italic leading-relaxed border-l-2 border-purple-400 pl-3">{readinessData.readiness_summary}</p>
+                                )}
+                                {readinessData.strengths?.length > 0 && (
+                                    <div className="space-y-1">
+                                        {readinessData.strengths.slice(0, 2).map((s, i) => (
+                                            <div key={i} className="flex items-center gap-2 text-[10px] text-emerald-600 font-black"><TfiCheck className="flex-shrink-0" /> {s}</div>
+                                        ))}
+                                    </div>
+                                )}
+                                {readinessData.gaps?.length > 0 && (
+                                    <div className="space-y-1">
+                                        {readinessData.gaps.slice(0, 2).map((g, i) => (
+                                            <div key={i} className="flex items-center gap-2 text-[10px] text-amber-600 font-black"><TfiAlert className="flex-shrink-0" /> {g}</div>
+                                        ))}
+                                    </div>
+                                )}
+                                {readinessData.estimated_prep_time && (
+                                    <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest italic">Est. prep time: {readinessData.estimated_prep_time}</p>
+                                )}
+                                <button onClick={() => setReadinessData(null)} className="text-[10px] text-gray-400 hover:text-gray-600 font-black uppercase tracking-widest">↺ Recalculate</button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div
+                        onClick={() => navigate('/candidate/dashboard')}
                         className="p-8 elite-glass-panel group cursor-pointer border-gray-100 hover:border-red-600/30 transition-all duration-700 bg-white relative overflow-hidden shadow-2xl"
                     >
                         <div className="absolute inset-0 bg-red-600/[0.01] opacity-0 group-hover:opacity-100 transition-opacity" />
