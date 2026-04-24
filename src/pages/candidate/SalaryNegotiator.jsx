@@ -54,7 +54,10 @@ export default function SalaryNegotiator() {
 
     const fmt = (n) => {
         if (!n) return 'N/A';
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: data?.currency === 'USD' ? 'USD' : 'USD', maximumFractionDigits: 0 }).format(n);
+        const currencyCode = data?.currency || 'USD';
+        const validCodes = ['USD', 'GBP', 'EUR', 'INR', 'PKR', 'AED', 'CAD', 'AUD'];
+        const safeCurrency = validCodes.includes(currencyCode) ? currencyCode : 'USD';
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: safeCurrency, maximumFractionDigits: 0 }).format(n);
     };
 
     const TABS = ['overview', 'script', 'counters', 'tips'];
@@ -279,7 +282,7 @@ export default function SalaryNegotiator() {
                                                         <span className="text-[10px] font-black uppercase text-amber-400 tracking-widest italic pt-2">READY TO USE</span>
                                                     </div>
                                                     <p className="text-[16px] text-white italic leading-[1.9] relative z-10 border-l-4 border-amber-500/30 pl-8">
-                                                        "{data.negotiation_script}"
+                                                        {data.negotiation_script}
                                                     </p>
                                                 </div>
                                                 <div className="mt-8 p-6 bg-amber-50 border border-amber-100 rounded-[1.5rem] text-[12px] text-amber-700 italic flex items-center gap-4">
@@ -300,7 +303,7 @@ export default function SalaryNegotiator() {
                                                         <span className="text-[11px] font-black uppercase text-red-600 tracking-widest italic">{item.scenario}</span>
                                                     </div>
                                                     <div className="p-8 bg-gray-950 rounded-[2rem]">
-                                                        <p className="text-[15px] text-white italic leading-relaxed">"{item.response}"</p>
+                                                        <p className="text-[15px] text-white italic leading-relaxed">{item.response}</p>
                                                     </div>
                                                 </div>
                                             ))}
