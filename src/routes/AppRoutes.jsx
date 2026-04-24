@@ -34,6 +34,13 @@ const CareerPath            = lazy(() => import('../pages/candidate/CareerPath')
 const InterviewPrepLab      = lazy(() => import('../pages/candidate/InterviewPrepLab'));
 
 const RecruiterDashboard    = lazy(() => import('../pages/recruiter/Dashboard'));
+const CandidateComparison   = lazy(() => import('../pages/recruiter/CandidateComparison'));
+const BiasDetector          = lazy(() => import('../pages/recruiter/BiasDetector'));
+const ReferenceCheck        = lazy(() => import('../pages/recruiter/ReferenceCheck'));
+const OfferPredictor        = lazy(() => import('../pages/recruiter/OfferPredictor'));
+const FunnelAnalyzer        = lazy(() => import('../pages/recruiter/FunnelAnalyzer'));
+const TeamFit               = lazy(() => import('../pages/recruiter/TeamFit'));
+const InterviewerCoach      = lazy(() => import('../pages/recruiter/InterviewerCoach'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
 const Candidates            = lazy(() => import('../pages/recruiter/Candidates'));
 const JobPostings           = lazy(() => import('../pages/recruiter/JobPostings'));
@@ -147,6 +154,14 @@ export default function AppRoutes() {
                 <Route path="messages" element={<RecruiterDashboard />} />
                 <Route path="candidates/:candidateId" element={<CandidateProfile />} />
                 <Route path="settings" element={<RecruiterProfile />} />
+                {/* HR AI Power Tools */}
+                <Route path="compare-candidates" element={<CandidateComparison />} />
+                <Route path="bias-detector" element={<BiasDetector />} />
+                <Route path="reference-check" element={<ReferenceCheck />} />
+                <Route path="offer-predictor" element={<OfferPredictor />} />
+                <Route path="funnel-analyzer" element={<FunnelAnalyzer />} />
+                <Route path="team-fit" element={<TeamFit />} />
+                <Route path="interviewer-coach" element={<InterviewerCoach />} />
             </Route>
 
             {/* Admin */}

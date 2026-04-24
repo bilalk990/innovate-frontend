@@ -19,7 +19,13 @@ import {
   TfiReload,
   TfiMicrophone,
   TfiMedall,
-  TfiMap
+  TfiMap,
+  TfiAgenda,
+  TfiComment,
+  TfiBarChart,
+  TfiSearch,
+  TfiWrite,
+  TfiViewListAlt,
 } from 'react-icons/tfi';
 import useAuth from '../hooks/useAuth';
 
@@ -70,6 +76,18 @@ const recruiterNavigation = [
       { path: '/recruiter/pipeline', icon: TfiReload, label: 'Talent Pipeline' },
       { path: '/recruiter/question-bank', icon: TfiBriefcase, label: 'Question Bank' },
       { path: '/recruiter/jd-analyzer', icon: TfiTarget, label: 'JD Analyzer' },
+    ]
+  },
+  {
+    title: 'HR AI TOOLS',
+    items: [
+      { path: '/recruiter/compare-candidates', icon: TfiViewListAlt, label: 'Compare AI' },
+      { path: '/recruiter/bias-detector', icon: TfiSearch, label: 'Bias Detector' },
+      { path: '/recruiter/reference-check', icon: TfiComment, label: 'Reference AI' },
+      { path: '/recruiter/offer-predictor', icon: TfiMedall, label: 'Offer AI' },
+      { path: '/recruiter/funnel-analyzer', icon: TfiBarChart, label: 'Funnel AI' },
+      { path: '/recruiter/team-fit', icon: TfiLayoutGrid2, label: 'Team Fit AI' },
+      { path: '/recruiter/interviewer-coach', icon: TfiAgenda, label: 'Coach AI' },
     ]
   },
   {
