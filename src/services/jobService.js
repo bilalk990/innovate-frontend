@@ -19,6 +19,8 @@ const jobService = {
     
     // Advanced Gap Analyzer
     getAdvancedGapAnalysis: (resumeData, jobId) => api.post('/jobs/advanced-gap-analysis/', { resume_data: resumeData, job_id: jobId }),
+    // Predict Application Status
+    predictApplicationStatus: (jobId) => api.post(`/jobs/${jobId}/predict-status/`),
 };
 
 export default jobService;

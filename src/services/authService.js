@@ -14,6 +14,8 @@ const authService = {
     // Google OAuth for Meet/Calendar
     getGoogleAuthUrl: () => api.get('/auth/google/url/'),
     syncGoogleCallback: (code) => api.post('/auth/google/callback/', { code }),
+    // AI Profile Improvement Suggestions
+    getProfileSuggestions: () => api.get('/auth/profile-suggestions/'),
 };
 
 export default authService;

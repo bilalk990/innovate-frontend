@@ -56,6 +56,25 @@ export default function BrowseJobs() {
     const [gapLoading, setGapLoading] = useState(false);
     const [gapError, setGapError] = useState('');
 
+    // Predict Application Status
+    const [predictJob, setPredictJob] = useState(null);
+    const [predictData, setPredictData] = useState({});
+    const [predictLoading, setPredictLoading] = useState({});
+
+    const handlePredictStatus = async (job) => {
+        const jobId = job.id;
+        setPredictJob(job);
+        setPredictLoading(prev => ({ ...prev, [jobId]: true }));
+        try {
+            const res = await jobService.predictApplicationStatus(jobId);
+            setPredictData(prev => ({ ...prev, [jobId]: res.data }));
+        } catch (err) {
+            setPredictData(prev => ({ ...prev, [jobId]: { error: err.response?.data?.error || 'Prediction failed.' } }));
+        } finally {
+            setPredictLoading(prev => ({ ...prev, [jobId]: false }));
+        }
+    };
+
     // AI Match Scanning
     const [isScanning, setIsScanning] = useState(false);
     const [showMatches, setShowMatches] = useState(false);
@@ -322,13 +341,87 @@ export default function BrowseJobs() {
                                 </div>
                             </div>
 
+                            {/* Predict Status Result (inline) */}
+                            {predictData[job.id] && (
+                                <div className="mb-4 relative z-10">
+                                    {predictData[job.id].error ? (
+                                        <div className="p-6 rounded-[1.5rem] bg-red-50 border border-red-100 text-red-600 text-[10px] font-black uppercase italic tracking-widest flex items-center gap-3">
+                                            <TfiAlert className="flex-shrink-0" /> {predictData[job.id].error}
+                                        </div>
+                                    ) : (
+                                        <div className="p-8 rounded-[2rem] bg-gray-50 border border-gray-100 space-y-5">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400 italic">AI Prediction</span>
+                                                <button onClick={() => setPredictData(prev => { const n = {...prev}; delete n[job.id]; return n; })} className="text-gray-300 hover:text-red-500 text-lg transition-colors"><TfiClose /></button>
+                                            </div>
+                                            <div className="flex items-center gap-6">
+                                                <div className="relative w-20 h-20 flex-shrink-0">
+                                                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                                        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth="8" />
+                                                        <circle cx="50" cy="50" r="44" fill="none"
+                                                            stroke={predictData[job.id].success_probability >= 70 ? '#10b981' : predictData[job.id].success_probability >= 45 ? '#f59e0b' : '#dc2626'}
+                                                            strokeWidth="8" strokeLinecap="round"
+                                                            strokeDasharray={`${(predictData[job.id].success_probability / 100) * 276} 276`}
+                                                        />
+                                                    </svg>
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <span className="text-xl font-black text-gray-900 italic">{predictData[job.id].success_probability}%</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className={`text-[10px] font-black uppercase tracking-widest italic mb-2 ${predictData[job.id].success_probability >= 70 ? 'text-emerald-600' : predictData[job.id].success_probability >= 45 ? 'text-amber-600' : 'text-red-600'}`}>
+                                                        {predictData[job.id].status_label}
+                                                    </div>
+                                                    <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider italic">
+                                                        Shortlist: <span className="text-gray-900">{predictData[job.id].shortlist_likelihood}</span>
+                                                    </div>
+                                                    {predictData[job.id].recommendation && (
+                                                        <p className="text-[10px] text-gray-500 italic mt-3 leading-relaxed border-l-2 border-gray-200 pl-4 line-clamp-2">{predictData[job.id].recommendation}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {predictData[job.id].key_strengths?.length > 0 && (
+                                                <div>
+                                                    <div className="text-[9px] font-black uppercase text-emerald-600 tracking-widest mb-2 italic">Strengths</div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {predictData[job.id].key_strengths.slice(0,3).map((s, i) => (
+                                                            <span key={i} className="text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 px-3 py-1 rounded-lg border border-emerald-100 italic">{s}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {predictData[job.id].critical_gaps?.length > 0 && (
+                                                <div>
+                                                    <div className="text-[9px] font-black uppercase text-red-500 tracking-widest mb-2 italic">Gaps</div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {predictData[job.id].critical_gaps.slice(0,3).map((g, i) => (
+                                                            <span key={i} className="text-[9px] font-black uppercase bg-red-50 text-red-600 px-3 py-1 rounded-lg border border-red-100 italic">{g}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="flex flex-col gap-4 relative z-10">
-                                <button
-                                    onClick={() => handleGapAnalysis(job)}
-                                    className="w-full py-5 rounded-[1.5rem] border border-red-600/10 text-red-600 text-[10px] font-black uppercase tracking-[0.4em] hover:bg-red-50 hover:border-red-600/30 transition-all italic flex items-center justify-center gap-3 group/gap shadow-sm"
-                                >
-                                    <TfiStatsUp className="group-hover/gap:scale-125 transition-transform" /> SKILL GAP ANALYSIS
-                                </button>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => handleGapAnalysis(job)}
+                                        className="py-5 rounded-[1.5rem] border border-red-600/10 text-red-600 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-red-50 hover:border-red-600/30 transition-all italic flex items-center justify-center gap-2 group/gap shadow-sm"
+                                    >
+                                        <TfiStatsUp className="group-hover/gap:scale-125 transition-transform" /> GAP SCAN
+                                    </button>
+                                    <button
+                                        onClick={() => handlePredictStatus(job)}
+                                        disabled={predictLoading[job.id]}
+                                        className={`py-5 rounded-[1.5rem] border text-[10px] font-black uppercase tracking-[0.3em] transition-all italic flex items-center justify-center gap-2 shadow-sm ${predictLoading[job.id] ? 'border-purple-200 bg-purple-50 text-purple-400 animate-pulse' : 'border-purple-600/20 text-purple-600 hover:bg-purple-50 hover:border-purple-600/40'}`}
+                                    >
+                                        <TfiTarget className={predictLoading[job.id] ? 'animate-spin' : ''} />
+                                        {predictLoading[job.id] ? 'AI...' : 'PREDICT'}
+                                    </button>
+                                </div>
                                 <button
                                     onClick={() => setViewingJob(job)}
                                     className="w-full py-6 rounded-[1.5rem] bg-gray-900 text-white text-[11px] font-black uppercase tracking-[0.4em] hover:bg-red-600 transition-all italic flex items-center justify-center gap-4 group/specs shadow-xl"

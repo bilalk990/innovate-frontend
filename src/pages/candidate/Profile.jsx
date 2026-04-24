@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  TfiUser, 
-  TfiEmail, 
-  TfiWrite, 
-  TfiLock, 
-  TfiLink, 
-  TfiCheck, 
-  TfiShield, 
+import {
+  TfiUser,
+  TfiEmail,
+  TfiWrite,
+  TfiLock,
+  TfiLink,
+  TfiCheck,
+  TfiShield,
   TfiReload,
   TfiBolt,
   TfiTarget,
@@ -18,7 +18,9 @@ import {
   TfiBriefcase,
   TfiMedall,
   TfiPlus,
-  TfiTrash
+  TfiTrash,
+  TfiAlert,
+  TfiStatsUp
 } from 'react-icons/tfi';
 import useAuth from '../../hooks/useAuth';
 import authService from '../../services/authService';
@@ -96,6 +98,22 @@ export default function Profile() {
         new_password: '',
         confirm_password: ''
     });
+
+    // AI Profile Suggestions
+    const [suggestionsData, setSuggestionsData] = useState(null);
+    const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+    const fetchProfileSuggestions = async () => {
+        setSuggestionsLoading(true);
+        setSuggestionsData(null);
+        try {
+            const res = await authService.getProfileSuggestions();
+            setSuggestionsData(res.data);
+        } catch (err) {
+            setSuggestionsData({ error: err.response?.data?.error || 'Could not fetch suggestions.' });
+        } finally {
+            setSuggestionsLoading(false);
+        }
+    };
 
     const [tempSkill, setTempSkill] = useState('');
     const [newExp, setNewExp] = useState({ role: '', company: '', duration: '', description: '' });
@@ -407,10 +425,106 @@ export default function Profile() {
                         <p className="text-[9px] text-gray-600 uppercase tracking-widest">Latency: 2ms · Encryption: Secure AES</p>
                     </div>
 
+                    {/* AI Profile Improvement Suggestions */}
+                    <section className="elite-glass-panel p-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/[0.04] blur-[80px]" />
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-gray-900 mb-8 flex items-center gap-3 italic">
+                            <TfiStatsUp className="text-purple-600 text-xl" /> AI Profile Coach
+                        </h3>
+
+                        {!suggestionsData && !suggestionsLoading && (
+                            <button
+                                type="button"
+                                onClick={fetchProfileSuggestions}
+                                className="w-full py-6 rounded-[2rem] bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.4em] italic shadow-xl hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-3"
+                            >
+                                <TfiBolt className="animate-pulse" /> GET AI SUGGESTIONS
+                            </button>
+                        )}
+
+                        {suggestionsLoading && (
+                            <div className="flex flex-col items-center py-10 gap-6">
+                                <div className="relative w-16 h-16">
+                                    <div className="absolute inset-0 border-r-4 border-purple-600 rounded-full animate-spin" />
+                                </div>
+                                <p className="text-[10px] font-black uppercase text-gray-500 tracking-[0.5em] animate-pulse italic">Analyzing Profile...</p>
+                            </div>
+                        )}
+
+                        {suggestionsData && !suggestionsLoading && (
+                            <div className="space-y-6">
+                                {suggestionsData.error ? (
+                                    <div className="p-6 bg-red-50 border border-red-100 rounded-[1.5rem] text-red-600 text-[10px] font-black uppercase italic tracking-widest flex items-center gap-3">
+                                        <TfiAlert className="flex-shrink-0" /> {suggestionsData.error}
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Score */}
+                                        <div className="flex items-center gap-6 p-8 bg-purple-50 border border-purple-100 rounded-[2rem]">
+                                            <div className="relative w-20 h-20 flex-shrink-0">
+                                                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(147,51,234,0.1)" strokeWidth="8" />
+                                                    <circle cx="50" cy="50" r="44" fill="none" stroke="#9333ea" strokeWidth="8" strokeLinecap="round"
+                                                        strokeDasharray={`${((suggestionsData.profile_strength_score || 0) / 100) * 276} 276`}
+                                                    />
+                                                </svg>
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <span className="text-xl font-black text-purple-700 italic">{suggestionsData.profile_strength_score || 0}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[11px] font-black uppercase text-purple-700 tracking-widest italic mb-1">{suggestionsData.profile_strength_label}</div>
+                                                <div className="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Profile Strength Score</div>
+                                                {suggestionsData.estimated_improvement && (
+                                                    <div className="text-[9px] text-emerald-600 font-black uppercase tracking-wider mt-2">↑ {suggestionsData.estimated_improvement}</div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Priority Improvements */}
+                                        {suggestionsData.priority_improvements?.length > 0 && (
+                                            <div>
+                                                <div className="text-[9px] font-black uppercase text-gray-400 tracking-[0.4em] mb-4 italic">Priority Actions</div>
+                                                <div className="space-y-3">
+                                                    {suggestionsData.priority_improvements.slice(0, 4).map((item, i) => (
+                                                        <div key={i} className="flex items-start gap-4 p-5 bg-white border border-gray-100 rounded-[1.5rem] hover:border-purple-200 transition-colors shadow-sm">
+                                                            <span className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 text-[10px] flex items-center justify-center font-black flex-shrink-0 border border-purple-100">{i + 1}</span>
+                                                            <p className="text-[11px] text-gray-600 italic leading-relaxed pt-0.5">{item}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Quick Wins */}
+                                        {suggestionsData.quick_wins?.length > 0 && (
+                                            <div>
+                                                <div className="text-[9px] font-black uppercase text-emerald-600 tracking-[0.4em] mb-4 italic">Quick Wins</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {suggestionsData.quick_wins.map((win, i) => (
+                                                        <span key={i} className="text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-100 italic">{win}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            onClick={() => { setSuggestionsData(null); fetchProfileSuggestions(); }}
+                                            className="w-full py-4 rounded-[1.5rem] border border-purple-200 text-purple-600 text-[9px] font-black uppercase tracking-[0.4em] italic hover:bg-purple-50 transition-all flex items-center justify-center gap-3"
+                                        >
+                                            <TfiReload /> RECALCULATE
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </section>
+
                     <div className="pt-10">
-                        <button 
+                        <button
                             onClick={handleUpdateProfile}
-                            disabled={loading} 
+                            disabled={loading}
                             className="w-full bg-red-600 hover:bg-emerald-600 text-white py-10 rounded-[2.5rem] font-black uppercase italic tracking-[0.5em] shadow-2xl shadow-red-600/30 flex items-center justify-center gap-6 transition-all hover:scale-[1.02] group"
                         >
                             {loading ? <TfiReload className="animate-spin text-2xl" /> : (
