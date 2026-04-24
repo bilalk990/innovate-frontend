@@ -110,17 +110,25 @@ export default function InterviewPrepLab() {
     useEffect(() => {
         if (phase !== 'quiz') return;
 
+        // visibilitychange = actual tab switch (most reliable)
+        // blur only fires for window focus loss NOT covered by visibilitychange (e.g. alt-tab to another app without hiding the tab)
+        let lastVisibilitySwitch = 0;
         const handleVisibility = () => {
             if (document.hidden) {
                 tabSwitchRef.current += 1;
+                lastVisibilitySwitch = Date.now();
                 setTabSwitches(tabSwitchRef.current);
                 setShowIntegrityWarning(true);
                 setTimeout(() => setShowIntegrityWarning(false), 4000);
             }
         };
         const handleBlur = () => {
+            // Skip if visibilitychange already fired within last 200ms (avoid double-count)
+            if (Date.now() - lastVisibilitySwitch < 200) return;
             tabSwitchRef.current += 1;
             setTabSwitches(tabSwitchRef.current);
+            setShowIntegrityWarning(true);
+            setTimeout(() => setShowIntegrityWarning(false), 4000);
         };
 
         document.addEventListener('visibilitychange', handleVisibility);
@@ -153,7 +161,7 @@ export default function InterviewPrepLab() {
             startTimer();
         }
         return () => clearInterval(timerRef.current);
-    }, [currentQIdx, phase, quiz, showExplanation]);
+    }, [currentQIdx, phase, quiz, showExplanation, startTimer]);
 
     const handleTimeOut = () => {
         if (selectedOption !== null) return;
