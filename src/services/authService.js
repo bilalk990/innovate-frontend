@@ -20,6 +20,10 @@ const authService = {
     getSalaryNegotiation: (data) => api.post('/auth/salary-negotiation/', data),
     // Career Path Recommender
     getCareerPath: () => api.get('/auth/career-path/'),
+    // Interview Prep Lab
+    getInterviewPrepPlan: (data) => api.post('/auth/interview-prep/plan/', data),
+    getInterviewPrepQuiz: (data) => api.post('/auth/interview-prep/quiz/', data),
+    getInterviewPrepReport: (data) => api.post('/auth/interview-prep/report/', data),
 };
 
 export default authService;

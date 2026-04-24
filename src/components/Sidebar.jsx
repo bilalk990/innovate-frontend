@@ -48,6 +48,7 @@ const candidateNavigation = [
       { path: '/candidate/mock-interview', icon: TfiMicrophone, label: 'Mock Interview' },
       { path: '/candidate/salary-negotiator', icon: TfiMedall, label: 'Salary AI' },
       { path: '/candidate/career-path', icon: TfiMap, label: 'Career Path' },
+      { path: '/candidate/interview-prep', icon: TfiTarget, label: 'Prep Lab' },
     ]
   }
 ];

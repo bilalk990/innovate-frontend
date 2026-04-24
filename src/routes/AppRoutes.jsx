@@ -31,6 +31,7 @@ const ResumeBuilder         = lazy(() => import('../pages/candidate/ResumeBuilde
 const MockInterview         = lazy(() => import('../pages/candidate/MockInterview'));
 const SalaryNegotiator      = lazy(() => import('../pages/candidate/SalaryNegotiator'));
 const CareerPath            = lazy(() => import('../pages/candidate/CareerPath'));
+const InterviewPrepLab      = lazy(() => import('../pages/candidate/InterviewPrepLab'));
 
 const RecruiterDashboard    = lazy(() => import('../pages/recruiter/Dashboard'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
@@ -120,6 +121,7 @@ export default function AppRoutes() {
                 <Route path="mock-interview" element={<MockInterview />} />
                 <Route path="salary-negotiator" element={<SalaryNegotiator />} />
                 <Route path="career-path" element={<CareerPath />} />
+                <Route path="interview-prep" element={<InterviewPrepLab />} />
             </Route>
 
             {/* Recruiter */}
