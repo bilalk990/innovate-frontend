@@ -262,8 +262,9 @@ export default function InterviewPrepLab() {
             });
             setReport(res.data);
         } catch (err) {
-            toast.error('Report generation failed.');
+            toast.error('Report generation failed. Returning to quiz.');
             setReport(null);
+            setPhase('quiz');
         } finally {
             setLoadingReport(false);
         }
