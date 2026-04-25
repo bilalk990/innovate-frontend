@@ -50,6 +50,8 @@ const TalentRediscovery     = lazy(() => import('../pages/recruiter/TalentRedisc
 const InterviewQualityIntelligence = lazy(() => import('../pages/recruiter/InterviewQualityIntelligence'));
 const HRDocumentGenerator      = lazy(() => import('../pages/recruiter/HRDocumentGenerator'));
 const HandbookBuilder           = lazy(() => import('../pages/recruiter/HandbookBuilder'));
+const LDRoadmap                 = lazy(() => import('../pages/recruiter/LDRoadmap'));
+const PolicyCompliance          = lazy(() => import('../pages/recruiter/PolicyCompliance'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
 const Candidates            = lazy(() => import('../pages/recruiter/Candidates'));
 const JobPostings           = lazy(() => import('../pages/recruiter/JobPostings'));
@@ -180,6 +182,8 @@ export default function AppRoutes() {
                 <Route path="interview-quality" element={<InterviewQualityIntelligence />} />
                 <Route path="hr-documents" element={<HRDocumentGenerator />} />
                 <Route path="handbook-builder" element={<HandbookBuilder />} />
+                <Route path="ld-roadmap" element={<LDRoadmap />} />
+                <Route path="policy-compliance" element={<PolicyCompliance />} />
             </Route>
 
             {/* Admin */}

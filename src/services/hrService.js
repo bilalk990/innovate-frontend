@@ -16,6 +16,8 @@ const hrService = {
     analyzeInterviewQuality: (data) => api.post('/auth/hr/interview-quality/', data),
     generateHRDocument: (data) => api.post('/auth/hr/generate-document/', data),
     buildHandbook: (data) => api.post('/auth/hr/handbook-builder/', data),
+    generateLDRoadmap: (data) => api.post('/auth/hr/ld-roadmap/', data),
+    checkPolicyCompliance: (data) => api.post('/auth/hr/policy-compliance/', data),
 };
 
 export default hrService;
