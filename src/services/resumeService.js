@@ -13,6 +13,7 @@ const resumeService = {
     // NEW AI FEATURES
     // AI Resume Content Generator (Advanced)
     generateAdvancedResume: (profileData) => api.post('/resumes/generate-advanced/', profileData),
+    atsReview: (data) => api.post('/resumes/ats-review/', data),
 };
 
 export default resumeService;

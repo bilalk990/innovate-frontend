@@ -55,6 +55,7 @@ const candidateNavigation = [
       { path: '/candidate/salary-negotiator', icon: TfiMedall, label: 'Salary AI' },
       { path: '/candidate/career-path', icon: TfiMap, label: 'Career Path' },
       { path: '/candidate/interview-prep', icon: TfiTarget, label: 'Prep Lab' },
+      { path: '/candidate/anxiety-coach', icon: TfiShield, label: 'Anxiety Coach' },
     ]
   }
 ];
@@ -88,6 +89,9 @@ const recruiterNavigation = [
       { path: '/recruiter/funnel-analyzer', icon: TfiBarChart, label: 'Funnel AI' },
       { path: '/recruiter/team-fit', icon: TfiLayoutGrid2, label: 'Team Fit AI' },
       { path: '/recruiter/interviewer-coach', icon: TfiAgenda, label: 'Coach AI' },
+      { path: '/recruiter/bulk-screener', icon: TfiStatsUp, label: 'Bulk Screener' },
+      { path: '/recruiter/email-campaign', icon: TfiWrite, label: 'Email AI' },
+      { path: '/recruiter/sentiment-tracker', icon: TfiPulse, label: 'Sentiment AI' },
     ]
   },
   {

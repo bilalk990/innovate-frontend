@@ -25,11 +25,15 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import resumeService from '../../services/resumeService';
 import { formatDate } from '../../utils/formatDate';
 import useFetch from '../../hooks/useFetch';
+import { toast } from 'sonner';
 
 export default function ResumeUpload() {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [dragOver, setDragOver] = useState(false);
+    const [atsReview, setAtsReview] = useState(null);
+    const [atsLoading, setAtsLoading] = useState(false);
+    const [atsTab, setAtsTab] = useState('score');
     const fileRef = useRef();
 
     const { data: resumes, loading, execute: reload } = useFetch(
@@ -61,6 +65,16 @@ export default function ResumeUpload() {
     }, [activeResume?.parse_status, activeResume?.id, reload, pollCount]);
 
     const isParsed = activeResume?.parse_status?.toLowerCase() === 'completed' || activeResume?.parse_status?.toLowerCase() === 'parsed';
+
+    const handleAtsReview = async () => {
+        setAtsLoading(true); setAtsReview(null);
+        try {
+            const r = await resumeService.atsReview({ resume_id: activeResume?.id });
+            setAtsReview(r.data);
+            toast.success('ATS review complete!');
+        } catch { toast.error('ATS review failed. Try again.'); }
+        finally { setAtsLoading(false); }
+    };
     const isAnalyzing = activeResume?.parse_status?.toLowerCase() === 'pending' || activeResume?.parse_status?.toLowerCase() === 'processing';
 
     // Calculate dynamic gauge score from backend (with proper fallback)
@@ -376,6 +390,105 @@ export default function ResumeUpload() {
                                              )}
                                           </div>
                                      </div>
+                                </div>
+
+                                {/* ATS Review CTA + Results */}
+                                <div className="elite-glass-panel p-8 bg-black/40">
+                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                                        <div>
+                                            <h4 className="text-sm font-black uppercase tracking-widest text-white">🎯 ATS Compatibility Review</h4>
+                                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Get your ATS score, weak points & fix suggestions</p>
+                                        </div>
+                                        <button onClick={handleAtsReview} disabled={atsLoading}
+                                            className="px-8 py-3 bg-red-600 hover:bg-red-500 disabled:opacity-40 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 flex-shrink-0">
+                                            {atsLoading ? <><TfiReload className="animate-spin" /> Analyzing...</> : <><TfiStatsUp /> Run ATS Review</>}
+                                        </button>
+                                    </div>
+
+                                    {atsReview && (
+                                        <div className="space-y-4">
+                                            {/* Score Row */}
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                <div className="bg-white/5 rounded-xl p-3 text-center col-span-2 sm:col-span-1">
+                                                    <div className={`text-4xl font-black ${atsReview.ats_score >= 70 ? 'text-emerald-400' : atsReview.ats_score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>{atsReview.ats_score}</div>
+                                                    <div className="text-[10px] uppercase tracking-widest text-gray-500 mt-1">ATS Score</div>
+                                                    <div className={`text-lg font-black mt-1 ${atsReview.ats_score >= 70 ? 'text-emerald-400' : atsReview.ats_score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>{atsReview.ats_grade}</div>
+                                                </div>
+                                                {[['Pass Rate', atsReview.estimated_pass_rate], ['Keyword Score', `${atsReview.keyword_density_score}/100`], ['Verdict', atsReview.ats_verdict]].map(([label, val]) => (
+                                                    <div key={label} className="bg-white/5 rounded-xl p-3 text-center">
+                                                        <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1">{label}</div>
+                                                        <div className="text-xs font-black text-white">{val}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Tabs */}
+                                            <div className="flex gap-2 flex-wrap">
+                                                {['score', 'weak', 'quickfixes', 'recs'].map(t => (
+                                                    <button key={t} onClick={() => setAtsTab(t)}
+                                                        className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${atsTab === t ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+                                                        {t === 'score' ? 'Strengths' : t === 'weak' ? `Weak Points (${atsReview.weak_points?.length || 0})` : t === 'quickfixes' ? 'Quick Wins' : 'Full Plan'}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {atsTab === 'score' && (
+                                                <div className="space-y-2">
+                                                    {(atsReview.strengths || []).map((s, i) => <div key={i} className="flex items-start gap-2 text-xs text-emerald-300"><span className="text-emerald-500">✓</span>{s}</div>)}
+                                                    <div className="mt-3">
+                                                        <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Missing Power Keywords</div>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {(atsReview.missing_power_keywords || []).map((k, i) => <span key={i} className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-lg">{k}</span>)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {atsTab === 'weak' && (
+                                                <div className="space-y-3">
+                                                    {(atsReview.weak_points || []).map((w, i) => (
+                                                        <div key={i} className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-[10px] font-black uppercase text-red-400 bg-red-600/10 px-2 py-0.5 rounded">{w.section}</span>
+                                                            </div>
+                                                            <div className="text-xs text-red-300">{w.problem}</div>
+                                                            <div className="text-[11px] text-gray-400 mt-1">Impact: {w.why_it_matters}</div>
+                                                            <div className="text-[11px] text-emerald-300 mt-1">→ Fix: {w.fix}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {atsTab === 'quickfixes' && (
+                                                <div className="space-y-2">
+                                                    {(atsReview.quick_wins || []).map((q, i) => (
+                                                        <div key={i} className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2.5">
+                                                            <div className="w-5 h-5 rounded-lg bg-emerald-600 flex items-center justify-center text-[9px] font-black text-white flex-shrink-0">{i + 1}</div>
+                                                            <span className="text-xs text-emerald-200">{q}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {atsTab === 'recs' && (
+                                                <div className="space-y-2">
+                                                    {(atsReview.detailed_recommendations || []).map((r, i) => (
+                                                        <div key={i} className="bg-white/5 rounded-xl p-3 flex items-start gap-3">
+                                                            <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded flex-shrink-0 ${r.priority === 'High' ? 'bg-red-500/20 text-red-400' : r.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}>{r.priority}</span>
+                                                            <div>
+                                                                <div className="text-[10px] text-gray-400 uppercase font-black">{r.category}</div>
+                                                                <div className="text-xs text-gray-200 mt-0.5">{r.recommendation}</div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mt-2">
+                                                        <div className="text-[10px] text-blue-400 font-black uppercase mb-1">Action Plan</div>
+                                                        <p className="text-xs text-blue-200">{atsReview.action_plan}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

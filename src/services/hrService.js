@@ -8,6 +8,9 @@ const hrService = {
     analyzeFunnel: (data) => api.post('/auth/hr/funnel-analyzer/', data),
     predictTeamFit: (data) => api.post('/auth/hr/team-fit/', data),
     coachInterviewer: (data) => api.post('/auth/hr/interviewer-coach/', data),
+    bulkScreenResumes: (data) => api.post('/auth/hr/bulk-resume-screen/', data),
+    generateEmailCampaign: (data) => api.post('/auth/hr/email-campaign/', data),
+    trackSentiment: (data) => api.post('/auth/hr/sentiment-tracker/', data),
 };
 
 export default hrService;

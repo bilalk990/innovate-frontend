@@ -32,6 +32,7 @@ const MockInterview         = lazy(() => import('../pages/candidate/MockIntervie
 const SalaryNegotiator      = lazy(() => import('../pages/candidate/SalaryNegotiator'));
 const CareerPath            = lazy(() => import('../pages/candidate/CareerPath'));
 const InterviewPrepLab      = lazy(() => import('../pages/candidate/InterviewPrepLab'));
+const AnxietyCoach          = lazy(() => import('../pages/candidate/AnxietyCoach'));
 
 const RecruiterDashboard    = lazy(() => import('../pages/recruiter/Dashboard'));
 const CandidateComparison   = lazy(() => import('../pages/recruiter/CandidateComparison'));
@@ -41,6 +42,9 @@ const OfferPredictor        = lazy(() => import('../pages/recruiter/OfferPredict
 const FunnelAnalyzer        = lazy(() => import('../pages/recruiter/FunnelAnalyzer'));
 const TeamFit               = lazy(() => import('../pages/recruiter/TeamFit'));
 const InterviewerCoach      = lazy(() => import('../pages/recruiter/InterviewerCoach'));
+const BulkResumeScreener    = lazy(() => import('../pages/recruiter/BulkResumeScreener'));
+const EmailCampaign         = lazy(() => import('../pages/recruiter/EmailCampaign'));
+const SentimentTracker      = lazy(() => import('../pages/recruiter/SentimentTracker'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
 const Candidates            = lazy(() => import('../pages/recruiter/Candidates'));
 const JobPostings           = lazy(() => import('../pages/recruiter/JobPostings'));
@@ -129,6 +133,7 @@ export default function AppRoutes() {
                 <Route path="salary-negotiator" element={<SalaryNegotiator />} />
                 <Route path="career-path" element={<CareerPath />} />
                 <Route path="interview-prep" element={<InterviewPrepLab />} />
+                <Route path="anxiety-coach" element={<AnxietyCoach />} />
             </Route>
 
             {/* Recruiter */}
@@ -162,6 +167,9 @@ export default function AppRoutes() {
                 <Route path="funnel-analyzer" element={<FunnelAnalyzer />} />
                 <Route path="team-fit" element={<TeamFit />} />
                 <Route path="interviewer-coach" element={<InterviewerCoach />} />
+                <Route path="bulk-screener" element={<BulkResumeScreener />} />
+                <Route path="email-campaign" element={<EmailCampaign />} />
+                <Route path="sentiment-tracker" element={<SentimentTracker />} />
             </Route>
 
             {/* Admin */}
