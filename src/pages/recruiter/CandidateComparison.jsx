@@ -108,7 +108,7 @@ export default function CandidateComparison() {
                             {/* Winner Banner */}
                             <div className="bg-gradient-to-r from-red-600/20 to-red-900/10 border border-red-600/30 rounded-2xl p-6 flex items-center gap-6">
                                 <div className="w-16 h-16 rounded-2xl bg-red-600 flex items-center justify-center text-3xl font-black">
-                                    {result.winner?.charAt(-1) || '🏆'}
+                                    {result.winner?.charAt(0) || '🏆'}
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-xs uppercase tracking-widest text-red-400 mb-1">AI Recommends</div>

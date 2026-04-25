@@ -52,7 +52,11 @@ export default function OfferPredictor() {
                         <div className="text-xs font-black uppercase tracking-widest text-gray-400">Candidate Details</div>
                         <div>
                             <label className="text-[10px] uppercase tracking-widest text-gray-500 block mb-1">Select Candidate</label>
-                            <select value={form.candidate_id} onChange={e => set('candidate_id', e.target.value)}
+                            <select value={form.candidate_id} onChange={e => {
+                                    const id = e.target.value;
+                                    const found = candidates.find(c => String(c.id || c._id) === id);
+                                    setForm(p => ({ ...p, candidate_id: id, candidate_name: found ? (found.name || '') : p.candidate_name }));
+                                }}
                                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-600">
                                 <option value="">Manual entry below</option>
                                 {candidates.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name}</option>)}

@@ -39,8 +39,9 @@ export default function ReferenceCheck() {
             '\nCLOSING:',
             ...(result.closing_questions || []).map((q, i) => `${i + 1}. ${q}`),
         ].join('\n');
-        navigator.clipboard.writeText(all);
-        toast.success('Full script copied!');
+        navigator.clipboard.writeText(all)
+            .then(() => toast.success('Full script copied!'))
+            .catch(() => toast.error('Copy failed — try again.'));
     };
 
     return (

@@ -160,7 +160,7 @@ export default function TeamFit() {
                                         <p className="text-gray-200 text-sm">{result.long_term_potential}</p>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <div className={`text-center py-4 rounded-2xl border text-sm font-black uppercase tracking-widest ${FIT_LABEL_STYLE[result.verdict?.split(' ').slice(0, 2).join(' ')] || 'bg-gray-700/20 text-gray-400 border-gray-600/30'}`}>
+                                        <div className={`text-center py-4 rounded-2xl border text-sm font-black uppercase tracking-widest ${Object.keys(FIT_LABEL_STYLE).find(k => result.verdict?.includes(k)) ? FIT_LABEL_STYLE[Object.keys(FIT_LABEL_STYLE).find(k => result.verdict?.includes(k))] : 'bg-gray-700/20 text-gray-400 border-gray-600/30'}`}>
                                             Verdict: {result.verdict}
                                         </div>
                                     </div>
