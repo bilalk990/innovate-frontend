@@ -45,6 +45,9 @@ const InterviewerCoach      = lazy(() => import('../pages/recruiter/InterviewerC
 const BulkResumeScreener    = lazy(() => import('../pages/recruiter/BulkResumeScreener'));
 const EmailCampaign         = lazy(() => import('../pages/recruiter/EmailCampaign'));
 const SentimentTracker      = lazy(() => import('../pages/recruiter/SentimentTracker'));
+const CandidateDNA          = lazy(() => import('../pages/recruiter/CandidateDNA'));
+const TalentRediscovery     = lazy(() => import('../pages/recruiter/TalentRediscovery'));
+const InterviewQualityIntelligence = lazy(() => import('../pages/recruiter/InterviewQualityIntelligence'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
 const Candidates            = lazy(() => import('../pages/recruiter/Candidates'));
 const JobPostings           = lazy(() => import('../pages/recruiter/JobPostings'));
@@ -170,6 +173,9 @@ export default function AppRoutes() {
                 <Route path="bulk-screener" element={<BulkResumeScreener />} />
                 <Route path="email-campaign" element={<EmailCampaign />} />
                 <Route path="sentiment-tracker" element={<SentimentTracker />} />
+                <Route path="candidate-dna" element={<CandidateDNA />} />
+                <Route path="talent-rediscovery" element={<TalentRediscovery />} />
+                <Route path="interview-quality" element={<InterviewQualityIntelligence />} />
             </Route>
 
             {/* Admin */}

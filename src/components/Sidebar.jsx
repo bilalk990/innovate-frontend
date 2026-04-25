@@ -92,6 +92,9 @@ const recruiterNavigation = [
       { path: '/recruiter/bulk-screener', icon: TfiStatsUp, label: 'Bulk Screener' },
       { path: '/recruiter/email-campaign', icon: TfiWrite, label: 'Email AI' },
       { path: '/recruiter/sentiment-tracker', icon: TfiPulse, label: 'Sentiment AI' },
+      { path: '/recruiter/candidate-dna', icon: TfiTarget, label: 'DNA Profiler' },
+      { path: '/recruiter/talent-rediscovery', icon: TfiReload, label: 'Rediscovery' },
+      { path: '/recruiter/interview-quality', icon: TfiStatsUp, label: 'Quality Intel' },
     ]
   },
   {

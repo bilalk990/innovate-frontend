@@ -11,6 +11,9 @@ const hrService = {
     bulkScreenResumes: (data) => api.post('/auth/hr/bulk-resume-screen/', data),
     generateEmailCampaign: (data) => api.post('/auth/hr/email-campaign/', data),
     trackSentiment: (data) => api.post('/auth/hr/sentiment-tracker/', data),
+    profileCandidateDNA: (data) => api.post('/auth/hr/candidate-dna/', data),
+    rediscoverTalent: (data) => api.post('/auth/hr/talent-rediscovery/', data),
+    analyzeInterviewQuality: (data) => api.post('/auth/hr/interview-quality/', data),
 };
 
 export default hrService;
