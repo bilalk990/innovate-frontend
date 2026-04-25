@@ -14,6 +14,8 @@ const hrService = {
     profileCandidateDNA: (data) => api.post('/auth/hr/candidate-dna/', data),
     rediscoverTalent: (data) => api.post('/auth/hr/talent-rediscovery/', data),
     analyzeInterviewQuality: (data) => api.post('/auth/hr/interview-quality/', data),
+    generateHRDocument: (data) => api.post('/auth/hr/generate-document/', data),
+    buildHandbook: (data) => api.post('/auth/hr/handbook-builder/', data),
 };
 
 export default hrService;

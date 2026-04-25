@@ -48,6 +48,8 @@ const SentimentTracker      = lazy(() => import('../pages/recruiter/SentimentTra
 const CandidateDNA          = lazy(() => import('../pages/recruiter/CandidateDNA'));
 const TalentRediscovery     = lazy(() => import('../pages/recruiter/TalentRediscovery'));
 const InterviewQualityIntelligence = lazy(() => import('../pages/recruiter/InterviewQualityIntelligence'));
+const HRDocumentGenerator      = lazy(() => import('../pages/recruiter/HRDocumentGenerator'));
+const HandbookBuilder           = lazy(() => import('../pages/recruiter/HandbookBuilder'));
 const ScheduleInterview     = lazy(() => import('../pages/recruiter/ScheduleInterview'));
 const Candidates            = lazy(() => import('../pages/recruiter/Candidates'));
 const JobPostings           = lazy(() => import('../pages/recruiter/JobPostings'));
@@ -176,6 +178,8 @@ export default function AppRoutes() {
                 <Route path="candidate-dna" element={<CandidateDNA />} />
                 <Route path="talent-rediscovery" element={<TalentRediscovery />} />
                 <Route path="interview-quality" element={<InterviewQualityIntelligence />} />
+                <Route path="hr-documents" element={<HRDocumentGenerator />} />
+                <Route path="handbook-builder" element={<HandbookBuilder />} />
             </Route>
 
             {/* Admin */}

@@ -95,6 +95,8 @@ const recruiterNavigation = [
       { path: '/recruiter/candidate-dna', icon: TfiTarget, label: 'DNA Profiler' },
       { path: '/recruiter/talent-rediscovery', icon: TfiReload, label: 'Rediscovery' },
       { path: '/recruiter/interview-quality', icon: TfiStatsUp, label: 'Quality Intel' },
+      { path: '/recruiter/hr-documents', icon: TfiFile, label: 'HR Documents' },
+      { path: '/recruiter/handbook-builder', icon: TfiAgenda, label: 'Handbook AI' },
     ]
   },
   {
