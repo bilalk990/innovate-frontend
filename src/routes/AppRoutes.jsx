@@ -33,6 +33,10 @@ const SalaryNegotiator      = lazy(() => import('../pages/candidate/SalaryNegoti
 const CareerPath            = lazy(() => import('../pages/candidate/CareerPath'));
 const InterviewPrepLab      = lazy(() => import('../pages/candidate/InterviewPrepLab'));
 const AnxietyCoach          = lazy(() => import('../pages/candidate/AnxietyCoach'));
+const CoverLetterGenerator  = lazy(() => import('../pages/candidate/CoverLetterGenerator'));
+const JobMatchAnalyzer      = lazy(() => import('../pages/candidate/JobMatchAnalyzer'));
+const SelfIntroCoach        = lazy(() => import('../pages/candidate/SelfIntroCoach'));
+const PortfolioAdvisor      = lazy(() => import('../pages/candidate/PortfolioAdvisor'));
 
 const RecruiterDashboard    = lazy(() => import('../pages/recruiter/Dashboard'));
 const CandidateComparison   = lazy(() => import('../pages/recruiter/CandidateComparison'));
@@ -141,6 +145,11 @@ export default function AppRoutes() {
                 <Route path="career-path" element={<CareerPath />} />
                 <Route path="interview-prep" element={<InterviewPrepLab />} />
                 <Route path="anxiety-coach" element={<AnxietyCoach />} />
+                {/* Feature Set 7 — Candidate Career AI */}
+                <Route path="cover-letter" element={<CoverLetterGenerator />} />
+                <Route path="job-match" element={<JobMatchAnalyzer />} />
+                <Route path="self-intro" element={<SelfIntroCoach />} />
+                <Route path="portfolio-advisor" element={<PortfolioAdvisor />} />
             </Route>
 
             {/* Recruiter */}

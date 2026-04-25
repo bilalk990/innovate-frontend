@@ -24,6 +24,11 @@ const authService = {
     getInterviewPrepPlan: (data) => api.post('/auth/interview-prep/plan/', data),
     getInterviewPrepQuiz: (data) => api.post('/auth/interview-prep/quiz/', data),
     getInterviewPrepReport: (data) => api.post('/auth/interview-prep/report/', data),
+    // Feature Set 7 — Candidate Career AI Tools
+    generateCoverLetter: (data) => api.post('/auth/cover-letter/', data),
+    analyzeJobMatch: (data) => api.post('/auth/job-match/', data),
+    generateSelfIntro: (data) => api.post('/auth/self-intro/', data),
+    getPortfolioSuggestions: (data) => api.post('/auth/portfolio-advisor/', data),
 };
 
 export default authService;
