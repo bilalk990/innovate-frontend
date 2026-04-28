@@ -54,7 +54,6 @@ const candidateNavigation = [
       { path: '/candidate/mock-interview', icon: TfiMicrophone, label: 'Mock Interview' },
       { path: '/candidate/salary-negotiator', icon: TfiCup, label: 'Salary AI' },
       { path: '/candidate/career-path', icon: TfiMap, label: 'Career Path' },
-      { path: '/candidate/interview-prep', icon: TfiTarget, label: 'Prep Lab' },
       { path: '/candidate/anxiety-coach', icon: TfiShield, label: 'Anxiety Coach' },
       { path: '/candidate/cover-letter', icon: TfiWrite, label: 'Cover Letter AI' },
       { path: '/candidate/job-match', icon: TfiSearch, label: 'Job Match AI' },

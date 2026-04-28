@@ -31,7 +31,6 @@ const ResumeBuilder         = lazy(() => import('../pages/candidate/ResumeBuilde
 const MockInterview         = lazy(() => import('../pages/candidate/MockInterview'));
 const SalaryNegotiator      = lazy(() => import('../pages/candidate/SalaryNegotiator'));
 const CareerPath            = lazy(() => import('../pages/candidate/CareerPath'));
-const InterviewPrepLab      = lazy(() => import('../pages/candidate/InterviewPrepLab'));
 const AnxietyCoach          = lazy(() => import('../pages/candidate/AnxietyCoach'));
 const CoverLetterGenerator  = lazy(() => import('../pages/candidate/CoverLetterGenerator'));
 const JobMatchAnalyzer      = lazy(() => import('../pages/candidate/JobMatchAnalyzer'));
@@ -143,7 +142,6 @@ export default function AppRoutes() {
                 <Route path="mock-interview" element={<MockInterview />} />
                 <Route path="salary-negotiator" element={<SalaryNegotiator />} />
                 <Route path="career-path" element={<CareerPath />} />
-                <Route path="interview-prep" element={<InterviewPrepLab />} />
                 <Route path="anxiety-coach" element={<AnxietyCoach />} />
                 {/* Feature Set 7 — Candidate Career AI */}
                 <Route path="cover-letter" element={<CoverLetterGenerator />} />
