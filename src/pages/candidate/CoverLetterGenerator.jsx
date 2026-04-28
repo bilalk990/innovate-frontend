@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
-  TfiWrite, TfiReload, TfiCheck, TfiCopy, TfiTarget,
+  TfiWrite, TfiReload, TfiCheck, TfiTarget,
   TfiLightBulb, TfiStar, TfiLayoutGrid2, TfiAngleRight,
 } from 'react-icons/tfi';
+import { FiCopy } from 'react-icons/fi';
 import authService from '../../services/authService';
 
 const TONES = ['Professional', 'Enthusiastic', 'Confident', 'Conversational', 'Formal'];
@@ -98,11 +99,10 @@ export default function CoverLetterGenerator() {
                   <button
                     key={t}
                     onClick={() => set('tone', t)}
-                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider italic transition-all ${
-                      form.tone === t
+                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider italic transition-all ${form.tone === t
                         ? 'bg-red-600 text-white border border-red-500'
                         : 'bg-white/5 text-gray-400 border border-white/10 hover:border-red-600/40 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {t}
                   </button>
@@ -158,9 +158,8 @@ export default function CoverLetterGenerator() {
                     <button
                       key={i}
                       onClick={() => setActiveTab(i)}
-                      className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${
-                        activeTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
-                      }`}
+                      className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${activeTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
+                        }`}
                     >
                       {t}
                     </button>
@@ -176,7 +175,7 @@ export default function CoverLetterGenerator() {
                           onClick={copyLetter}
                           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-wider italic text-gray-400 hover:text-white hover:border-red-600/40 transition-all"
                         >
-                          {copied ? <TfiCheck className="text-emerald-400" /> : <TfiCopy />}
+                          {copied ? <TfiCheck className="text-emerald-400" /> : <FiCopy />}
                           {copied ? 'Copied!' : 'Copy Letter'}
                         </button>
                       </div>

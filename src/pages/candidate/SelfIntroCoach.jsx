@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
-  TfiMicrophone, TfiReload, TfiCopy, TfiCheck,
+  TfiMicrophone, TfiReload, TfiCheck,
   TfiLightBulb, TfiWrite, TfiTarget, TfiStar,
 } from 'react-icons/tfi';
+import { FiCopy } from 'react-icons/fi';
 import authService from '../../services/authService';
 
 const VERSIONS = [
@@ -157,11 +158,10 @@ export default function SelfIntroCoach() {
                 <button
                   key={i}
                   onClick={() => setActiveVersion(i)}
-                  className={`p-4 rounded-2xl border transition-all text-left ${
-                    activeVersion === i
+                  className={`p-4 rounded-2xl border transition-all text-left ${activeVersion === i
                       ? 'bg-red-600/15 border-red-600/50 text-white'
                       : 'bg-white/3 border-white/8 text-gray-400 hover:border-white/20 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <div className="text-2xl mb-2">{v.icon}</div>
                   <p className="font-black text-sm uppercase tracking-wider italic">{v.label}</p>
@@ -188,7 +188,7 @@ export default function SelfIntroCoach() {
                   onClick={() => copyText(activeVer.key, activeData.text || '')}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-wider italic text-gray-400 hover:text-white hover:border-red-600/40 transition-all"
                 >
-                  {copied === activeVer.key ? <TfiCheck className="text-emerald-400" /> : <TfiCopy />}
+                  {copied === activeVer.key ? <TfiCheck className="text-emerald-400" /> : <FiCopy />}
                   {copied === activeVer.key ? 'Copied!' : 'Copy Script'}
                 </button>
               </div>
@@ -210,9 +210,8 @@ export default function SelfIntroCoach() {
                   <button
                     key={i}
                     onClick={() => setActiveTipTab(i)}
-                    className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${
-                      activeTipTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
-                    }`}
+                    className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${activeTipTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
+                      }`}
                   >
                     {t}
                   </button>
