@@ -6,6 +6,16 @@ import { TfiSearch, TfiLayoutGrid2, TfiSettings } from 'react-icons/tfi';
 export default function Navbar() {
     const { user } = useAuthStore();
     const navigate = useNavigate();
+    const [query, setQuery] = useState('');
+
+    const handleSearch = (e) => {
+        if (e.key === 'Enter' && query.trim()) {
+            const role = user?.role || 'candidate';
+            const path = role === 'recruiter' ? `/${role}/candidates` : `/${role}/jobs`;
+            navigate(`${path}?search=${encodeURIComponent(query.trim())}`);
+            setQuery('');
+        }
+    };
 
     return (
     <header 
@@ -21,6 +31,9 @@ export default function Navbar() {
                     <input 
                         type="text" 
                         placeholder="Search..." 
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={handleSearch}
                         className="w-full pl-14 pr-20 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-[11px] font-black text-gray-900 placeholder-gray-400 uppercase tracking-[0.2em] italic focus:outline-none focus:border-red-600/50 focus:bg-white transition-all shadow-sm"
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none opacity-40">

@@ -10,8 +10,12 @@
   --panel-bg-secondary: #F9FAFB;
   --panel-accent: #dc2626;
   --panel-accent-hover: #ef4444;
-  --panel-text-secondary: #0A0A0A;
-  --panel-text-muted: #1F2937;
+  --panel-text-primary: #0A0A0A;
+  --panel-text-secondary: #4B5563;
+  --panel-text-muted: #6B7280;
+  --panel-border-default: #E5E7EB;
+  --panel-border-subtle: #F3F4F6;
+  --panel-border-accent: #dc2626;
   
   --font-heading: 'Outfit', 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;

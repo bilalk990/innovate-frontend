@@ -113,7 +113,7 @@ export default function Register() {
                     </Link>
                 </div>
 
-                <div className="max-w-[560px] w-full mx-auto">
+                <div className="max-w-[560px] w-full mx-auto pt-40 pb-12">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}

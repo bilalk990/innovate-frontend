@@ -197,11 +197,11 @@ export default function ProfileWizard() {
                     {steps.map(s => (
                         <div key={s.id} className="flex flex-col items-center gap-4 min-w-[85px] relative">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl transition-all duration-700 relative z-10 
-                                ${step >= s.id ? 'bg-red-600 text-white shadow-[0_15px_30px_-5px_rgba(220,38,38,0.4)]' : 'bg-white/5 text-gray-700 border border-white/10 group-hover/stepper:border-white/20'}`}>
+                                ${step >= s.id ? 'bg-red-600 text-white shadow-[0_15px_30px_-5px_rgba(220,38,38,0.4)]' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
                                 {step > s.id ? <TfiCheck className="font-black" /> : s.icon}
-                                {step === s.id && <div className="absolute inset-0 rounded-2xl border-2 border-white/40 animate-ping opacity-20 pointer-events-none" />}
+                                {step === s.id && <div className="absolute inset-0 rounded-2xl border-2 border-red-600/20 animate-ping opacity-20 pointer-events-none" />}
                             </div>
-                            <span className={`text-[9px] uppercase font-black tracking-[0.3em] italic transition-colors duration-500 ${step >= s.id ? 'text-white' : 'text-gray-700'}`}>
+                            <span className={`text-[9px] uppercase font-black tracking-[0.3em] italic transition-colors duration-500 ${step >= s.id ? 'text-red-600' : 'text-gray-400'}`}>
                                 {s.label}
                             </span>
                         </div>
@@ -233,10 +233,10 @@ export default function ProfileWizard() {
                                 <div className="grid grid-cols-2 gap-10">
                                     <div className="elite-input-group">
                                         <label className="elite-label text-gray-600">Phone Number *</label>
-                                        <div className="relative">
-                                            <TfiMobile className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600" />
+                                        <div className="relative group/field">
+                                            <TfiMobile className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600 group-focus-within/field:scale-110 transition-transform z-10" size={18} />
                                             <input
-                                                className={`elite-input pl-14 h-14 font-black italic bg-white/[0.02] ${errors.phone ? 'border-red-600/50' : ''}`}
+                                                className={`elite-input pl-16 h-14 font-black italic bg-white/[0.02] ${errors.phone ? 'border-red-600/50' : ''}`}
                                                 placeholder="+00-XXX-XXXXXXX"
                                                 value={formData.phone}
                                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -329,7 +329,7 @@ export default function ProfileWizard() {
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Project Name *</label>
                                                 <input
-                                                    className="elite-input h-14 bg-white/[0.01] text-white"
+                                                    className="elite-input h-14 bg-white/[0.01] text-gray-950"
                                                     placeholder="E.G. E-COMMERCE PLATFORM"
                                                     value={newProject.name}
                                                     onChange={e => setNewProject({ ...newProject, name: e.target.value })}
@@ -338,7 +338,7 @@ export default function ProfileWizard() {
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Description *</label>
                                                 <textarea
-                                                    className="elite-input min-h-[140px] pt-4 text-gray-400 resize-none"
+                                                    className="elite-input min-h-[140px] pt-4 text-gray-950 resize-none"
                                                     placeholder="DESCRIBE YOUR PROJECT AND ITS IMPACT..."
                                                     value={newProject.description}
                                                     onChange={e => setNewProject({ ...newProject, description: e.target.value })}
@@ -385,11 +385,11 @@ export default function ProfileWizard() {
                                             <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 blur-[40px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="flex justify-between items-start z-10 relative">
                                                 <div className="flex-1">
-                                                    <div className="font-black text-white uppercase italic text-lg tracking-widest mb-4 flex items-center gap-4 group-hover:text-red-500 transition-colors">
+                                                    <div className="font-black text-gray-950 uppercase italic text-lg tracking-widest mb-4 flex items-center gap-4 group-hover:text-red-500 transition-colors">
                                                         <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
                                                         {proj.name}
                                                     </div>
-                                                    <p className="text-[12px] text-gray-500 mb-8 font-black uppercase italic tracking-wider leading-relaxed pr-10">{proj.description}</p>
+                                                    <p className="text-[12px] text-gray-600 mb-8 font-black uppercase italic tracking-wider leading-relaxed pr-10">{proj.description}</p>
                                                     <div className="flex flex-wrap gap-3 mb-8">
                                                         {proj.technologies && proj.technologies.map((tech, i) => (
                                                             <span key={i} className="text-[9px] font-black uppercase italic text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 group-hover:border-red-600/20 group-hover:text-white transition-all">{tech}</span>
@@ -425,11 +425,11 @@ export default function ProfileWizard() {
                                         <div className="space-y-8">
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Company Name *</label>
-                                                <input className="elite-input h-14 text-white" placeholder="E.G. MICROSOFT" value={newExp.company} onChange={e => setNewExp({ ...newExp, company: e.target.value })} />
+                                                <input className="elite-input h-14 text-gray-950" placeholder="E.G. MICROSOFT" value={newExp.company} onChange={e => setNewExp({ ...newExp, company: e.target.value })} />
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Job Title *</label>
-                                                <input className="elite-input h-14 text-white" placeholder="E.G. SOFTWARE ENGINEER" value={newExp.role} onChange={e => setNewExp({ ...newExp, role: e.target.value })} />
+                                                <input className="elite-input h-14 text-gray-950" placeholder="E.G. SOFTWARE ENGINEER" value={newExp.role} onChange={e => setNewExp({ ...newExp, role: e.target.value })} />
                                             </div>
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="elite-input-group">
@@ -468,9 +468,9 @@ export default function ProfileWizard() {
                                             <div className="absolute top-0 left-0 w-1 h-full bg-red-600/20 group-hover:bg-red-600 transition-all" />
                                             <div className="flex justify-between items-start relative z-10">
                                                 <div className="flex-1 pr-6">
-                                                    <div className="font-black text-white uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors">{exp.role}</div>
-                                                    <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-6 italic">{exp.company} <span className="text-gray-700 mx-3">/</span> {exp.duration}</div>
-                                                    {exp.description && <p className="text-[12px] text-gray-500 font-black uppercase italic tracking-wider leading-relaxed pr-4">{exp.description}</p>}
+                                                    <div className="font-black text-gray-950 uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors">{exp.role}</div>
+                                                    <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-6 italic">{exp.company} <span className="text-gray-300 mx-3">/</span> {exp.duration}</div>
+                                                    {exp.description && <p className="text-[12px] text-gray-600 font-black uppercase italic tracking-wider leading-relaxed pr-4">{exp.description}</p>}
                                                 </div>
                                                 <button onClick={() => setFormData({ ...formData, work_history: formData.work_history.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-white/5 hover:bg-black hover:text-red-600 transition-all border border-white/5 text-gray-700 group/del">
                                                     <TfiClose size={12} className="group-hover/del:scale-125 transition-transform" />
@@ -500,11 +500,11 @@ export default function ProfileWizard() {
                                         <div className="space-y-8">
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Institution *</label>
-                                                <input className="elite-input h-14 text-white" placeholder="E.G. HARVARD UNIVERSITY" value={newEdu.institution} onChange={e => setNewEdu({ ...newEdu, institution: e.target.value })} />
+                                                <input className="elite-input h-14 text-gray-950" placeholder="E.G. HARVARD UNIVERSITY" value={newEdu.institution} onChange={e => setNewEdu({ ...newEdu, institution: e.target.value })} />
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Degree/Level *</label>
-                                                <input className="elite-input h-14 text-white" placeholder="E.G. BACHELORS IN COMPUTER SCIENCE" value={newEdu.level} onChange={e => setNewEdu({ ...newEdu, level: e.target.value })} />
+                                                <input className="elite-input h-14 text-gray-950" placeholder="E.G. BACHELORS IN COMPUTER SCIENCE" value={newEdu.level} onChange={e => setNewEdu({ ...newEdu, level: e.target.value })} />
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Graduation Year</label>
@@ -534,9 +534,9 @@ export default function ProfileWizard() {
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[60px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className="flex justify-between items-center relative z-10">
                                                 <div>
-                                                    <div className="font-black text-white uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors">{edu.level}</div>
+                                                    <div className="font-black text-gray-950 uppercase italic text-lg tracking-[0.1em] mb-2 group-hover:text-red-500 transition-colors">{edu.level}</div>
                                                     <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-4 italic">{edu.institution}</div>
-                                                    <div className="text-[10px] font-black text-gray-700 uppercase tracking-widest bg-white/[0.02] px-4 py-2 rounded-xl border border-white/5 inline-block group-hover:border-red-600/20 group-hover:text-white transition-all">{edu.year} {edu.details && `· ${edu.details}`}</div>
+                                                    <div className="text-[10px] font-black text-gray-700 uppercase tracking-widest bg-white/[0.02] px-4 py-2 rounded-xl border border-white/5 inline-block group-hover:border-red-600/20 group-hover:text-gray-950 transition-all">{edu.year} {edu.details && `· ${edu.details}`}</div>
                                                 </div>
                                                 <button onClick={() => setFormData({ ...formData, education_history: formData.education_history.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-white/5 border border-white/5 text-gray-700 hover:bg-black hover:text-red-600 transition-all group/del">
                                                     <TfiClose size={12} className="group-hover/del:scale-125 transition-transform" />
@@ -566,15 +566,15 @@ export default function ProfileWizard() {
                                     <div className="grid grid-cols-3 gap-8">
                                         <div className="col-span-2 elite-input-group">
                                             <label className="elite-label text-gray-600">Certification Name</label>
-                                            <input className="elite-input h-14 bg-white/[0.01]" placeholder="NAME OF CERTIFICATE" value={newCert.name} onChange={e => setNewCert({ ...newCert, name: e.target.value })} />
+                                            <input className="elite-input h-14 bg-white/[0.01] text-gray-950" placeholder="NAME OF CERTIFICATE" value={newCert.name} onChange={e => setNewCert({ ...newCert, name: e.target.value })} />
                                         </div>
                                         <div className="elite-input-group">
                                             <label className="elite-label text-gray-600">Issuer/Platform</label>
-                                            <input className="elite-input h-14 bg-white/[0.01]" placeholder="COURSERA / AWS" value={newCert.platform} onChange={e => setNewCert({ ...newCert, platform: e.target.value })} />
+                                            <input className="elite-input h-14 bg-white/[0.01] text-gray-950" placeholder="COURSERA / AWS" value={newCert.platform} onChange={e => setNewCert({ ...newCert, platform: e.target.value })} />
                                         </div>
                                         <div className="elite-input-group">
                                             <label className="elite-label text-gray-600">Year Earned</label>
-                                            <select className="elite-input h-14 font-black uppercase italic" value={newCert.year} onChange={e => setNewCert({ ...newCert, year: e.target.value })}>
+                                            <select className="elite-input h-14 font-black uppercase italic text-gray-950" value={newCert.year} onChange={e => setNewCert({ ...newCert, year: e.target.value })}>
                                                 <option value="">SELECT</option>
                                                 {yearRange.slice(0, 15).map(y => <option key={y} value={y}>{y}</option>)}
                                             </select>
@@ -589,7 +589,7 @@ export default function ProfileWizard() {
                                     {formData.certifications.map((cert, idx) => (
                                         <motion.div key={idx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-8 elite-glass-panel border-white/5 flex justify-between items-center group hover:border-red-600/40 transition-all shadow-xl">
                                             <div>
-                                                <div className="font-black text-white uppercase italic text-[13px] mb-2 tracking-wide group-hover:text-red-500 transition-colors uppercase">{cert.name}</div>
+                                                <div className="font-black text-gray-950 uppercase italic text-[13px] mb-2 tracking-wide group-hover:text-red-500 transition-colors uppercase">{cert.name}</div>
                                                 <div className="text-[10px] font-black text-gray-700 uppercase tracking-widest">{cert.platform} <span className="text-red-600 mx-2">/</span> {cert.year}</div>
                                             </div>
                                             <button onClick={() => setFormData({ ...formData, certifications: formData.certifications.filter((_, i) => i !== idx) })} className="p-3 rounded-lg bg-white/5 border border-white/5 text-gray-700 hover:text-red-600 transition-all group/del">
@@ -741,12 +741,12 @@ export default function ProfileWizard() {
                                                         { label: 'Certifications', val: formData.certifications.length, icon: <TfiStar /> },
                                                         { label: 'Languages', val: formData.languages.length, icon: <TfiWorld /> }
                                                     ].map((stat, i) => (
-                                                        <div key={i} className="bg-white/[0.03] p-10 rounded-[3rem] border border-white/5 group/stat hover:border-red-600/40 transition-all shadow-inner">
+                                                        <div key={i} className="bg-white/[0.05] p-10 rounded-[3rem] border border-gray-100 group/stat hover:border-red-600/40 transition-all shadow-sm">
                                                             <div className="flex items-center justify-between mb-6">
-                                                                <div className="text-[11px] font-black uppercase text-gray-700 tracking-[0.2em] group-hover/stat:text-white transition-colors">{stat.label}</div>
+                                                                <div className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] group-hover/stat:text-red-600 transition-colors">{stat.label}</div>
                                                                 <div className="text-red-600 opacity-20 group-hover/stat:opacity-100 transition-all scale-125">{stat.icon}</div>
                                                             </div>
-                                                            <div className="text-5xl font-black text-white italic tracking-tighter leading-none group-hover/stat:scale-110 transition-transform origin-left">{stat.val}</div>
+                                                            <div className="text-5xl font-black text-red-600 italic tracking-tighter leading-none group-hover/stat:scale-110 transition-transform origin-left">{stat.val}</div>
                                                         </div>
                                                     ))}
                                                 </div>

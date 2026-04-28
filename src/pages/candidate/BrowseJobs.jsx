@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -38,9 +38,25 @@ const TIER_COLORS = {
 export default function BrowseJobs() {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [search, setSearch] = useState('');
+    const [searchParams] = useSearchParams();
+    const [search, setSearch] = useState(searchParams.get('search') || '');
+    
     const listJobs = useCallback(() => jobService.list({ search }), [search]);
     const { data: jobs, loading, execute: reload } = useFetch(listJobs);
+
+    // Sync search from URL if provided
+    useEffect(() => {
+        const query = searchParams.get('search');
+        if (query) setSearch(query);
+    }, [searchParams]);
+
+    // Debounce search execution
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            reload();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, reload]);
     
     // Fetch user's applications to prevent duplicates
     const listMyApplications = useCallback(() => jobService.myApplications(), []);
@@ -518,7 +534,7 @@ export default function BrowseJobs() {
                         <motion.div
                             initial={{ scale: 0.9, y: 40 }}
                             animate={{ scale: 1, y: 0 }}
-                            className="w-full max-w-[800px] my-10 relative overflow-hidden bg-white border border-gray-100 shadow-[0_80px_150px_rgba(0,0,0,0.1)] rounded-[3.5rem]"
+                            className="w-full max-w-[1300px] my-5 relative overflow-hidden bg-white border border-gray-100 shadow-[0_80px_150px_rgba(0,0,0,0.15)] rounded-[4rem]"
                         >
                             {/* Header HUD */}
                             <div className="p-12 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
@@ -564,8 +580,8 @@ export default function BrowseJobs() {
                                         {/* Match Score Matrix */}
                                         <div className="flex flex-col md:flex-row items-center gap-12 p-12 bg-gray-50 rounded-[3rem] border border-gray-100 relative group">
                                             <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/[0.01] blur-[100px] group-hover:opacity-100 opacity-50 transition-opacity" />
-                                            <div className="relative w-40 h-40 flex-shrink-0 group-hover:scale-105 transition-transform duration-700">
-                                                <svg className="w-40 h-40 -rotate-90" viewBox="0 0 100 100">
+                                            <div className="relative w-56 h-56 flex-shrink-0 group-hover:scale-110 transition-transform duration-1000 scale-110">
+                                                <svg className="w-56 h-56 -rotate-90" viewBox="0 0 100 100">
                                                     <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0,0,0,0.02)" strokeWidth="6" />
                                                     <circle cx="50" cy="50" r="46" fill="none" stroke="#dc2626" strokeWidth="6"
                                                         strokeDasharray={`${(gapData.match_percentage / 100) * 289} 289`}
@@ -574,8 +590,8 @@ export default function BrowseJobs() {
                                                     />
                                                 </svg>
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                    <div className="text-4xl font-black text-gray-950 italic tracking-tighter leading-none">{gapData.match_percentage}%</div>
-                                                    <div className="text-[9px] font-black text-red-700 uppercase tracking-[0.3em] mt-2">Skill Match</div>
+                                                    <div className="text-6xl font-black text-gray-950 italic tracking-tighter leading-none">{gapData.match_percentage}%</div>
+                                                    <div className="text-[12px] font-black text-red-700 uppercase tracking-[0.4em] mt-3">Skill Match</div>
                                                 </div>
                                             </div>
                                             <div className="flex-1">
@@ -615,9 +631,9 @@ export default function BrowseJobs() {
                                                     <h3 className="text-[11px] font-black uppercase text-red-600 tracking-[0.4em] mb-10 flex items-center gap-4 italic group-hover/node:translate-x-2 transition-transform">
                                                         <TfiClose className="text-xl animate-pulse" /> Skill Gaps Detected ({gapData.missing_skills.length})
                                                     </h3>
-                                                    <div className="flex flex-wrap gap-3">
+                                                    <div className="flex flex-wrap gap-4">
                                                         {gapData.missing_skills.map((skill, i) => (
-                                                            <span key={i} className="px-5 py-2.5 bg-white text-red-600 border border-red-100 rounded-xl text-[10px] font-black uppercase italic tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-sm">! {skill.toUpperCase()}</span>
+                                                            <span key={i} className="px-6 py-3 bg-white text-red-600 border border-red-100 rounded-2xl text-[12px] font-black uppercase italic tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-md">! {skill.toUpperCase()}</span>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -689,12 +705,12 @@ export default function BrowseJobs() {
                             className="fixed inset-0 z-[2200] flex items-center justify-center p-8 backdrop-blur-3xl bg-gray-900/40 px-4 sm:px-8"
                             onClick={(e) => e.target === e.currentTarget && setViewingJob(null)}
                         >
-                            <motion.div
-                                initial={{ scale: 0.95, y: 50, opacity: 0 }}
-                                animate={{ scale: 1, y: 0, opacity: 1 }}
-                                exit={{ scale: 0.95, y: 50, opacity: 0 }}
-                                className="w-full max-w-[1200px] max-h-[95vh] bg-white rounded-[4rem] overflow-hidden border border-gray-100 flex flex-col shadow-[0_80px_200px_rgba(0,0,0,0.15)] relative"
-                            > 
+                        <motion.div
+                            initial={{ scale: 0.95, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.95, y: 50, opacity: 0 }}
+                            className="w-full max-w-[1450px] max-h-[96vh] bg-white rounded-[4.5rem] overflow-hidden border border-gray-100 flex flex-col shadow-[0_100px_250px_rgba(0,0,0,0.2)] relative"
+                        > 
                                 {/* Absolute Header Decals */}
                                 <div className="absolute top-0 right-0 w-[800px] h-[400px] bg-red-600/[0.02] blur-[200px] pointer-events-none" />
                                 
@@ -724,13 +740,13 @@ export default function BrowseJobs() {
                                             {/* Salary Highlight badge next to title */}
                                             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8 mt-4">
                                                 <div className="flex-1">
-                                                    <h1 className="text-5xl sm:text-7xl font-black uppercase italic tracking-tighter text-gray-900 leading-none mb-4 group cursor-default">
+                                                    <h1 className="text-6xl sm:text-8xl font-black uppercase italic tracking-tighter text-gray-950 leading-[0.85] mb-6 group cursor-default">
                                                         {viewingJob.title}
                                                     </h1>
-                                                    <div className="flex items-center gap-6">
-                                                        <span className="text-[12px] font-black text-red-600 uppercase tracking-[0.6em] italic animate-pulse">{viewingJob.company_name}</span>
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-                                                        <span className="text-[12px] font-black text-gray-500 uppercase tracking-[0.6em] italic">{viewingJob.location}</span>
+                                                    <div className="flex items-center gap-8">
+                                                        <span className="text-[14px] font-black text-red-600 uppercase tracking-[0.6em] italic animate-pulse">{viewingJob.company_name}</span>
+                                                        <div className="w-2 h-2 rounded-full bg-gray-300" />
+                                                        <span className="text-[14px] font-black text-gray-500 uppercase tracking-[0.6em] italic">{viewingJob.location}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end">
@@ -750,12 +766,12 @@ export default function BrowseJobs() {
                                     <div className="flex-1 p-10 sm:p-16 space-y-12 relative">
                                         {/* Description & Company Sections */}
                                         <div className="space-y-16">
-                                            <section className="bg-gray-50/30 p-10 rounded-[2.5rem] border border-gray-100">
-                                                <div className="flex items-center gap-4 mb-6">
-                                                    <div className="w-8 h-[2px] bg-red-600" />
-                                                    <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-gray-950 italic">Operational Parameters (Description)</h3>
+                                            <section className="bg-gray-50/50 p-14 rounded-[3rem] border border-gray-100 shadow-inner">
+                                                <div className="flex items-center gap-6 mb-8">
+                                                    <div className="w-12 h-[3px] bg-red-600" />
+                                                    <h3 className="text-[13px] font-black uppercase tracking-[0.6em] text-gray-950 italic">Strategic Role Parameters</h3>
                                                 </div>
-                                                <p className="text-xl text-gray-700 font-medium italic leading-[1.8] opacity-90 pl-12 border-l-2 border-red-100">
+                                                <p className="text-2xl text-gray-800 font-medium italic leading-[1.8] opacity-95 pl-16 border-l-4 border-red-600/10">
                                                     {viewingJob.description}
                                                 </p>
                                             </section>
@@ -793,7 +809,7 @@ export default function BrowseJobs() {
                                         <div className="w-full p-12 bg-white rounded-[3.5rem] border border-gray-100 flex flex-col items-center text-center relative shadow-xl">
                                             <h4 className="text-[12px] font-black uppercase tracking-[0.6em] text-gray-300 mb-12 italic underline underline-offset-[16px] decoration-gray-100">Skill Match</h4>
                                             
-                                            <div className="relative w-56 h-56 mb-12">
+                                            <div className="relative w-64 h-64 mb-14 scale-110">
                                                 <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                                                     <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(0,0,0,0.02)" strokeWidth="4" />
                                                     <circle cx="50" cy="50" r="46" fill="none" stroke="#dc2626" strokeWidth="6"
@@ -802,8 +818,8 @@ export default function BrowseJobs() {
                                                     />
                                                 </svg>
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                    <span className="text-7xl font-black text-gray-900 italic tracking-[-0.08em] leading-none mb-2">{matchScore}%</span>
-                                                    <div className="text-[10px] font-black text-red-600 uppercase tracking-[0.4em] italic">CALCULATED</div>
+                                                    <span className="text-8xl font-black text-gray-950 italic tracking-[-0.08em] leading-none mb-2">{matchScore}%</span>
+                                                    <div className="text-[11px] font-black text-red-600 uppercase tracking-[0.5em] italic">CALCULATED MATCH</div>
                                                 </div>
                                             </div>
 

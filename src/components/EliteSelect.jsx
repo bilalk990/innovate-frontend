@@ -6,8 +6,8 @@ export default function EliteSelect({ label, value, onChange, options, placehold
             {label && <label className={`elite-label ${error ? 'text-red-600' : ''}`}>{label}</label>}
             <div className={`relative group ${error ? 'animate-wiggle' : ''}`}>
                 {Icon && (
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-red-500 z-10">
-                        <Icon />
+                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600 z-20 flex items-center justify-center pointer-events-none">
+                        <Icon size={18} />
                     </div>
                 )}
                 <select

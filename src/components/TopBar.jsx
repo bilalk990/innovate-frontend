@@ -13,7 +13,18 @@ import NotificationBell from './NotificationBell';
 export default function TopBar({ collapsed, userType }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && query.trim()) {
+      const role = user?.role || 'candidate';
+      const path = role === 'recruiter' ? `/${role}/candidates` : `/${role}/jobs`;
+      navigate(`${path}?search=${encodeURIComponent(query.trim())}`);
+      setQuery('');
+      setSearchFocused(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -23,16 +34,19 @@ export default function TopBar({ collapsed, userType }) {
   return (
     <header className="elite-topbar">
       {/* Search Hub */}
-      <div className={`elite-search-container ${searchFocused ? 'active' : ''}`}>
-        <Search size={16} className={searchFocused ? 'text-red-500' : 'text-gray-500'} />
+      <div className={`elite-search-container ${searchFocused ? 'active' : ''} border-gray-100 shadow-sm hover:border-red-600/30 transition-all`}>
+        <Search size={16} className={searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} />
         <input
           type="text"
           placeholder="Search jobs and activity..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleSearch}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          className="elite-search-input"
+          className="elite-search-input text-gray-900 placeholder:text-gray-400"
         />
-        <div className="elite-kbd">⌘K</div>
+        <div className="elite-kbd border-gray-200 text-gray-400">⌘K</div>
       </div>
 
       {/* Strategic Actions */}
