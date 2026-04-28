@@ -21,6 +21,14 @@ window.addEventListener('error', (e) => {
   }
 }, true);
 
+// Catch unhandled promise rejections (Vite chunk errors often show up here)
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason?.name === 'ChunkLoadError' || event.reason?.message?.includes('preload')) {
+    console.warn('Unhandled ChunkLoadError detected, recovering...');
+    window.location.reload();
+  }
+});
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={clientId}>
