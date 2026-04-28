@@ -16,7 +16,12 @@ export default function TeamFit() {
     const [activeTab, setActiveTab] = useState('overview');
     const [team, setTeam] = useState({ size: 5, skills: '', gaps: '', work_style: 'Collaborative', culture: 'Fast-paced startup', challenges: '', management_style: 'Flat' });
 
-    useEffect(() => { authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {}); }, []);
+    useEffect(() => {
+        authService.getUsers('candidate').then(r => {
+            const data = Array.isArray(r.data) ? r.data : (r.data?.results || []);
+            setCandidates(data);
+        }).catch(() => {});
+    }, []);
     const setT = (k, v) => setTeam(p => ({ ...p, [k]: v }));
 
     const handleAnalyze = async () => {

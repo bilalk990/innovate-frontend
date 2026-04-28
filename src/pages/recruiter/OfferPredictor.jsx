@@ -21,7 +21,10 @@ export default function OfferPredictor() {
     });
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
+        authService.getUsers('candidate').then(r => {
+            const data = Array.isArray(r.data) ? r.data : (r.data?.results || []);
+            setCandidates(data);
+        }).catch(() => { });
     }, []);
 
     const set = (k, v) => setForm(p => ({ ...p, [k]: v }));

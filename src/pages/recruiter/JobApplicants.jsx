@@ -61,7 +61,7 @@ export default function JobApplicants() {
 
     if (loading) return <Loader text="Loading applicants..." />;
 
-    const apps = jobApps || [];
+    const apps = Array.isArray(jobApps) ? jobApps : (jobApps?.results || []);
 
     const getScoreColor = (score) => {
         if (!score) return 'text-hr-text-muted';

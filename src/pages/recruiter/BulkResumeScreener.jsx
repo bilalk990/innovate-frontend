@@ -23,7 +23,10 @@ export default function BulkResumeScreener() {
     const [result, setResult] = useState(null);
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate').then(r => {
+            const data = Array.isArray(r.data) ? r.data : (r.data?.results || []);
+            setCandidates(data);
+        }).catch(() => {});
     }, []);
 
     const toggle = (id) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : p.length < 15 ? [...p, id] : p);

@@ -23,7 +23,9 @@ export default function EmailCampaign() {
     const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setAllCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate')
+            .then(r => setAllCandidates(Array.isArray(r.data) ? r.data : (r.data?.results || [])))
+            .catch(() => { });
     }, []);
 
     const toggleCandidate = (c) => {

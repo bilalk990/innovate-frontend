@@ -132,7 +132,7 @@ export default function JobPostings() {
 
             {/* Active Nodes Grid */}
             <div className="hr-grid">
-                {(jobs || []).map((job, idx) => {
+            {(Array.isArray(jobs) ? jobs : (jobs?.results || [])).map((job, idx) => {
                     const appCount = (applications || []).filter(a => a.job_id === job.id).length;
                     const loadIndex = MOCK_LOAD_PULSE[idx % MOCK_LOAD_PULSE.length];
 
@@ -209,7 +209,7 @@ export default function JobPostings() {
                     );
                 })}
 
-                {(jobs || []).length === 0 && (
+                {(Array.isArray(jobs) ? jobs : (jobs?.results || [])).length === 0 && (
                     <div className="col-12 py-32 text-center hr-card border-none bg-hr-bg/30">
                         <TfiInfinite className="text-6xl text-hr-border mx-auto mb-6 animate-pulse" />
                         <h3 className="hr-subheading text-lg">No Active Job Postings Found</h3>

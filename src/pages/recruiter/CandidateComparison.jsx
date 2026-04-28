@@ -18,7 +18,10 @@ export default function CandidateComparison() {
     const [activeTab, setActiveTab] = useState('matrix');
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate').then(r => {
+            const data = Array.isArray(r.data) ? r.data : (r.data?.results || []);
+            setCandidates(data);
+        }).catch(() => {});
     }, []);
 
     const toggleCandidate = (id) => {

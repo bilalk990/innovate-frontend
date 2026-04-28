@@ -46,7 +46,7 @@ const recommendationStyle = (rec) => {
 export default function Candidates() {
     const navigate = useNavigate();
     const { data: evaluationsData, loading } = useFetch(reportService.listEvaluations);
-    const evaluations = evaluationsData?.results || evaluationsData || [];
+    const evaluations = Array.isArray(evaluationsData) ? evaluationsData : (evaluationsData?.results || []);
     const [selected, setSelected] = useState(null);
     const [hrNotes, setHrNotes] = useState('');
     const [saving, setSaving] = useState(false);

@@ -31,7 +31,10 @@ export default function SentimentTracker() {
     const [newInteraction, setNewInteraction] = useState({ date: new Date().toISOString().slice(0, 10), type: 'Email Sent', notes: '' });
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
+        authService.getUsers('candidate').then(r => {
+            const data = Array.isArray(r.data) ? r.data : (r.data?.results || []);
+            setCandidates(data);
+        }).catch(() => { });
     }, []);
 
     const addInteraction = () => {

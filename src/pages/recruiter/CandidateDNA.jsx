@@ -32,7 +32,10 @@ export default function CandidateDNA() {
     const [activeTab, setActiveTab] = useState('disc');
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
+        authService.getUsers('candidate').then(r => {
+            const data = Array.isArray(r.data) ? r.data : (r.data?.results || []);
+            setCandidates(data);
+        }).catch(() => { });
     }, []);
 
     const handleProfile = async () => {
