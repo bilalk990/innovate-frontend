@@ -127,7 +127,7 @@ export default function CandidateDNA() {
                                     </div>
                                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-3">
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400">Communication Style</div>
-                                        {result.communication_style && Object.entries(result.communication_style).map(([k, v]) => (
+                                        {result.communication_style && typeof result.communication_style === 'object' && Object.entries(result.communication_style).map(([k, v]) => (
                                             <div key={k}>
                                                 <div className="text-[10px] text-gray-500 uppercase font-black">{k.replace(/_/g, ' ')}</div>
                                                 <div className="text-xs text-gray-200 mt-0.5">{v}</div>
@@ -136,7 +136,7 @@ export default function CandidateDNA() {
                                     </div>
                                     <div className="md:col-span-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Blind Spots</div>
-                                        {(result.blind_spots || []).map((b, i) => <div key={i} className="text-xs text-amber-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{b}</div>)}
+                                        {Array.isArray(result.blind_spots) && result.blind_spots.map((b, i) => <div key={i} className="text-xs text-amber-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{b}</div>)}
                                     </div>
                                 </div>
                             )}
@@ -198,7 +198,7 @@ export default function CandidateDNA() {
 
                             {activeTab === 'onboard' && (
                                 <div className="space-y-3">
-                                    {(result.onboarding_tips || []).map((tip, i) => (
+                                    {Array.isArray(result.onboarding_tips) && result.onboarding_tips.map((tip, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <div className="w-7 h-7 rounded-xl bg-red-600 flex items-center justify-center text-xs font-black flex-shrink-0">{i + 1}</div>
                                             <span className="text-sm text-gray-200">{tip}</span>

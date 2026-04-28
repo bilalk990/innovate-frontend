@@ -135,11 +135,11 @@ export default function TeamFit() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">Skills Candidate Brings</div>
-                                        {(result.skills_candidate_brings || []).map((s, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{s}</div>)}
+                                        {Array.isArray(result.skills_candidate_brings) && result.skills_candidate_brings.map((s, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{s}</div>)}
                                     </div>
                                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-blue-400 mb-3">Team Gaps This Fills</div>
-                                        {(result.gaps_candidate_fills || []).map((g, i) => <div key={i} className="text-xs text-blue-300 flex items-start gap-1 mb-1.5"><span>→</span>{g}</div>)}
+                                        {Array.isArray(result.gaps_candidate_fills) && result.gaps_candidate_fills.map((g, i) => <div key={i} className="text-xs text-blue-300 flex items-start gap-1 mb-1.5"><span>→</span>{g}</div>)}
                                     </div>
                                     {(result.potential_conflicts || []).length > 0 && (
                                         <div className="md:col-span-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
@@ -203,17 +203,17 @@ export default function TeamFit() {
                             {activeTab === 'tips' && (
                                 <div className="space-y-4">
                                     <div className="space-y-3">
-                                        {(result.manager_tips || []).map((t, i) => (
+                                        {Array.isArray(result.manager_tips) && result.manager_tips.map((t, i) => (
                                             <div key={i} className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
                                                 <span className="text-blue-400 text-sm">💼</span>
                                                 <span className="text-sm text-blue-200">{t}</span>
                                             </div>
                                         ))}
                                     </div>
-                                    {(result.risk_factors || []).length > 0 && (
+                                    {Array.isArray(result.risk_factors) && result.risk_factors.length > 0 && (
                                         <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
                                             <div className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Risk Factors</div>
-                                            {(result.risk_factors || []).map((r, i) => <div key={i} className="text-xs text-amber-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{r}</div>)}
+                                            {result.risk_factors.map((r, i) => <div key={i} className="text-xs text-amber-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{r}</div>)}
                                         </div>
                                     )}
                                 </div>
