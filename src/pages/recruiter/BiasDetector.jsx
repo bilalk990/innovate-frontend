@@ -152,7 +152,7 @@ export default function BiasDetector() {
                                     <div>
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Key Changes Made</div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {(result.key_changes_made || []).map((c, i) => (
+                                            {Array.isArray(result.key_changes_made) && result.key_changes_made.map((c, i) => (
                                                 <div key={i} className="flex items-start gap-2 text-xs text-gray-300 bg-white/[0.02] border border-white/5 rounded-xl p-3">
                                                     <span className="text-emerald-500 mt-0.5">✓</span>{c}
                                                 </div>
@@ -165,7 +165,7 @@ export default function BiasDetector() {
                             {activeTab === 'quickwins' && (
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {(result.quick_wins || []).map((w, i) => (
+                                        {Array.isArray(result.quick_wins) && result.quick_wins.map((w, i) => (
                                             <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                                 <div className="w-6 h-6 rounded-lg bg-red-600 flex items-center justify-center text-xs font-black flex-shrink-0">{i + 1}</div>
                                                 <span className="text-sm text-gray-200">{w}</span>

@@ -138,17 +138,17 @@ export default function CandidateComparison() {
                                         <thead>
                                             <tr className="border-b border-white/10">
                                                 <th className="p-4 text-left text-xs font-black uppercase tracking-widest text-gray-400">Criterion</th>
-                                                {(result.individual_profiles || []).map((p, i) => (
+                                                {Array.isArray(result.individual_profiles) && result.individual_profiles.map((p, i) => (
                                                     <th key={i} className="p-4 text-center text-xs font-black uppercase tracking-widest text-white">{p.label}</th>
                                                 ))}
                                                 <th className="p-4 text-center text-xs font-black uppercase tracking-widest text-red-400">Winner</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {(result.comparison_matrix || []).map((row, i) => (
+                                            {Array.isArray(result.comparison_matrix) && result.comparison_matrix.map((row, i) => (
                                                 <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
                                                     <td className="p-4 text-xs font-black uppercase tracking-wide text-gray-300">{row.criterion}</td>
-                                                    {(result.individual_profiles || []).map((p, pi) => {
+                                                    {Array.isArray(result.individual_profiles) && result.individual_profiles.map((p, pi) => {
                                                         const s = row.scores?.[p.label] ?? '-';
                                                         return (
                                                             <td key={pi} className="p-4 text-center">
@@ -171,7 +171,7 @@ export default function CandidateComparison() {
                             {/* Profiles Tab */}
                             {activeTab === 'profiles' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {(result.individual_profiles || []).map((p, i) => (
+                                    {Array.isArray(result.individual_profiles) && result.individual_profiles.map((p, i) => (
                                         <div key={i} className={`bg-white/[0.03] border rounded-2xl p-5 space-y-4 ${i === winnerIdx ? 'border-red-600/40' : 'border-white/10'}`}>
                                             {i === winnerIdx && <div className="text-[10px] font-black uppercase tracking-widest text-red-400">⭐ AI Pick</div>}
                                             <div className="flex items-center justify-between">
@@ -183,13 +183,13 @@ export default function CandidateComparison() {
                                             </div>
                                             <div>
                                                 <div className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Strengths</div>
-                                                {(p.top_strengths || []).map((s, si) => (
+                                                {Array.isArray(p.top_strengths) && p.top_strengths.map((s, si) => (
                                                     <div key={si} className="text-xs text-gray-300 flex items-start gap-1 mb-1"><span className="text-emerald-500 mt-0.5">✓</span>{s}</div>
                                                 ))}
                                             </div>
                                             <div>
                                                 <div className="text-[10px] font-black uppercase tracking-widest text-amber-400 mb-1">Concerns</div>
-                                                {(p.top_concerns || []).map((c, ci) => (
+                                                {Array.isArray(p.top_concerns) && p.top_concerns.map((c, ci) => (
                                                     <div key={ci} className="text-xs text-gray-300 flex items-start gap-1 mb-1"><span className="text-amber-500 mt-0.5">⚠</span>{c}</div>
                                                 ))}
                                             </div>

@@ -189,11 +189,11 @@ export default function SentimentTracker() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">Positive Signals</div>
-                                        {(result.positive_signals || []).map((s, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{s}</div>)}
+                                        {Array.isArray(result.positive_signals) && result.positive_signals.map((s, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{s}</div>)}
                                     </div>
                                     <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-3">Risk Flags</div>
-                                        {(result.risk_flags || []).map((f, i) => <div key={i} className="text-xs text-red-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{f}</div>)}
+                                        {Array.isArray(result.risk_flags) && result.risk_flags.map((f, i) => <div key={i} className="text-xs text-red-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{f}</div>)}
                                     </div>
                                     <div className="md:col-span-2 bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-blue-400 mb-3">Re-Engagement Strategy</div>
@@ -204,7 +204,7 @@ export default function SentimentTracker() {
 
                             {activeTab === 'timeline' && (
                                 <div className="space-y-3">
-                                    {(result.sentiment_timeline || []).map((t, i) => (
+                                    {Array.isArray(result.sentiment_timeline) && result.sentiment_timeline.map((t, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-4">
                                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 ${t.sentiment === 'Positive' ? 'bg-emerald-500/20 text-emerald-400' : t.sentiment === 'Negative' ? 'bg-red-500/20 text-red-400' : 'bg-gray-700 text-gray-400'}`}>{t.score}</div>
                                             <div className="flex-1">
@@ -227,7 +227,7 @@ export default function SentimentTracker() {
                                     </div>
                                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Talking Points for Next Interaction</div>
-                                        {(result.talking_points || []).map((p, i) => (
+                                        {Array.isArray(result.talking_points) && result.talking_points.map((p, i) => (
                                             <div key={i} className="flex items-start gap-2 mb-2 text-sm text-gray-300">
                                                 <span className="text-red-500 mt-0.5 flex-shrink-0">→</span>{p}
                                             </div>

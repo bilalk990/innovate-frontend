@@ -132,10 +132,10 @@ export default function OfferPredictor() {
                                     <div className="text-xl font-black uppercase">{result.verdict}</div>
                                     <div className="text-xs uppercase tracking-widest text-gray-400">{result.confidence_level} confidence</div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                                        {(result.positive_signals || []).map((s, i) => (
+                                        {Array.isArray(result.positive_signals) && result.positive_signals.map((s, i) => (
                                             <div key={i} className="text-xs text-emerald-300 flex items-start gap-1"><span className="text-emerald-500">✓</span>{s}</div>
                                         ))}
-                                        {(result.risk_factors || []).map((s, i) => (
+                                        {Array.isArray(result.risk_factors) && result.risk_factors.map((s, i) => (
                                             <div key={i} className="text-xs text-red-300 flex items-start gap-1"><span className="text-red-500">⚠</span>{s}</div>
                                         ))}
                                     </div>
@@ -169,7 +169,7 @@ export default function OfferPredictor() {
                                     <div className="md:col-span-2 bg-white/[0.03] border border-white/10 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Recommended Adjustments</div>
                                         <div className="space-y-2">
-                                            {(result.recommended_offer_adjustments || []).map((a, i) => (
+                                            {Array.isArray(result.recommended_offer_adjustments) && result.recommended_offer_adjustments.map((a, i) => (
                                                 <div key={i} className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
                                                     <div className="text-xs font-black text-red-400 flex-shrink-0">{a.impact}</div>
                                                     <div className="text-xs text-gray-200 flex-1">{a.adjustment}</div>
@@ -194,7 +194,7 @@ export default function OfferPredictor() {
 
                             {activeTab === 'counter' && (
                                 <div className="space-y-4">
-                                    {(result.counter_offer_scenarios || []).map((s, i) => (
+                                    {Array.isArray(result.counter_offer_scenarios) && result.counter_offer_scenarios.map((s, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-3">
                                             <div className="text-xs font-black uppercase tracking-widest text-amber-400">Scenario {i + 1}</div>
                                             <div className="text-sm font-medium text-white">"{s.scenario}"</div>
@@ -210,7 +210,7 @@ export default function OfferPredictor() {
 
                             {activeTab === 'sweeteners' && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {(result.package_sweeteners || []).map((s, i) => (
+                                    {Array.isArray(result.package_sweeteners) && result.package_sweeteners.map((s, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <div className="w-6 h-6 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center text-xs font-black flex-shrink-0">🎁</div>
                                             <span className="text-sm text-gray-200">{s}</span>
@@ -218,7 +218,7 @@ export default function OfferPredictor() {
                                     ))}
                                     <div className="sm:col-span-2 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                                         <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-2">Walk-Away Signals</div>
-                                        {(result.walk_away_signals || []).map((s, i) => (
+                                        {Array.isArray(result.walk_away_signals) && result.walk_away_signals.map((s, i) => (
                                             <div key={i} className="text-xs text-red-300 flex items-start gap-2 mb-1"><span>🚩</span>{s}</div>
                                         ))}
                                     </div>
