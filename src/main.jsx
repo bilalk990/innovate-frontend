@@ -13,6 +13,14 @@ window.addEventListener('vite:preloadError', (event) => {
   window.location.reload();
 });
 
+// Catch standard module fetch errors that don't trigger vite:preloadError
+window.addEventListener('error', (e) => {
+  if (e.message?.includes('dynamically imported module') || e.message?.includes('module script')) {
+    console.warn('Module fetch error detected, force reloading...');
+    window.location.reload();
+  }
+}, true);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={clientId}>

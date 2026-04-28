@@ -19,7 +19,9 @@ class ErrorBoundary extends Component {
         // Auto-recovery for Chunk/Asset loading errors (Vite specific)
         const isChunkError = error.name === 'ChunkLoadError' || 
                            error.message?.includes('preload') || 
-                           error.message?.includes('import');
+                           error.message?.includes('import') ||
+                           error.message?.includes('dynamically imported') ||
+                           error.message?.includes('module script');
                            
         if (isChunkError) {
             console.warn('Vite Chunk Error detected. Attempting auto-recovery...');
@@ -41,20 +43,20 @@ class ErrorBoundary extends Component {
                 <div style={styles.container}>
                     <div style={styles.card}>
                         <div style={styles.icon}>⚠️</div>
-                        <h1 style={styles.title}>System Interruption</h1>
+                        <h1 style={styles.title}>Something went wrong</h1>
                         <p style={styles.message}>
-                            A session synchronization error occurred. The system is ready to be restored.
+                            We're sorry, but something unexpected happened. Please try refreshing the page.
                         </p>
                         <button
                             onClick={() => {
                                 sessionStorage.removeItem('last_chunk_error_reload');
-                                window.location.reload();
+                                window.location.href = window.location.origin + window.location.pathname + '?r=' + Date.now();
                             }}
                             style={styles.button}
                             onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
                             onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            🔄 Restore Access
+                            Refresh Page
                         </button>
                         {import.meta.env.DEV && this.state.error && (
                             <details style={styles.details}>
