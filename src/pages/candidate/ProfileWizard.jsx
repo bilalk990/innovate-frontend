@@ -236,7 +236,7 @@ export default function ProfileWizard() {
                                         <div className="relative group/field">
                                             <TfiMobile className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600 group-focus-within/field:scale-110 transition-transform z-10" size={18} />
                                             <input
-                                                className={`elite-input pl-16 h-14 font-black italic bg-white/[0.02] ${errors.phone ? 'border-red-600/50' : ''}`}
+                                                className={`elite-input !pl-[70px] h-14 font-black italic bg-white/[0.02] ${errors.phone ? 'border-red-600/50' : ''}`}
                                                 placeholder="+00-XXX-XXXXXXX"
                                                 value={formData.phone}
                                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -275,7 +275,7 @@ export default function ProfileWizard() {
                                     <label className="elite-label">Key Skills *</label>
                                     <p className="text-[10px] text-gray-600 mb-8 italic uppercase tracking-[0.3em] font-black underline underline-offset-8 decoration-white/5">Select your core competencies and technical skills</p>
 
-                                    <div className="flex flex-wrap items-start gap-4 mb-10 p-12 elite-glass-panel min-h-[260px] max-h-[450px] overflow-y-auto bg-black border-white/5 shadow-inner">
+                                    <div className="flex flex-wrap items-start gap-4 mb-10 p-12 elite-glass-panel min-h-[260px] max-h-[450px] overflow-y-auto bg-gray-50 border-gray-100 shadow-inner">
                                         {formData.detailed_skills.map((s, i) => (
                                             <motion.span
                                                 key={s}
@@ -298,8 +298,8 @@ export default function ProfileWizard() {
                                         )}
                                     </div>
 
-                                    <div className="relative group/search">
-                                        <div className="absolute inset-x-0 -bottom-2 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-focus-within/search:opacity-100 transition-opacity blur-xs" />
+                                        <div className="relative group/search">
+                                            <div className="absolute inset-x-0 -bottom-2 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-focus-within/search:opacity-100 transition-opacity blur-[1px]" />
                                         <EliteAutocomplete
                                             placeholder="ADD SKILL (E.G. REACT, PROJECT MANAGEMENT)..."
                                             suggestions={SKILLS_LIST}
@@ -320,9 +320,9 @@ export default function ProfileWizard() {
                         {step === 3 && (
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto">
                                 <div className="lg:col-span-5">
-                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden group sticky top-6">
+                                    <div className="elite-glass-panel p-10 bg-white border-gray-100 relative overflow-hidden group sticky top-6 shadow-xl">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[50px] pointer-events-none" />
-                                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-950 italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
                                             <TfiPackage className="text-red-600" /> Add New Project
                                         </h3>
                                         <div className="space-y-8">
@@ -347,7 +347,7 @@ export default function ProfileWizard() {
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Technologies Used</label>
                                                 <input
-                                                    className="elite-input h-14 text-white"
+                                                    className="elite-input h-14 text-gray-950"
                                                     placeholder="E.G. NEXT.JS, REDIS, AWS"
                                                     value={newProject.technologies}
                                                     onChange={e => setNewProject({ ...newProject, technologies: e.target.value })}
@@ -356,7 +356,7 @@ export default function ProfileWizard() {
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Project Link</label>
                                                 <input
-                                                    className="elite-input h-14 text-white"
+                                                    className="elite-input h-14 text-gray-950"
                                                     placeholder="GITHUB / LIVE URL"
                                                     value={newProject.link}
                                                     onChange={e => setNewProject({ ...newProject, link: e.target.value })}
@@ -397,7 +397,7 @@ export default function ProfileWizard() {
                                                     </div>
                                                     {proj.link && <a href={proj.link} target="_blank" rel="noreferrer" className="text-[10px] text-red-600 hover:text-white underline underline-offset-4 italic tracking-[0.3em] font-black uppercase transition-all">VIEW PROJECT →</a>}
                                                 </div>
-                                                <button onClick={() => setFormData({ ...formData, projects: formData.projects.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-white/5 border border-white/5 text-gray-700 hover:bg-black hover:text-red-600 transition-all group/del">
+                                                <button onClick={() => setFormData({ ...formData, projects: formData.projects.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-all group/del">
                                                     <TfiClose size={14} className="group-hover/del:scale-125 transition-transform" />
                                                 </button>
                                             </div>
@@ -418,8 +418,8 @@ export default function ProfileWizard() {
                         {step === 4 && (
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto">
                                 <div className="lg:col-span-5">
-                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden sticky top-6">
-                                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
+                                    <div className="elite-glass-panel p-10 bg-white border-gray-100 relative overflow-hidden sticky top-6 shadow-xl">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-950 italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
                                             <TfiBriefcase className="text-red-600" /> Add Work Experience
                                         </h3>
                                         <div className="space-y-8">
@@ -434,14 +434,14 @@ export default function ProfileWizard() {
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="elite-input-group">
                                                     <label className="elite-label text-gray-600">Start Year</label>
-                                                    <select className="elite-input h-14 font-black uppercase italic text-white" value={newExp.duration.split(' - ')[0] || ''} onChange={e => setNewExp({ ...newExp, duration: `${e.target.value} - ${newExp.duration.split(' - ')[1] || 'Present'}` })}>
+                                                    <select className="elite-input h-14 font-black uppercase italic text-gray-950" value={newExp.duration.split(' - ')[0] || ''} onChange={e => setNewExp({ ...newExp, duration: `${e.target.value} - ${newExp.duration.split(' - ')[1] || 'Present'}` })}>
                                                         <option value="" disabled>SELECT</option>
                                                         {yearRange.map(y => <option key={y} value={y}>{y}</option>)}
                                                     </select>
                                                 </div>
                                                 <div className="elite-input-group">
                                                     <label className="elite-label text-gray-600">End Year</label>
-                                                    <select className="elite-input h-14 font-black uppercase italic text-white" value={newExp.duration.split(' - ')[1] || ''} onChange={e => setNewExp({ ...newExp, duration: `${newExp.duration.split(' - ')[0] || currentYear} - ${e.target.value}` })}>
+                                                    <select className="elite-input h-14 font-black uppercase italic text-gray-950" value={newExp.duration.split(' - ')[1] || ''} onChange={e => setNewExp({ ...newExp, duration: `${newExp.duration.split(' - ')[0] || currentYear} - ${e.target.value}` })}>
                                                         <option value="Present">PRESENT</option>
                                                         {yearRange.map(y => <option key={y} value={y}>{y}</option>)}
                                                     </select>
@@ -472,7 +472,7 @@ export default function ProfileWizard() {
                                                     <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-6 italic">{exp.company} <span className="text-gray-300 mx-3">/</span> {exp.duration}</div>
                                                     {exp.description && <p className="text-[12px] text-gray-600 font-black uppercase italic tracking-wider leading-relaxed pr-4">{exp.description}</p>}
                                                 </div>
-                                                <button onClick={() => setFormData({ ...formData, work_history: formData.work_history.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-white/5 hover:bg-black hover:text-red-600 transition-all border border-white/5 text-gray-700 group/del">
+                                                <button onClick={() => setFormData({ ...formData, work_history: formData.work_history.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-gray-50 hover:bg-gray-100 hover:text-red-600 transition-all border border-gray-100 text-gray-400 group/del">
                                                     <TfiClose size={12} className="group-hover/del:scale-125 transition-transform" />
                                                 </button>
                                             </div>
@@ -493,8 +493,8 @@ export default function ProfileWizard() {
                         {step === 5 && (
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto">
                                 <div className="lg:col-span-5">
-                                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden sticky top-6">
-                                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
+                                    <div className="elite-glass-panel p-10 bg-white border-gray-100 relative overflow-hidden sticky top-6 shadow-xl">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-950 italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
                                             <TfiCup className="text-red-600" /> Add Education
                                         </h3>
                                         <div className="space-y-8">
@@ -508,14 +508,14 @@ export default function ProfileWizard() {
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Graduation Year</label>
-                                                <select className="elite-input h-14 font-black uppercase italic text-white" value={newEdu.year} onChange={e => setNewEdu({ ...newEdu, year: e.target.value })}>
+                                                <select className="elite-input h-14 font-black uppercase italic text-gray-950" value={newEdu.year} onChange={e => setNewEdu({ ...newEdu, year: e.target.value })}>
                                                     <option value="" disabled>SELECT YEAR</option>
                                                     {yearRange.map(y => <option key={y} value={y}>{y}</option>)}
                                                 </select>
                                             </div>
                                             <div className="elite-input-group">
                                                 <label className="elite-label text-gray-600">Grade/GPA</label>
-                                                <input className="elite-input h-14 text-white" placeholder="E.G. 3.9 CGPA / HONORS" value={newEdu.details} onChange={e => setNewEdu({ ...newEdu, details: e.target.value })} />
+                                                <input className="elite-input h-14 text-gray-950" placeholder="E.G. 3.9 CGPA / HONORS" value={newEdu.details} onChange={e => setNewEdu({ ...newEdu, details: e.target.value })} />
                                             </div>
                                             <button
                                                 onClick={addEdu}
@@ -538,7 +538,7 @@ export default function ProfileWizard() {
                                                     <div className="text-[11px] text-red-600 font-black uppercase tracking-[0.4em] mb-4 italic">{edu.institution}</div>
                                                     <div className="text-[10px] font-black text-gray-700 uppercase tracking-widest bg-white/[0.02] px-4 py-2 rounded-xl border border-white/5 inline-block group-hover:border-red-600/20 group-hover:text-gray-950 transition-all">{edu.year} {edu.details && `· ${edu.details}`}</div>
                                                 </div>
-                                                <button onClick={() => setFormData({ ...formData, education_history: formData.education_history.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-white/5 border border-white/5 text-gray-700 hover:bg-black hover:text-red-600 transition-all group/del">
+                                                <button onClick={() => setFormData({ ...formData, education_history: formData.education_history.filter((_, i) => i !== idx) })} className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-all group/del">
                                                     <TfiClose size={12} className="group-hover/del:scale-125 transition-transform" />
                                                 </button>
                                             </div>
@@ -558,9 +558,9 @@ export default function ProfileWizard() {
                         {/* STEP 6: Certifications */}
                         {step === 6 && (
                             <div className="space-y-12 max-w-4xl mx-auto">
-                                <div className="elite-glass-panel bg-black/40 p-12 border-white/5 relative overflow-hidden group">
+                                <div className="elite-glass-panel bg-white p-12 border-gray-100 relative overflow-hidden group shadow-xl">
                                     <div className="absolute inset-0 bg-red-600/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-4 underline underline-offset-8 decoration-white/10">
+                                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-950 italic mb-12 flex items-center gap-4 underline underline-offset-8 decoration-gray-100">
                                         <TfiStar className="text-red-600 text-xl" /> Add Certification
                                     </h3>
                                     <div className="grid grid-cols-3 gap-8">
@@ -592,7 +592,7 @@ export default function ProfileWizard() {
                                                 <div className="font-black text-gray-950 uppercase italic text-[13px] mb-2 tracking-wide group-hover:text-red-500 transition-colors uppercase">{cert.name}</div>
                                                 <div className="text-[10px] font-black text-gray-700 uppercase tracking-widest">{cert.platform} <span className="text-red-600 mx-2">/</span> {cert.year}</div>
                                             </div>
-                                            <button onClick={() => setFormData({ ...formData, certifications: formData.certifications.filter((_, i) => i !== idx) })} className="p-3 rounded-lg bg-white/5 border border-white/5 text-gray-700 hover:text-red-600 transition-all group/del">
+                                            <button onClick={() => setFormData({ ...formData, certifications: formData.certifications.filter((_, i) => i !== idx) })} className="p-3 rounded-lg bg-gray-50 border border-gray-100 text-gray-400 hover:text-red-600 transition-all group/del">
                                                 <TfiClose size={12} className="group-hover/del:scale-125 transition-transform" />
                                             </button>
                                         </motion.div>
@@ -613,15 +613,15 @@ export default function ProfileWizard() {
                                     <label className="elite-label">Languages</label>
                                     <p className="text-[10px] text-gray-600 mb-10 italic uppercase font-black tracking-[0.3em] underline underline-offset-8 decoration-white/5">Specify your language proficiency for communication</p>
 
-                                    <div className="flex flex-wrap items-start gap-4 mb-12 p-12 elite-glass-panel min-h-[200px] bg-black border-white/5 shadow-inner">
+                                    <div className="flex flex-wrap items-start gap-4 mb-12 p-12 elite-glass-panel min-h-[200px] bg-gray-50 border-gray-100 shadow-inner">
                                         {formData.languages.map((lang, i) => (
                                             <motion.span
                                                 key={lang}
                                                 initial={{ scale: 0.8, opacity: 0 }}
                                                 animate={{ scale: 1, opacity: 1 }}
-                                                className="bg-white/5 text-white text-[11px] font-black uppercase tracking-[0.2em] italic py-4.5 px-8 rounded-2xl flex items-center gap-5 border border-white/10 shadow-2xl hover:border-red-600/40 transition-all group/lang"
+                                                className="bg-red-600 text-white text-[11px] font-black uppercase tracking-[0.2em] italic py-4.5 px-8 rounded-2xl flex items-center gap-5 border border-red-500 shadow-2xl hover:border-white transition-all group/lang"
                                             >
-                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.7)]" />
+                                                <div className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.7)]" />
                                                 {lang}
                                                 <TfiClose
                                                     onClick={() => setFormData({ ...formData, languages: formData.languages.filter((_, idx) => idx !== i) })}
@@ -658,7 +658,7 @@ export default function ProfileWizard() {
                                     <label className="elite-label text-gray-600">Achievements & Awards</label>
                                     <p className="text-[10px] text-gray-600 mb-10 italic uppercase font-black tracking-[0.3em]">List your professional recognitions and awards</p>
 
-                                    <div className="space-y-5 mb-12 p-12 elite-glass-panel min-h-[220px] bg-black border-white/10 shadow-inner max-h-[450px] overflow-y-auto pr-6 scrollbar-tactical">
+                                    <div className="space-y-5 mb-12 p-12 elite-glass-panel min-h-[220px] bg-gray-50 border-gray-100 shadow-inner max-h-[450px] overflow-y-auto pr-6 scrollbar-tactical">
                                         {formData.achievements.map((ach, i) => (
                                             <motion.div
                                                 key={i}
@@ -669,7 +669,7 @@ export default function ProfileWizard() {
                                             >
                                                 <div className="flex items-center gap-6">
                                                     <TfiCup className="text-red-600 text-2xl group-hover:scale-125 transition-transform duration-500" />
-                                                    <span className="text-[12px] text-white font-black uppercase tracking-wider italic leading-relaxed uppercase">{ach}</span>
+                                                    <span className="text-[12px] text-gray-950 font-black uppercase tracking-wider italic leading-relaxed">{ach}</span>
                                                 </div>
                                                 <TfiClose
                                                     onClick={() => setFormData({ ...formData, achievements: formData.achievements.filter((_, idx) => idx !== i) })}
@@ -709,7 +709,7 @@ export default function ProfileWizard() {
                                                 <TfiCheck />
                                             </div>
                                             <div className="space-y-6">
-                                                <h3 className="text-6xl font-black uppercase italic tracking-tighter text-white">PROFILE COMPLETED</h3>
+                                                <h3 className="text-6xl font-black uppercase italic tracking-tighter text-gray-950">PROFILE COMPLETED</h3>
                                                 <p className="text-gray-600 font-black uppercase text-[14px] tracking-[1em] italic animate-pulse">Saving profile and redirecting to dashboard...</p>
                                             </div>
                                         </motion.div>
@@ -720,14 +720,14 @@ export default function ProfileWizard() {
                                                 <div className="absolute inset-0 rounded-[3rem] border-4 border-emerald-500/20 animate-ping opacity-30" />
                                             </div>
 
-                                            <div className="elite-glass-panel p-16 border-white/10 text-left bg-black relative overflow-hidden group">
+                                            <div className="elite-glass-panel p-16 border-gray-100 text-left bg-white relative overflow-hidden group shadow-2xl">
                                                 <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-red-600/[0.04] blur-[150px] pointer-events-none" />
-                                                <div className="flex items-center gap-10 pb-16 border-b border-white/5 relative z-10">
+                                                <div className="flex items-center gap-10 pb-16 border-b border-gray-100 relative z-10">
                                                     <div className="w-28 h-28 rounded-[2.5rem] bg-red-600 text-white flex items-center justify-center text-5xl font-black italic shadow-[0_25px_50px_-10px_rgba(220,38,38,0.5)]">{user?.name?.charAt(0)}</div>
                                                     <div className="flex-1">
-                                                        <div className="font-black text-white uppercase italic text-3xl tracking-[0.05em] mb-4 group-hover:text-red-500 transition-colors uppercase leading-tight">{formData.headline}</div>
+                                                        <div className="font-black text-gray-950 uppercase italic text-3xl tracking-[0.05em] mb-4 group-hover:text-red-500 transition-colors leading-tight">{formData.headline}</div>
                                                         <div className="text-[13px] text-red-600 font-black uppercase tracking-[0.4em] italic flex items-center gap-4">
-                                                            {user?.name} <span className="text-gray-800">/</span> {formData.location} <span className="text-gray-800">/</span> PROFILE ID: {user?.id?.slice(0, 8)}
+                                                            {user?.name} <span className="text-gray-200">/</span> {formData.location} <span className="text-gray-200">/</span> PROFILE ID: {user?.id?.slice(0, 8)}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -741,7 +741,7 @@ export default function ProfileWizard() {
                                                         { label: 'Certifications', val: formData.certifications.length, icon: <TfiStar /> },
                                                         { label: 'Languages', val: formData.languages.length, icon: <TfiWorld /> }
                                                     ].map((stat, i) => (
-                                                        <div key={i} className="bg-white/[0.05] p-10 rounded-[3rem] border border-gray-100 group/stat hover:border-red-600/40 transition-all shadow-sm">
+                                                        <div key={i} className="bg-gray-50 p-10 rounded-[3rem] border border-gray-100 group/stat hover:border-red-600/40 transition-all shadow-sm">
                                                             <div className="flex items-center justify-between mb-6">
                                                                 <div className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] group-hover/stat:text-red-600 transition-colors">{stat.label}</div>
                                                                 <div className="text-red-600 opacity-20 group-hover/stat:opacity-100 transition-all scale-125">{stat.icon}</div>
@@ -751,12 +751,12 @@ export default function ProfileWizard() {
                                                     ))}
                                                 </div>
 
-                                                <div className="mt-20 p-12 bg-emerald-600/5 border border-emerald-500/10 rounded-[4rem] flex items-center gap-10 relative overflow-hidden group/alert">
+                                                <div className="mt-20 p-12 bg-emerald-50 border border-emerald-100 rounded-[4rem] flex items-center gap-10 relative overflow-hidden group/alert shadow-sm">
                                                     <div className="absolute inset-0 bg-emerald-600/5 opacity-0 group-hover/alert:opacity-100 transition-opacity" />
                                                     <div className="w-20 h-20 rounded-[2rem] bg-emerald-600 text-white flex items-center justify-center text-4xl shadow-[0_0_30_rgba(16,185,129,0.3)]"><TfiShield className="animate-pulse" /></div>
                                                     <div className="flex-1">
-                                                        <div className="text-[13px] font-black text-white uppercase tracking-[0.3em] mb-3 italic">Profile Verification Complete</div>
-                                                        <p className="text-[12px] text-emerald-500 font-black uppercase tracking-[0.5em] italic leading-relaxed">Your professional profile is optimal and ready for applications</p>
+                                                        <div className="text-[13px] font-black text-emerald-900 uppercase tracking-[0.3em] mb-3 italic">Profile Verification Complete</div>
+                                                        <p className="text-[12px] text-emerald-600 font-black uppercase tracking-[0.5em] italic leading-relaxed">Your professional profile is optimal and ready for applications</p>
                                                     </div>
                                                 </div>
                                             </div>

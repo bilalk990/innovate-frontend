@@ -166,7 +166,7 @@ body {
     background: #f8fafc !important;
     border: 1px solid var(--panel-border-default) !important;
     border-radius: 12px !important;
-    padding: 14px 18px !important;
+    padding: 14px 18px;
     color: var(--panel-text-primary) !important;
     font-size: 14px !important;
     transition: all 0.3s ease !important;

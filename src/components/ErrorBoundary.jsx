@@ -14,10 +14,24 @@ class ErrorBoundary extends Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        // Log to error reporting service in production
-        if (import.meta.env.PROD) {
-            // TODO: Send to error tracking service (Sentry, etc.)
-            console.error('React Error:', error, errorInfo);
+        console.error('React Error Boundary:', error, errorInfo);
+        
+        // Auto-recovery for Chunk/Asset loading errors (Vite specific)
+        const isChunkError = error.name === 'ChunkLoadError' || 
+                           error.message?.includes('preload') || 
+                           error.message?.includes('import');
+                           
+        if (isChunkError) {
+            console.warn('Vite Chunk Error detected. Attempting auto-recovery...');
+            const hasReloaded = sessionStorage.getItem('last_chunk_error_reload');
+            const now = Date.now();
+            
+            // Only auto-reload once every 10 seconds to avoid loops
+            if (!hasReloaded || now - parseInt(hasReloaded) > 10000) {
+                sessionStorage.setItem('last_chunk_error_reload', now.toString());
+                window.location.reload();
+                return;
+            }
         }
     }
 
@@ -27,17 +41,20 @@ class ErrorBoundary extends Component {
                 <div style={styles.container}>
                     <div style={styles.card}>
                         <div style={styles.icon}>⚠️</div>
-                        <h1 style={styles.title}>Something went wrong</h1>
+                        <h1 style={styles.title}>System Interruption</h1>
                         <p style={styles.message}>
-                            We're sorry, but something unexpected happened. Please try refreshing the page.
+                            A session synchronization error occurred. The system is ready to be restored.
                         </p>
                         <button
-                            onClick={() => window.location.reload()}
+                            onClick={() => {
+                                sessionStorage.removeItem('last_chunk_error_reload');
+                                window.location.reload();
+                            }}
                             style={styles.button}
-                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
                             onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            🔄 Refresh Page
+                            🔄 Restore Access
                         </button>
                         {import.meta.env.DEV && this.state.error && (
                             <details style={styles.details}>

@@ -47,7 +47,7 @@ export default function EliteAutocomplete({ label, value, onChange, suggestions,
             <div className={`relative ${error ? 'animate-wiggle' : ''}`}>
                 <input
                     type="text"
-                    className={`elite-input ${error ? 'border-red-600' : 'border-black'} focus:border-red-600 transition-all font-bold placeholder:italic`}
+                    className={`elite-input ${error ? 'border-red-600' : 'border-gray-100'} focus:border-red-600 transition-all font-bold placeholder:italic`}
                     placeholder={placeholder || "Type to search..."}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
@@ -67,13 +67,13 @@ export default function EliteAutocomplete({ label, value, onChange, suggestions,
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-black rounded-2xl shadow-2xl z-50 overflow-hidden"
+                        className="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
                     >
                         {filtered.map((s, idx) => (
                             <div
                                 key={idx}
                                 onClick={() => handleSelect(s)}
-                                className="px-6 py-4 hover:bg-black hover:text-white cursor-pointer transition-all font-black text-[11px] uppercase italic tracking-widest border-b border-black last:border-none"
+                                className="px-6 py-4 hover:bg-red-600 hover:text-white cursor-pointer transition-all font-black text-[11px] uppercase italic tracking-widest border-b border-gray-50 last:border-none"
                             >
                                 {s}
                             </div>

@@ -1782,9 +1782,11 @@ export default function InterviewRoom() {
                         </button>
                     )}
 
-                    <button onClick={handleEndMeeting} className={`h-12 px-10 text-[11px] font-black uppercase tracking-[0.4em] italic transition-all skew-x-[-15deg] shadow-2xl ${confirmEnd ? 'bg-amber-500 text-black animate-pulse' : 'bg-red-600 text-white hover:bg-red-700 shadow-[0_0_15px_rgba(220,38,38,0.3)]'}`}>
-                        <span className="skew-x-[15deg] block">{confirmEnd ? 'CONFIRM END' : 'END INTERVIEW'}</span>
-                    </button>
+                    {(user?.role === 'recruiter' || user?.role === 'admin') && (
+                        <button onClick={handleEndMeeting} className={`h-12 px-10 text-[11px] font-black uppercase tracking-[0.4em] italic transition-all skew-x-[-15deg] shadow-2xl ${confirmEnd ? 'bg-amber-500 text-black animate-pulse' : 'bg-red-600 text-white hover:bg-red-700 shadow-[0_0_15px_rgba(220,38,38,0.3)]'}`}>
+                            <span className="skew-x-[15deg] block">{confirmEnd ? 'CONFIRM END' : 'END INTERVIEW'}</span>
+                        </button>
+                    )}
                     
                 </div>
             </header>

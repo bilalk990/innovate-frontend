@@ -13,7 +13,7 @@ export default function EliteSelect({ label, value, onChange, options, placehold
                 <select
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className={`elite-input cursor-pointer appearance-none ${Icon ? 'pl-16' : ''} ${error ? 'border-red-600' : 'border-black'} hover:border-red-600 transition-all focus:ring-0`}
+                    className={`elite-input cursor-pointer appearance-none ${Icon ? '!pl-[70px]' : ''} ${error ? 'border-red-600' : 'border-black'} hover:border-red-600 transition-all focus:ring-0`}
                 >
                     <option value="" disabled>{placeholder || 'Select Option'}</option>
                     {options.map((opt, idx) => (
