@@ -87,8 +87,8 @@ export default function ResumeUpload() {
     const doUpload = async (file) => {
         if (!file) return;
 
-        if (file.size > 10 * 1024 * 1024) {
-            return setUploadError('File too large. Maximum size is 10MB.');
+        if (file.size > 20 * 1024 * 1024) {
+            return setUploadError('File too large. Maximum size is 20MB.');
         }
 
         const allowed = ['.pdf', '.txt', '.docx', '.doc'];

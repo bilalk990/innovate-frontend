@@ -230,9 +230,9 @@ export default function Profile() {
                                 <div className="elite-input-group">
                                     <label className="elite-label">Phone Number</label>
                                     <div className="relative">
-                                        <TfiMobile className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600" />
+                                        <TfiMobile className="absolute left-4 top-1/2 -translate-y-1/2 text-red-600 pointer-events-none z-10" size={16} />
                                         <input
-                                            className="elite-input h-14 pl-14 font-black italic"
+                                            className="elite-input h-14 pl-12 font-black italic"
                                             placeholder="+00 000 0000000"
                                             value={formData.phone}
                                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -303,20 +303,20 @@ export default function Profile() {
                                     <div className="grid grid-cols-2 gap-8">
                                         <div className="elite-input-group">
                                             <label className="elite-label text-gray-600">Job Title</label>
-                                            <input className="elite-input bg-black/40 h-14" value={newExp.role} onChange={e => setNewExp({ ...newExp, role: e.target.value })} placeholder="E.G. SOFTWARE ENGINEER" />
+                                            <input className="elite-input h-14" value={newExp.role} onChange={e => setNewExp({ ...newExp, role: e.target.value })} placeholder="E.G. SOFTWARE ENGINEER" />
                                         </div>
                                         <div className="elite-input-group">
                                             <label className="elite-label text-gray-600">Company Name</label>
-                                            <input className="elite-input bg-black/40 h-14" value={newExp.company} onChange={e => setNewExp({ ...newExp, company: e.target.value })} placeholder="E.G. GOOGLE" />
+                                            <input className="elite-input h-14" value={newExp.company} onChange={e => setNewExp({ ...newExp, company: e.target.value })} placeholder="E.G. GOOGLE" />
                                         </div>
                                     </div>
                                     <div className="elite-input-group">
                                         <label className="elite-label text-gray-600">Timeline</label>
-                                        <input className="elite-input bg-black/40 h-14" value={newExp.duration} onChange={e => setNewExp({ ...newExp, duration: e.target.value })} placeholder="E.G. 2020 - 2024" />
+                                        <input className="elite-input h-14" value={newExp.duration} onChange={e => setNewExp({ ...newExp, duration: e.target.value })} placeholder="E.G. 2020 - 2024" />
                                     </div>
                                     <div className="elite-input-group">
                                         <label className="elite-label text-gray-600">Responsibilities & Achievements</label>
-                                        <textarea className="elite-input bg-black/40 min-h-[120px] pt-4" value={newExp.description} onChange={e => setNewExp({ ...newExp, description: e.target.value })} placeholder="DESCRIBE YOUR KEY RESPONSIBILITIES..." />
+                                        <textarea className="elite-input min-h-[120px] pt-4" value={newExp.description} onChange={e => setNewExp({ ...newExp, description: e.target.value })} placeholder="DESCRIBE YOUR KEY RESPONSIBILITIES..." />
                                     </div>
                                     <button
                                         type="button"
@@ -339,7 +339,7 @@ export default function Profile() {
                                 <div key={idx} className="p-10 bg-white/[0.01] border border-white/5 rounded-[2.5rem] flex justify-between items-start group hover:border-red-600/30 transition-all relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[60px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                                     <div className="flex-1 z-10">
-                                        <div className="text-base font-black uppercase italic text-white mb-2 tracking-wide group-hover:text-red-500 transition-colors">{exp.role}</div>
+                                        <div className="text-base font-black uppercase italic text-gray-950 mb-2 tracking-wide group-hover:text-red-500 transition-colors">{exp.role}</div>
                                         <div className="text-[10px] font-black uppercase tracking-[0.2em] text-red-600 mb-6">{exp.company} · {exp.duration}</div>
                                         <div className="text-[11px] text-gray-500 font-bold italic max-w-lg leading-relaxed uppercase tracking-wider">{exp.description}</div>
                                     </div>
@@ -362,7 +362,7 @@ export default function Profile() {
 
                 {/* 2. SECURITY & OTHER SETTINGS (Right) */}
                 <div className="col-4 space-y-10">
-                    <section className="elite-glass-panel bg-black/40 p-12 relative overflow-hidden group">
+                    <section className="elite-glass-panel p-12 relative overflow-hidden group">
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-red-600/10 blur-[100px] pointer-events-none" />
                         <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-gray-900 mb-14 flex items-center gap-4 italic underline underline-offset-[12px] decoration-gray-200">
                             <TfiLock className="text-red-600 text-xl" /> Security Settings
