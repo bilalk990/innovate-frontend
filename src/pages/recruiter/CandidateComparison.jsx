@@ -37,7 +37,7 @@ export default function CandidateComparison() {
         finally { setLoading(false); }
     };
 
-    const winnerIdx = result ? (result.individual_profiles || []).findIndex(p => p.label === result.winner) : -1;
+    const winnerIdx = (result && Array.isArray(result.individual_profiles)) ? result.individual_profiles.findIndex(p => p.label === result.winner) : -1;
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-8">

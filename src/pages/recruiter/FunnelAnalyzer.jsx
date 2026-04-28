@@ -119,7 +119,7 @@ export default function FunnelAnalyzer() {
                                 {['stages', 'patterns', 'roadmap', 'diversity'].map(t => (
                                     <button key={t} onClick={() => setActiveTab(t)}
                                         className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === t ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
-                                        {t === 'stages' ? 'Stage Analysis' : t === 'patterns' ? 'Patterns' : t === 'roadmap' ? 'Fix Roadmap' : 'Diversity'}
+                                        {t === 'stages' ? 'Stage Analysis' : t === 'patterns' ? 'Patterns' : t === 'roadmap' ? 'Fix Roadmap' : t === 'diversity' ? 'Diversity' : 'Flags'}
                                     </button>
                                 ))}
                             </div>
@@ -142,9 +142,21 @@ export default function FunnelAnalyzer() {
                                 </div>
                             )}
 
+                            {activeTab === 'flags' && (
+                                <div className="space-y-3">
+                                    {Array.isArray(result.flagged_phrases) && result.flagged_phrases.map((item, i) => (
+                                        <div key={i} className={`border rounded-2xl p-5 ${STATUS_STYLE[item.status] || 'bg-white/[0.03] border-white/10 text-gray-300'}`}>
+                                            <div className="text-sm font-black uppercase">{item.phrase}</div>
+                                            <p className="text-xs mb-2 opacity-80">{item.context}</p>
+                                            <div className="text-xs font-medium opacity-90">💡 Fix: {item.fix}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             {activeTab === 'patterns' && (
                                 <div className="space-y-4">
-                                    {(result.patterns_detected || []).map((p, i) => (
+                                    {Array.isArray(result.patterns_detected) && result.patterns_detected.map((p, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
                                             <div className="text-sm font-black text-white mb-2">{p.pattern}</div>
                                             <div className="text-xs text-gray-400 mb-2">Evidence: {p.evidence}</div>
@@ -173,7 +185,7 @@ export default function FunnelAnalyzer() {
 
                             {activeTab === 'roadmap' && (
                                 <div className="space-y-3">
-                                    {(result.optimization_roadmap || []).map((item, i) => (
+                                    {Array.isArray(result.optimization_roadmap) && result.optimization_roadmap.map((item, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 flex items-start gap-4">
                                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black text-white flex-shrink-0 ${PRIORITY_COLOR[item.priority] || 'bg-gray-600'}`}>{item.priority}</div>
                                             <div className="flex-1">
@@ -190,7 +202,7 @@ export default function FunnelAnalyzer() {
 
                             {activeTab === 'diversity' && (
                                 <div className="space-y-3">
-                                    {(result.diversity_flags || []).length > 0 ? (result.diversity_flags || []).map((f, i) => (
+                                    {Array.isArray(result.diversity_flags) && result.diversity_flags.length > 0 ? result.diversity_flags.map((f, i) => (
                                         <div key={i} className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
                                             <div className="text-sm text-purple-200 mb-2">{f.flag}</div>
                                             <div className="text-xs text-purple-300">→ {f.recommendation}</div>

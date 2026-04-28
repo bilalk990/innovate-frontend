@@ -115,7 +115,7 @@ export default function CandidateDNA() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-3">
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400">Personality Traits</div>
-                                        {(result.personality_traits || []).map((t, i) => (
+                                        {Array.isArray(result.personality_traits) && result.personality_traits.map((t, i) => (
                                             <div key={i} className="flex items-start gap-3">
                                                 <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded flex-shrink-0 ${LEVEL_STYLE[t.level] || ''}`}>{t.level}</span>
                                                 <div>
@@ -170,7 +170,7 @@ export default function CandidateDNA() {
                                     ))}
                                     <div className="md:col-span-2 bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-3">🚩 Red Flag Environments</div>
-                                        {(result.ideal_environment?.red_flag_environments || []).map((r, i) => (
+                                        {Array.isArray(result.ideal_environment?.red_flag_environments) && result.ideal_environment.red_flag_environments.map((r, i) => (
                                             <div key={i} className="text-xs text-red-300 flex items-start gap-1 mb-1.5"><span>✗</span>{r}</div>
                                         ))}
                                     </div>
@@ -186,11 +186,11 @@ export default function CandidateDNA() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
                                             <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">What Keeps Them</div>
-                                            {(result.retention_profile?.what_keeps_them || []).map((w, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{w}</div>)}
+                                            {Array.isArray(result.retention_profile?.what_keeps_them) && result.retention_profile.what_keeps_them.map((w, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{w}</div>)}
                                         </div>
                                         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                                             <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-3">What Drives Them Away</div>
-                                            {(result.retention_profile?.what_drives_them_away || []).map((w, i) => <div key={i} className="text-xs text-red-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{w}</div>)}
+                                            {Array.isArray(result.retention_profile?.what_drives_them_away) && result.retention_profile.what_drives_them_away.map((w, i) => <div key={i} className="text-xs text-red-300 flex items-start gap-1 mb-1.5"><span>⚠</span>{w}</div>)}
                                         </div>
                                     </div>
                                 </div>

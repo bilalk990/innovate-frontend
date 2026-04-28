@@ -37,33 +37,46 @@ class ErrorBoundary extends Component {
         }
     }
 
+    handleReload = () => {
+        sessionStorage.removeItem('last_chunk_error_reload');
+        window.location.href = window.location.origin + window.location.pathname + '?r=' + Date.now();
+    }
+
+    handleHardReset = () => {
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = window.location.origin + window.location.pathname;
+    }
+
     render() {
         if (this.state.hasError) {
             return (
                 <div style={styles.container}>
                     <div style={styles.card}>
-                        <div style={styles.icon}>⚠️</div>
-                        <h1 style={styles.title}>Something went wrong</h1>
+                        <div style={styles.iconContainer}>
+                            <div style={styles.icon}>!</div>
+                        </div>
+                        <h1 style={styles.title}>System Recovery</h1>
                         <p style={styles.message}>
-                            We're sorry, but something unexpected happened. Please try refreshing the page.
+                            An unexpected interface error occurred. Our self-healing system is ready to restore your session.
                         </p>
-                        <button
-                            onClick={() => {
-                                sessionStorage.removeItem('last_chunk_error_reload');
-                                window.location.href = window.location.origin + window.location.pathname + '?r=' + Date.now();
-                            }}
-                            style={styles.button}
-                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            Refresh Page
-                        </button>
-                        {import.meta.env.DEV && this.state.error && (
-                            <details style={styles.details}>
-                                <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#667eea' }}>Error Details (Dev Only)</summary>
-                                <pre style={styles.pre}>{this.state.error.toString()}</pre>
-                            </details>
-                        )}
+                        
+                        <div style={styles.buttonGroup}>
+                            <button 
+                                onClick={this.handleReload}
+                                style={styles.primaryButton}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                Restore Interface
+                            </button>
+                            <button 
+                                onClick={this.handleHardReset}
+                                style={styles.secondaryButton}
+                            >
+                                Reset System State
+                            </button>
+                        </div>
                     </div>
                 </div>
             );
@@ -75,62 +88,87 @@ class ErrorBoundary extends Component {
 
 const styles = {
     container: {
-        minHeight: '100vh',
+        height: '100vh',
+        width: '100vw',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#050505',
-        padding: '2rem',
-        fontFamily: 'Inter, system-ui, sans-serif',
+        background: '#0a0a0a',
+        fontFamily: "'Inter', system-ui, sans-serif",
+        color: 'white',
+        padding: '20px',
     },
     card: {
-        background: '#0a0a0a',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '24px',
-        padding: '3.5rem',
-        maxWidth: '500px',
+        background: '#111111',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '32px',
+        padding: '4rem 3rem',
+        maxWidth: '480px',
         textAlign: 'center',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        boxShadow: '0 40px 100px rgba(0,0,0,0.8)',
+    },
+    iconContainer: {
+        marginBottom: '2rem',
+        display: 'flex',
+        justifyContent: 'center',
     },
     icon: {
-        fontSize: '3rem',
-        marginBottom: '1.5rem',
-        filter: 'drop-shadow(0 0 10px rgba(220, 38, 38, 0.3))',
+        width: '64px',
+        height: '64px',
+        borderRadius: '20px',
+        background: 'rgba(220, 38, 38, 0.1)',
+        border: '1px solid rgba(220, 38, 38, 0.2)',
+        color: '#dc2626',
+        fontSize: '32px',
+        fontWeight: '900',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     title: {
-        fontSize: '1.5rem',
-        fontWeight: 900,
+        fontSize: '2rem',
+        fontWeight: '900',
         marginBottom: '1rem',
-        color: 'white',
+        letterSpacing: '-0.02em',
         textTransform: 'uppercase',
-        letterSpacing: '-0.025em',
         fontStyle: 'italic',
     },
     message: {
-        fontSize: '0.95rem',
-        color: '#9ca3af',
+        color: '#999999',
+        fontSize: '0.9rem',
+        lineHeight: '1.6',
         marginBottom: '2.5rem',
-        lineHeight: 1.6,
     },
-    button: {
+    buttonGroup: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+    },
+    primaryButton: {
         background: '#dc2626',
         color: 'white',
         border: 'none',
-        padding: '1rem 2.5rem',
-        borderRadius: '12px',
-        fontSize: '0.875rem',
-        fontWeight: 900,
-        cursor: 'pointer',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        borderRadius: '16px',
+        padding: '16px',
+        fontSize: '0.85rem',
+        fontWeight: '900',
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
+        cursor: 'pointer',
+        transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
     },
-    details: {
-        marginTop: '2.5rem',
-        textAlign: 'left',
+    secondaryButton: {
+        background: 'transparent',
+        color: '#666666',
+        border: '1px solid rgba(255,255,255,0.05)',
+        borderRadius: '16px',
+        padding: '14px',
         fontSize: '0.75rem',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        paddingTop: '1.5rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
     },
     pre: {
         background: '#000',

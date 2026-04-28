@@ -247,7 +247,7 @@ export default function LDRoadmap() {
                                     <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-3">🔴 Critical Gaps — Fix First</div>
                                         <div className="flex flex-wrap gap-2">
-                                            {(result.skill_gap_analysis.critical_gaps || []).map((g, i) => (
+                                            {Array.isArray(result.skill_gap_analysis.critical_gaps) && result.skill_gap_analysis.critical_gaps.map((g, i) => (
                                                 <span key={i} className="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1.5 rounded-xl font-black">{g}</span>
                                             ))}
                                         </div>
@@ -255,7 +255,7 @@ export default function LDRoadmap() {
                                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">🟡 Moderate Gaps — Develop Over Time</div>
                                         <div className="flex flex-wrap gap-2">
-                                            {(result.skill_gap_analysis.moderate_gaps || []).map((g, i) => (
+                                            {Array.isArray(result.skill_gap_analysis.moderate_gaps) && result.skill_gap_analysis.moderate_gaps.map((g, i) => (
                                                 <span key={i} className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-xl font-black">{g}</span>
                                             ))}
                                         </div>

@@ -113,7 +113,7 @@ export default function BiasDetector() {
 
                             {activeTab === 'flags' && (
                                 <div className="space-y-3">
-                                    {(result.flagged_phrases || []).map((item, i) => (
+                                    {Array.isArray(result.flagged_phrases) && result.flagged_phrases.map((item, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
                                             <div className="flex items-start justify-between gap-4 flex-wrap">
                                                 <div className="flex items-center gap-3">
