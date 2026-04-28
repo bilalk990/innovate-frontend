@@ -53,11 +53,25 @@ export default function SalaryNegotiator() {
     };
 
     const fmt = (n) => {
-        if (!n) return 'N/A';
+        if (!n && n !== 0) return 'N/A';
         const currencyCode = data?.currency || 'USD';
-        const validCodes = ['USD', 'GBP', 'EUR', 'INR', 'PKR', 'AED', 'CAD', 'AUD'];
+        const validCodes = ['USD', 'GBP', 'EUR', 'INR', 'PKR', 'AED', 'CAD', 'AUD', 'SAR', 'BDT'];
         const safeCurrency = validCodes.includes(currencyCode) ? currencyCode : 'USD';
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: safeCurrency, maximumFractionDigits: 0 }).format(n);
+        try {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: safeCurrency, maximumFractionDigits: 0 }).format(n);
+        } catch {
+            // Fallback for unsupported currencies
+            const sym = data?.currency_symbol || currencyCode;
+            return `${sym}${Number(n).toLocaleString()}`;
+        }
+    };
+
+    // Currency flag emoji mapping
+    const CURRENCY_FLAG = {
+        PKR: '🇵🇰 Pakistan · PKR', INR: '🇮🇳 India · INR', USD: '🇺🇸 USA · USD',
+        GBP: '🇬🇧 UK · GBP', EUR: '🇪🇺 Europe · EUR', AED: '🇦🇪 UAE · AED',
+        SAR: '🇸🇦 Saudi · SAR', CAD: '🇨🇦 Canada · CAD', AUD: '🇦🇺 Australia · AUD',
+        BDT: '🇧🇩 Bangladesh · BDT',
     };
 
     const TABS = ['overview', 'script', 'counters', 'tips'];
@@ -198,7 +212,15 @@ export default function SalaryNegotiator() {
                                 <div className="p-12 bg-white rounded-[3rem] border border-gray-100 shadow-xl relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/[0.03] blur-[120px]" />
                                     <div className="flex items-center justify-between mb-10 relative z-10">
-                                        <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-[0.5em] italic">Market Salary Range</h3>
+                                        <div>
+                                            <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-[0.5em] italic">Market Salary Range</h3>
+                                            {data.currency && (
+                                                <div className="mt-2 inline-flex items-center gap-2 px-4 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-[10px] font-black uppercase text-amber-700 italic">
+                                                    {CURRENCY_FLAG[data.currency] || data.currency}
+                                                    {data.salary_period && <span className="text-gray-400">· {data.salary_period}</span>}
+                                                </div>
+                                            )}
+                                        </div>
                                         <div className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase italic border ${data.confidence === 'high' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : data.confidence === 'medium' ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
                                             {data.confidence} confidence
                                         </div>
