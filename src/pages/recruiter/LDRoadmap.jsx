@@ -210,7 +210,7 @@ export default function LDRoadmap() {
                             {/* Roadmap Phases */}
                             {activeTab === 'roadmap' && (
                                 <div className="space-y-4">
-                                    {(result.learning_roadmap || []).map((phase, i) => (
+                                    {Array.isArray(result.learning_roadmap) && result.learning_roadmap.map((phase, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 flex gap-4">
                                             <div className={`w-10 h-10 rounded-2xl ${PHASE_COLORS[i] || 'bg-gray-600'} flex items-center justify-center text-white font-black text-sm flex-shrink-0`}>
                                                 {phase.phase}
@@ -224,13 +224,13 @@ export default function LDRoadmap() {
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                     <div>
                                                         <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">Milestones</div>
-                                                        {(phase.milestones || []).map((m, mi) => (
+                                                        {Array.isArray(phase.milestones) && phase.milestones.map((m, mi) => (
                                                             <div key={mi} className="text-xs text-emerald-300 flex items-start gap-1"><TfiCheck className="flex-shrink-0 mt-0.5" />{m}</div>
                                                         ))}
                                                     </div>
                                                     <div>
                                                         <div className="text-[10px] text-blue-400 font-black uppercase mb-1">Activities</div>
-                                                        {(phase.activities || []).map((a, ai) => (
+                                                        {Array.isArray(phase.activities) && phase.activities.map((a, ai) => (
                                                             <div key={ai} className="text-xs text-blue-300 flex items-start gap-1"><span>→</span>{a}</div>
                                                         ))}
                                                     </div>
@@ -278,7 +278,7 @@ export default function LDRoadmap() {
                             {/* Courses */}
                             {activeTab === 'courses' && (
                                 <div className="space-y-3">
-                                    {(result.recommended_courses || []).map((c, i) => (
+                                    {Array.isArray(result.recommended_courses) && result.recommended_courses.map((c, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-2">
                                             <div className="flex items-start gap-3 flex-wrap">
                                                 <div className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg border flex-shrink-0 ${PRIORITY_STYLE[c.priority] || 'bg-gray-700/20 text-gray-400 border-gray-600/30'}`}>{c.priority}</div>
@@ -315,7 +315,7 @@ export default function LDRoadmap() {
                             {/* Certifications */}
                             {activeTab === 'certs' && (
                                 <div className="space-y-4">
-                                    {(result.certifications || []).map((cert, i) => (
+                                    {Array.isArray(result.certifications) && result.certifications.map((cert, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-3">
                                             <div className="flex items-start gap-3 flex-wrap">
                                                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
@@ -344,7 +344,7 @@ export default function LDRoadmap() {
                             {activeTab === 'schedule' && (
                                 <div className="space-y-3">
                                     <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Month-by-Month Plan</div>
-                                    {(result.monthly_schedule || []).map((m, i) => (
+                                    {Array.isArray(result.monthly_schedule) && result.monthly_schedule.map((m, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 flex gap-4">
                                             <div className={`w-10 h-10 rounded-2xl ${PHASE_COLORS[Math.floor(i / 3)] || 'bg-gray-600'} flex items-center justify-center text-white font-black text-sm flex-shrink-0`}>
                                                 M{m.month}
@@ -355,7 +355,7 @@ export default function LDRoadmap() {
                                                     <div className="text-[10px] bg-white/5 text-gray-400 px-2 py-0.5 rounded-lg">{m.hours_per_week}h/week</div>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2 mb-2">
-                                                    {(m.key_tasks || []).map((task, ti) => (
+                                                    {Array.isArray(m.key_tasks) && m.key_tasks.map((task, ti) => (
                                                         <span key={ti} className="text-[11px] text-gray-300 bg-white/5 px-2 py-0.5 rounded">• {task}</span>
                                                     ))}
                                                 </div>
@@ -363,7 +363,7 @@ export default function LDRoadmap() {
                                             </div>
                                         </div>
                                     ))}
-                                    {(result.success_metrics || []).length > 0 && (
+                                    {Array.isArray(result.success_metrics) && result.success_metrics.length > 0 && (
                                         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
                                             <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">📊 Success Metrics</div>
                                             {result.success_metrics.map((sm, i) => (
@@ -394,7 +394,7 @@ export default function LDRoadmap() {
                                         <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-2">⚠️ Cost of NOT Training</div>
                                         <p className="text-sm text-red-200">{result.roi_for_company.cost_of_not_training}</p>
                                     </div>
-                                    {(result.manager_tips || []).length > 0 && (
+                                    {Array.isArray(result.manager_tips) && result.manager_tips.length > 0 && (
                                         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
                                             <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">👔 Manager Support Tips</div>
                                             {result.manager_tips.map((tip, i) => (

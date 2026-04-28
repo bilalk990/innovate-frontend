@@ -36,11 +36,11 @@ export default function ReferenceCheck() {
             `REFERENCE CHECK SCRIPT — ${jobTitle}`,
             `\nOPENING: ${result.call_script_opener}`,
             '\nSTANDARD QUESTIONS:',
-            ...(result.standard_questions || []).map((q, i) => `${i + 1}. ${q.question}`),
+            ...(Array.isArray(result.standard_questions) ? result.standard_questions : []).map((q, i) => `${i + 1}. ${q.question}`),
             '\nTARGETED QUESTIONS:',
-            ...(result.targeted_questions || []).map((q, i) => `${i + 1}. ${q.question}\n   ✓ If good: ${q.green_flag_if}\n   ⚠ If concern: ${q.red_flag_if}`),
+            ...(Array.isArray(result.targeted_questions) ? result.targeted_questions : []).map((q, i) => `${i + 1}. ${q.question}\n   ✓ If good: ${q.green_flag_if}\n   ⚠ If concern: ${q.red_flag_if}`),
             '\nCLOSING:',
-            ...(result.closing_questions || []).map((q, i) => `${i + 1}. ${q}`),
+            ...(Array.isArray(result.closing_questions) ? result.closing_questions : []).map((q, i) => `${i + 1}. ${q}`),
         ].join('\n');
         navigator.clipboard.writeText(all)
             .then(() => toast.success('Full script copied!'))
@@ -105,7 +105,7 @@ export default function ReferenceCheck() {
 
                             {activeTab === 'targeted' && (
                                 <div className="space-y-4">
-                                    {(result.targeted_questions || []).map((q, i) => (
+                                    {Array.isArray(result.targeted_questions) && result.targeted_questions.map((q, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-3">
                                             <div className="flex items-start gap-3">
                                                 <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center text-xs font-black flex-shrink-0">{i + 1}</div>
@@ -129,7 +129,7 @@ export default function ReferenceCheck() {
 
                             {activeTab === 'standard' && (
                                 <div className="space-y-3">
-                                    {(result.standard_questions || []).map((q, i) => (
+                                    {Array.isArray(result.standard_questions) && result.standard_questions.map((q, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <div className="w-6 h-6 rounded-lg bg-gray-700 flex items-center justify-center text-xs font-black flex-shrink-0">{i + 1}</div>
                                             <div>
@@ -140,7 +140,7 @@ export default function ReferenceCheck() {
                                     ))}
                                     <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Closing Questions</div>
-                                        {(result.closing_questions || []).map((q, i) => (
+                                        {Array.isArray(result.closing_questions) && result.closing_questions.map((q, i) => (
                                             <div key={i} className="text-sm text-gray-300 mb-2 flex items-start gap-2"><span className="text-gray-600">→</span>{q}</div>
                                         ))}
                                     </div>
@@ -149,7 +149,7 @@ export default function ReferenceCheck() {
 
                             {activeTab === 'gaps' && (
                                 <div className="space-y-3">
-                                    {(result.gap_verification_questions || []).map((q, i) => (
+                                    {Array.isArray(result.gap_verification_questions) && result.gap_verification_questions.map((q, i) => (
                                         <div key={i} className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
                                             <p className="text-sm text-white">{q.question}</p>
                                             <p className="text-xs text-amber-400 mt-2 italic">Verifying: {q.verifying}</p>
@@ -160,7 +160,7 @@ export default function ReferenceCheck() {
 
                             {activeTab === 'skills' && (
                                 <div className="space-y-3">
-                                    {(result.skills_verification || []).map((s, i) => (
+                                    {Array.isArray(result.skills_verification) && result.skills_verification.map((s, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <span className="text-xs font-black uppercase tracking-widest bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2 py-1 rounded-lg flex-shrink-0">{s.skill}</span>
                                             <p className="text-sm text-gray-200">{s.question}</p>
@@ -173,7 +173,7 @@ export default function ReferenceCheck() {
                                 <div className="space-y-4">
                                     <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-red-400 mb-3">⚖ Legal Compliance — Topics to AVOID</div>
-                                        {(result.legal_reminders || []).map((r, i) => (
+                                        {Array.isArray(result.legal_reminders) && result.legal_reminders.map((r, i) => (
                                             <div key={i} className="text-sm text-red-300 flex items-start gap-2 mb-2"><span>🚫</span>{r}</div>
                                         ))}
                                     </div>

@@ -94,7 +94,7 @@ export default function TalentRediscovery() {
                             {/* Rediscovered Candidates */}
                             <div className="space-y-4">
                                 <div className="text-xs font-black uppercase tracking-widest text-gray-400">Rediscovered Candidates — Ranked by Fit</div>
-                                {(result.rediscovered || []).map((c, i) => (
+                                {Array.isArray(result.rediscovered) && result.rediscovered.map((c, i) => (
                                     <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-4">
                                         <div className="flex items-center gap-4 flex-wrap">
                                             <div className="w-10 h-10 rounded-xl bg-red-600/20 flex items-center justify-center text-red-400 text-sm font-black flex-shrink-0">#{i + 1}</div>
@@ -116,11 +116,11 @@ export default function TalentRediscovery() {
                                             </div>
                                             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
                                                 <div className="text-[10px] text-blue-400 font-black uppercase mb-1">Transferable Skills</div>
-                                                <div className="text-xs text-blue-300">{(c.transferable_skills || []).join(', ') || '—'}</div>
+                                                <div className="text-xs text-blue-300">{(Array.isArray(c.transferable_skills) ? c.transferable_skills : []).join(', ') || '—'}</div>
                                             </div>
                                             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
                                                 <div className="text-[10px] text-amber-400 font-black uppercase mb-1">Still Missing</div>
-                                                <div className="text-xs text-amber-300">{(c.gap_from_new_role || []).slice(0, 2).join(', ') || 'None identified'}</div>
+                                                <div className="text-xs text-amber-300">{(Array.isArray(c.gap_from_new_role) ? c.gap_from_new_role : []).slice(0, 2).join(', ') || 'None identified'}</div>
                                             </div>
                                         </div>
 
