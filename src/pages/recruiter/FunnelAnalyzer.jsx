@@ -126,7 +126,7 @@ export default function FunnelAnalyzer() {
 
                             {activeTab === 'stages' && (
                                 <div className="space-y-3">
-                                    {(result.stage_analysis || []).map((s, i) => (
+                                    {Array.isArray(result.stage_analysis) && result.stage_analysis.map((s, i) => (
                                         <div key={i} className={`border rounded-2xl p-5 ${STATUS_STYLE[s.status] || 'bg-white/[0.03] border-white/10 text-gray-300'}`}>
                                             <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
                                                 <div className="text-sm font-black uppercase">{s.stage}</div>

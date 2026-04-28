@@ -135,16 +135,16 @@ export default function TeamFit() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">Skills Candidate Brings</div>
-                                        {Array.isArray(result.skills_candidate_brings) && result.skills_candidate_brings.map((s, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{s}</div>)}
-                                    </div>
-                                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
-                                        <div className="text-xs font-black uppercase tracking-widest text-blue-400 mb-3">Team Gaps This Fills</div>
-                                        {Array.isArray(result.gaps_candidate_fills) && result.gaps_candidate_fills.map((g, i) => <div key={i} className="text-xs text-blue-300 flex items-start gap-1 mb-1.5"><span>→</span>{g}</div>)}
-                                    </div>
-                                    {(result.potential_conflicts || []).length > 0 && (
-                                        <div className="md:col-span-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
-                                            <div className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Potential Conflicts</div>
-                                            {(result.potential_conflicts || []).map((c, i) => (
+                                    {Array.isArray(result.skills_candidate_brings) && result.skills_candidate_brings.map((s, i) => <div key={i} className="text-xs text-emerald-300 flex items-start gap-1 mb-1.5"><span>✓</span>{s}</div>)}
+                                </div>
+                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
+                                    <div className="text-xs font-black uppercase tracking-widest text-blue-400 mb-3">Team Gaps This Fills</div>
+                                    {Array.isArray(result.gaps_candidate_fills) && result.gaps_candidate_fills.map((g, i) => <div key={i} className="text-xs text-blue-300 flex items-start gap-1 mb-1.5"><span>→</span>{g}</div>)}
+                                </div>
+                                {Array.isArray(result.potential_conflicts) && result.potential_conflicts.length > 0 && (
+                                    <div className="md:col-span-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
+                                        <div className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Potential Conflicts</div>
+                                        {result.potential_conflicts.map((c, i) => (
                                                 <div key={i} className="flex items-start gap-3 mb-3">
                                                     <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded flex-shrink-0 ${c.severity === 'High' ? 'bg-red-500/20 text-red-400' : c.severity === 'Medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}>{c.severity}</span>
                                                     <div>
@@ -177,7 +177,7 @@ export default function TeamFit() {
                                         <div className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">First 90 Days</div>
                                         <p className="text-gray-200 text-sm leading-relaxed">{result.first_90_days}</p>
                                     </div>
-                                    {(result.collaboration_predictions || []).map((p, i) => (
+                                    {Array.isArray(result.collaboration_predictions) && result.collaboration_predictions.map((p, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <div className="w-6 h-6 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center text-xs flex-shrink-0">🤝</div>
                                             <div>
@@ -191,7 +191,7 @@ export default function TeamFit() {
 
                             {activeTab === 'onboarding' && (
                                 <div className="space-y-3">
-                                    {(result.onboarding_recommendations || []).map((r, i) => (
+                                    {Array.isArray(result.onboarding_recommendations) && result.onboarding_recommendations.map((r, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <div className="w-6 h-6 rounded-lg bg-red-600 flex items-center justify-center text-xs font-black flex-shrink-0">{i + 1}</div>
                                             <span className="text-sm text-gray-200">{r}</span>

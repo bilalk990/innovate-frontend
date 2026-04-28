@@ -136,7 +136,7 @@ export default function TalentRediscovery() {
                                     </div>
                                 ))}
 
-                                {(result.rediscovered || []).length === 0 && (
+                                {(!Array.isArray(result.rediscovered) || result.rediscovered.length === 0) && (
                                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 text-center">
                                         <p className="text-amber-300 text-sm">No strong rediscoveries found for this role. Try completing more candidate evaluations to build your talent pool.</p>
                                     </div>

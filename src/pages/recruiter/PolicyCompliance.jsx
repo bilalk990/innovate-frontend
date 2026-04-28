@@ -177,15 +177,15 @@ export default function PolicyCompliance() {
                                         <p className="text-gray-300 text-sm leading-relaxed">{result.verdict_summary}</p>
                                         <div className="grid grid-cols-3 gap-3 text-center">
                                             <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                                                <div className="text-xl font-black text-red-400">{result.violations?.length || 0}</div>
+                                                <div className="text-xl font-black text-red-400">{Array.isArray(result.violations) ? result.violations.length : 0}</div>
                                                 <div className="text-[10px] text-gray-400 uppercase">Violations</div>
                                             </div>
                                             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-                                                <div className="text-xl font-black text-amber-400">{result.warnings?.length || 0}</div>
+                                                <div className="text-xl font-black text-amber-400">{Array.isArray(result.warnings) ? result.warnings.length : 0}</div>
                                                 <div className="text-[10px] text-gray-400 uppercase">Warnings</div>
                                             </div>
                                             <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-                                                <div className="text-xl font-black text-emerald-400">{result.compliant_clauses?.length || 0}</div>
+                                                <div className="text-xl font-black text-emerald-400">{Array.isArray(result.compliant_clauses) ? result.compliant_clauses.length : 0}</div>
                                                 <div className="text-[10px] text-gray-400 uppercase">Good Clauses</div>
                                             </div>
                                         </div>
@@ -206,7 +206,7 @@ export default function PolicyCompliance() {
                                     <button key={t} onClick={() => setActiveTab(t)}
                                         className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === t ? 'bg-red-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
                                         {label}
-                                        {t === 'violations' && result.violations?.length > 0 && <span className="ml-1.5 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{result.violations.length}</span>}
+                                        {t === 'violations' && Array.isArray(result.violations) && result.violations.length > 0 && <span className="ml-1.5 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">{result.violations.length}</span>}
                                     </button>
                                 ))}
                             </div>
