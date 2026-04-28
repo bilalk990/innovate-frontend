@@ -43,7 +43,10 @@ export default function BiasDetector() {
             const r = await hrService.detectBias({ jd_text: jdText });
             setResult(r.data);
             toast.success(`Found ${r.data?.total_issues_found ?? 0} bias issues!`);
-        } catch { toast.error('Analysis failed. Try again.'); }
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Analysis failed. Try again.';
+            toast.error(msg);
+        }
         finally { setLoading(false); }
     };
 

@@ -22,7 +22,7 @@ export default function InterviewQualityIntelligence() {
             const r = await hrService.analyzeInterviewQuality({});
             setResult(r.data);
             toast.success('Interview quality analysis complete!');
-        } catch { toast.error('Analysis failed. Make sure you have past interviews.'); }
+        } catch (err) { toast.error(err.response?.data?.error || 'Analysis failed. Make sure you have past interviews.'); }
         finally { setLoading(false); }
     };
 

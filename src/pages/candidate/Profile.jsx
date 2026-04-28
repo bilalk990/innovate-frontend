@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  TfiUser,
-  TfiEmail,
-  TfiWrite,
-  TfiLock,
-  TfiLink,
-  TfiCheck,
-  TfiShield,
-  TfiReload,
-  TfiBolt,
-  TfiTarget,
-  TfiPulse,
-  TfiCalendar,
-  TfiMobile,
-  TfiMapAlt,
-  TfiBriefcase,
-  TfiMedall,
-  TfiPlus,
-  TfiTrash,
-  TfiAlert,
-  TfiStatsUp
+    TfiUser,
+    TfiEmail,
+    TfiWrite,
+    TfiLock,
+    TfiLink,
+    TfiCheck,
+    TfiShield,
+    TfiReload,
+    TfiBolt,
+    TfiTarget,
+    TfiPulse,
+    TfiCalendar,
+    TfiMobile,
+    TfiMapAlt,
+    TfiBriefcase,
+    TfiMedallion,
+    TfiPlus,
+    TfiTrash,
+    TfiAlert,
+    TfiStatsUp
 } from 'react-icons/tfi';
 import useAuth from '../../hooks/useAuth';
 import authService from '../../services/authService';
@@ -62,7 +62,7 @@ export default function Profile() {
     const { user, refreshUser } = useAuth();
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState({ type: '', text: '' });
-    
+
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
@@ -130,7 +130,7 @@ export default function Profile() {
             await refreshUser();
             setMsg({ type: 'success', text: 'Profile updated successfully.' });
         } catch (err) {
-            setMsg({ type: 'error', text: 'Update failed. Please check your connection.' });
+            setMsg({ type: 'error', text: err.response?.data?.error || 'Update failed. Please try again.' });
         } finally {
             setLoading(false);
         }
@@ -178,14 +178,14 @@ export default function Profile() {
             </header>
 
             {msg.text && (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={`mb-12 p-8 rounded-[2rem] border-2 text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-6 shadow-2xl ${msg.type === 'success' ? 'bg-emerald-600/5 border-emerald-600/20 text-emerald-500' : 'bg-red-600/5 border-red-600/20 text-red-600'}`}
                 >
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg ${msg.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}`}>
                         {msg.type === 'success' ? <TfiCheck /> : <TfiShield />}
-                    </div> 
+                    </div>
                     {msg.text}
                 </motion.div>
             )}
@@ -202,10 +202,10 @@ export default function Profile() {
                             <div className="grid grid-cols-2 gap-10">
                                 <div className="elite-input-group">
                                     <label className="elite-label">Full Name</label>
-                                    <input 
+                                    <input
                                         className="elite-input h-14 font-black uppercase italic bg-white/[0.02]"
                                         value={formData.name}
-                                        onChange={e => setFormData({...formData, name: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
                                 <div className="elite-input-group">
@@ -220,22 +220,22 @@ export default function Profile() {
                             <div className="grid grid-cols-2 gap-10">
                                 <div className="elite-input-group">
                                     <label className="elite-label">Professional Headline</label>
-                                    <input 
+                                    <input
                                         className="elite-input h-14 font-black uppercase italic"
                                         placeholder="E.G. SOFTWARE ENGINEER"
                                         value={formData.headline}
-                                        onChange={e => setFormData({...formData, headline: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, headline: e.target.value })}
                                     />
                                 </div>
                                 <div className="elite-input-group">
                                     <label className="elite-label">Phone Number</label>
                                     <div className="relative">
                                         <TfiMobile className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600" />
-                                        <input 
+                                        <input
                                             className="elite-input h-14 pl-14 font-black italic"
                                             placeholder="+00 000 0000000"
                                             value={formData.phone}
-                                            onChange={e => setFormData({...formData, phone: e.target.value})}
+                                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -243,11 +243,11 @@ export default function Profile() {
 
                             <div className="elite-input-group">
                                 <label className="elite-label">Professional Summary (Bio)</label>
-                                <textarea 
+                                <textarea
                                     className="elite-input min-h-[160px] pt-6 font-black leading-relaxed italic uppercase text-[11px] bg-gray-50 border-gray-100"
                                     placeholder="DESCRIBE YOUR PROFESSIONAL BACKGROUND AND SKILLS..."
                                     value={formData.bio}
-                                    onChange={e => setFormData({...formData, bio: e.target.value})}
+                                    onChange={e => setFormData({ ...formData, bio: e.target.value })}
                                 />
                             </div>
 
@@ -258,13 +258,13 @@ export default function Profile() {
                                     {formData.detailed_skills.map((s, i) => (
                                         <span key={i} className="bg-red-600 text-white text-[9px] font-black uppercase tracking-[0.2em] italic py-2.5 px-5 rounded-xl flex items-center gap-3 group/skill hover:bg-white hover:text-red-600 transition-all cursor-default shadow-lg shadow-red-600/10">
                                             {s}
-                                            <TfiTrash 
-                                                className="cursor-pointer text-white/50 group-hover/skill:text-red-600 animate-pulse" 
-                                                onClick={() => setFormData({...formData, detailed_skills: formData.detailed_skills.filter((_, idx) => idx !== i)})}
+                                            <TfiTrash
+                                                className="cursor-pointer text-white/50 group-hover/skill:text-red-600 animate-pulse"
+                                                onClick={() => setFormData({ ...formData, detailed_skills: formData.detailed_skills.filter((_, idx) => idx !== i) })}
                                             />
                                         </span>
                                     ))}
-                                    <input 
+                                    <input
                                         className="bg-transparent border-none outline-none text-[11px] font-black uppercase italic placeholder:text-gray-800 w-full mt-4"
                                         placeholder="Add new skill and press Enter..."
                                         value={tempSkill}
@@ -283,7 +283,7 @@ export default function Profile() {
                             <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-gray-900 flex items-center gap-4 italic underline underline-offset-[12px] decoration-red-600/30">
                                 <TfiBriefcase className="text-red-600 text-xl" /> Work Experience
                             </h3>
-                            <button 
+                            <button
                                 type="button"
                                 onClick={() => setAddingExp(!addingExp)}
                                 className="text-[9px] font-black uppercase tracking-widest px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 shadow-xl"
@@ -294,7 +294,7 @@ export default function Profile() {
 
                         <AnimatePresence>
                             {addingExp && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
                                     exit={{ opacity: 0, height: 0 }}
@@ -303,26 +303,26 @@ export default function Profile() {
                                     <div className="grid grid-cols-2 gap-8">
                                         <div className="elite-input-group">
                                             <label className="elite-label text-gray-600">Job Title</label>
-                                            <input className="elite-input bg-black/40 h-14" value={newExp.role} onChange={e => setNewExp({...newExp, role: e.target.value})} placeholder="E.G. SOFTWARE ENGINEER" />
+                                            <input className="elite-input bg-black/40 h-14" value={newExp.role} onChange={e => setNewExp({ ...newExp, role: e.target.value })} placeholder="E.G. SOFTWARE ENGINEER" />
                                         </div>
                                         <div className="elite-input-group">
                                             <label className="elite-label text-gray-600">Company Name</label>
-                                            <input className="elite-input bg-black/40 h-14" value={newExp.company} onChange={e => setNewExp({...newExp, company: e.target.value})} placeholder="E.G. GOOGLE" />
+                                            <input className="elite-input bg-black/40 h-14" value={newExp.company} onChange={e => setNewExp({ ...newExp, company: e.target.value })} placeholder="E.G. GOOGLE" />
                                         </div>
                                     </div>
                                     <div className="elite-input-group">
                                         <label className="elite-label text-gray-600">Timeline</label>
-                                        <input className="elite-input bg-black/40 h-14" value={newExp.duration} onChange={e => setNewExp({...newExp, duration: e.target.value})} placeholder="E.G. 2020 - 2024" />
+                                        <input className="elite-input bg-black/40 h-14" value={newExp.duration} onChange={e => setNewExp({ ...newExp, duration: e.target.value })} placeholder="E.G. 2020 - 2024" />
                                     </div>
                                     <div className="elite-input-group">
                                         <label className="elite-label text-gray-600">Responsibilities & Achievements</label>
-                                        <textarea className="elite-input bg-black/40 min-h-[120px] pt-4" value={newExp.description} onChange={e => setNewExp({...newExp, description: e.target.value})} placeholder="DESCRIBE YOUR KEY RESPONSIBILITIES..." />
+                                        <textarea className="elite-input bg-black/40 min-h-[120px] pt-4" value={newExp.description} onChange={e => setNewExp({ ...newExp, description: e.target.value })} placeholder="DESCRIBE YOUR KEY RESPONSIBILITIES..." />
                                     </div>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => {
-                                            if(!newExp.role || !newExp.company) return;
-                                            setFormData({...formData, work_history: [newExp, ...formData.work_history]});
+                                            if (!newExp.role || !newExp.company) return;
+                                            setFormData({ ...formData, work_history: [newExp, ...formData.work_history] });
                                             setNewExp({ role: '', company: '', duration: '', description: '' });
                                             setAddingExp(false);
                                         }}
@@ -343,9 +343,9 @@ export default function Profile() {
                                         <div className="text-[10px] font-black uppercase tracking-[0.2em] text-red-600 mb-6">{exp.company} · {exp.duration}</div>
                                         <div className="text-[11px] text-gray-500 font-bold italic max-w-lg leading-relaxed uppercase tracking-wider">{exp.description}</div>
                                     </div>
-                                    <button 
+                                    <button
                                         type="button"
-                                        onClick={() => setFormData({...formData, work_history: formData.work_history.filter((_, i) => i !== idx)})}
+                                        onClick={() => setFormData({ ...formData, work_history: formData.work_history.filter((_, i) => i !== idx) })}
                                         className="p-4 bg-white/5 text-gray-600 rounded-xl hover:bg-red-600 hover:text-white transition-all flex-shrink-0 z-10"
                                     >
                                         <TfiTrash />
@@ -370,26 +370,26 @@ export default function Profile() {
                         <div className="space-y-10">
                             <div className="elite-input-group">
                                 <label className="elite-label text-gray-600">Current Password</label>
-                                <input 
+                                <input
                                     type="password"
                                     className="elite-input bg-white/[0.02] border-white/5 hover:border-red-600/20"
                                     value={passData.old_password}
-                                    onChange={e => setPassData({...passData, old_password: e.target.value})}
+                                    onChange={e => setPassData({ ...passData, old_password: e.target.value })}
                                 />
                             </div>
                             <div className="elite-input-group">
                                 <label className="elite-label text-gray-600">New Password</label>
-                                <input 
+                                <input
                                     type="password"
                                     className="elite-input bg-white/[0.02] border-white/5 hover:border-red-600/20"
                                     value={passData.new_password}
-                                    onChange={e => setPassData({...passData, new_password: e.target.value})}
+                                    onChange={e => setPassData({ ...passData, new_password: e.target.value })}
                                 />
                             </div>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={handleChangePassword}
-                                disabled={loading} 
+                                disabled={loading}
                                 className="w-full bg-red-600 hover:bg-red-700 text-white py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] italic shadow-2xl shadow-red-600/20 transition-all hover:scale-[1.02]"
                             >
                                 CHANGE PASSWORD
@@ -489,7 +489,10 @@ export default function Profile() {
                                                     {suggestionsData.priority_improvements.slice(0, 4).map((item, i) => (
                                                         <div key={i} className="flex items-start gap-4 p-5 bg-white border border-gray-100 rounded-[1.5rem] hover:border-purple-200 transition-colors shadow-sm">
                                                             <span className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 text-[10px] flex items-center justify-center font-black flex-shrink-0 border border-purple-100">{i + 1}</span>
-                                                            <p className="text-[11px] text-gray-600 italic leading-relaxed pt-0.5">{item}</p>
+                                                            <div className="flex-1">
+                                                                <div className="text-[10px] font-black uppercase text-purple-700 mb-1">{item.title || 'Improvement'}</div>
+                                                                <p className="text-[11px] text-gray-600 italic leading-relaxed pt-0.5">{item.description || item}</p>
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>

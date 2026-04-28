@@ -20,7 +20,7 @@ export default function InterviewerCoach() {
     useEffect(() => {
         interviewService.list({ page_size: 50 })
             .then(r => setInterviews(r.data?.results || r.data || []))
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const handleCoach = async () => {
@@ -29,7 +29,10 @@ export default function InterviewerCoach() {
         try {
             const r = await hrService.coachInterviewer({ interview_id: interviewId });
             setResult(r.data);
-        } catch { toast.error('Coaching analysis failed.'); }
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Coaching analysis failed.';
+            toast.error(msg);
+        }
         finally { setLoading(false); }
     };
 

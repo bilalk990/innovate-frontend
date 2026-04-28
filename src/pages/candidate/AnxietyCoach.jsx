@@ -20,7 +20,7 @@ export default function AnxietyCoach() {
         try {
             const r = await api.post('/auth/anxiety-coach/', form);
             setResult(r.data);
-        } catch { toast.error('Failed to generate coaching plan. Try again.'); }
+        } catch (err) { toast.error(err.response?.data?.error || 'Failed to generate coaching plan. Try again.'); }
         finally { setLoading(false); }
     };
 

@@ -18,7 +18,7 @@ import {
   TfiLayoutGrid2,
   TfiReload,
   TfiMicrophone,
-  TfiMedall,
+  TfiMedallion,
   TfiMap,
   TfiAgenda,
   TfiComment,
@@ -52,7 +52,7 @@ const candidateNavigation = [
     items: [
       { path: '/candidate/ai-insights', icon: TfiStatsUp, label: 'AI Insights' },
       { path: '/candidate/mock-interview', icon: TfiMicrophone, label: 'Mock Interview' },
-      { path: '/candidate/salary-negotiator', icon: TfiMedall, label: 'Salary AI' },
+      { path: '/candidate/salary-negotiator', icon: TfiMedallion, label: 'Salary AI' },
       { path: '/candidate/career-path', icon: TfiMap, label: 'Career Path' },
       { path: '/candidate/interview-prep', icon: TfiTarget, label: 'Prep Lab' },
       { path: '/candidate/anxiety-coach', icon: TfiShield, label: 'Anxiety Coach' },
@@ -89,7 +89,7 @@ const recruiterNavigation = [
       { path: '/recruiter/compare-candidates', icon: TfiViewListAlt, label: 'Compare AI' },
       { path: '/recruiter/bias-detector', icon: TfiSearch, label: 'Bias Detector' },
       { path: '/recruiter/reference-check', icon: TfiComment, label: 'Reference AI' },
-      { path: '/recruiter/offer-predictor', icon: TfiMedall, label: 'Offer AI' },
+      { path: '/recruiter/offer-predictor', icon: TfiMedallion, label: 'Offer AI' },
       { path: '/recruiter/funnel-analyzer', icon: TfiBarChart, label: 'Funnel AI' },
       { path: '/recruiter/team-fit', icon: TfiLayoutGrid2, label: 'Team Fit AI' },
       { path: '/recruiter/interviewer-coach', icon: TfiAgenda, label: 'Coach AI' },
@@ -145,7 +145,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside className={`fixed left-0 top-0 h-screen z-50 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] border-r border-white/10 bg-[#050505] flex flex-col ${collapsed ? 'w-20' : 'w-[280px] shadow-[20px_0_40px_rgba(0,0,0,0.4)]'}`}>
-      
+
       {/* Brand Header */}
       <div className={`p-8 flex items-center gap-5 border-b border-white/10 bg-white/5 overflow-hidden ${collapsed ? 'justify-center' : ''}`}>
         <div className="w-12 h-12 min-w-[3rem] rounded-2xl bg-red-600 flex items-center justify-center text-white text-3xl shadow-lg border border-red-500">
@@ -176,11 +176,11 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               {section.items.map((item) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
-                
+
                 return (
-                  <NavLink 
-                    key={item.path} 
-                    to={item.path} 
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
                     className={`group flex items-center ${collapsed ? 'justify-center w-full' : 'gap-5 px-6'} py-4 rounded-2xl transition-all duration-500 relative ${isActive ? 'bg-red-600/10 text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
                   >
                     {isActive && (
@@ -201,8 +201,8 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       </nav>
 
       {/* Collapse Toggle */}
-      <button 
-        onClick={() => setCollapsed(!collapsed)} 
+      <button
+        onClick={() => setCollapsed(!collapsed)}
         className="absolute bottom-32 right-[-14px] w-7 h-7 rounded-full bg-[#050505] border border-white/10 text-gray-500 flex items-center justify-center hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-xl z-50 group"
       >
         {collapsed ? <TfiAngleRight className="group-hover:scale-125" /> : <TfiAngleLeft className="group-hover:scale-125" />}
@@ -216,7 +216,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           </div>
           {!collapsed && (
             <div className="flex-1 overflow-hidden">
-            <div className="text-[13px] font-black text-white italic truncate uppercase tracking-widest leading-none mb-2">
+              <div className="text-[13px] font-black text-white italic truncate uppercase tracking-widest leading-none mb-2">
                 {user?.name || 'Authorized'}
               </div>
               <div className="flex items-center gap-2">
@@ -226,12 +226,12 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             </div>
           )}
           {!collapsed && (
-             <button 
-                onClick={handleLogout}
-                className="p-3 rounded-xl bg-gray-100 text-gray-400 hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"
-             >
-                <TfiPowerOff className="text-lg" />
-             </button>
+            <button
+              onClick={handleLogout}
+              className="p-3 rounded-xl bg-gray-100 text-gray-400 hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+            >
+              <TfiPowerOff className="text-lg" />
+            </button>
           )}
         </div>
       </div>

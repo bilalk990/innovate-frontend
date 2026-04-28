@@ -31,7 +31,7 @@ export default function SentimentTracker() {
     const [newInteraction, setNewInteraction] = useState({ date: new Date().toISOString().slice(0, 10), type: 'Email Sent', notes: '' });
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
     }, []);
 
     const addInteraction = () => {
@@ -52,7 +52,10 @@ export default function SentimentTracker() {
                 interactions,
             });
             setResult(r.data);
-        } catch { toast.error('Sentiment analysis failed.'); }
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Sentiment analysis failed.';
+            toast.error(msg);
+        }
         finally { setLoading(false); }
     };
 

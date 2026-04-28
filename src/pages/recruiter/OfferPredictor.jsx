@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TfiReload, TfiMedall, TfiUser } from 'react-icons/tfi';
+import { TfiReload, TfiMedallion, TfiUser } from 'react-icons/tfi';
 import { toast } from 'sonner';
 import hrService from '../../services/hrService';
 import authService from '../../services/authService';
@@ -21,7 +21,7 @@ export default function OfferPredictor() {
     });
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
     }, []);
 
     const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -53,10 +53,10 @@ export default function OfferPredictor() {
                         <div>
                             <label className="text-[10px] uppercase tracking-widest text-gray-500 block mb-1">Select Candidate</label>
                             <select value={form.candidate_id} onChange={e => {
-                                    const id = e.target.value;
-                                    const found = candidates.find(c => String(c.id || c._id) === id);
-                                    setForm(p => ({ ...p, candidate_id: id, candidate_name: found ? (found.name || '') : p.candidate_name }));
-                                }}
+                                const id = e.target.value;
+                                const found = candidates.find(c => String(c.id || c._id) === id);
+                                setForm(p => ({ ...p, candidate_id: id, candidate_name: found ? (found.name || '') : p.candidate_name }));
+                            }}
                                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-600">
                                 <option value="">Manual entry below</option>
                                 {candidates.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name}</option>)}
@@ -109,7 +109,7 @@ export default function OfferPredictor() {
                         </div>
                         <button onClick={handlePredict} disabled={loading}
                             className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:opacity-40 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2">
-                            {loading ? <><TfiReload className="animate-spin" /> Predicting...</> : <><TfiMedall /> Predict Acceptance</>}
+                            {loading ? <><TfiReload className="animate-spin" /> Predicting...</> : <><TfiMedallion /> Predict Acceptance</>}
                         </button>
                     </div>
                 </div>

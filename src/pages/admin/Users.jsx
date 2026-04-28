@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  TfiUser, 
-  TfiEmail, 
-  TfiShield, 
-  TfiTrash, 
-  TfiSearch, 
-  TfiPulse, 
-  TfiTarget,
-  TfiReload,
-  TfiLock,
-  TfiPowerOff,
-  TfiAngleRight,
-  TfiHarddrives,
-  TfiMedall
+import {
+    TfiUser,
+    TfiEmail,
+    TfiShield,
+    TfiTrash,
+    TfiSearch,
+    TfiPulse,
+    TfiTarget,
+    TfiReload,
+    TfiLock,
+    TfiPowerOff,
+    TfiAngleRight,
+    TfiHarddrives,
+    TfiMedallion
 } from 'react-icons/tfi';
 import useFetch from '../../hooks/useFetch';
 import authService from '../../services/authService';
@@ -57,12 +57,12 @@ export default function Users() {
                     <h1 className="elite-tactical-header">User Directory</h1>
                     <p className="elite-sub-header mt-2 text-gray-500 font-black uppercase tracking-[0.4em] text-[10px] italic">User Management · Global Region</p>
                 </div>
-                
+
                 <div className="header-search md:max-w-xl w-full relative group">
                     <TfiSearch className="text-red-700 z-10 absolute left-6 top-1/2 -translate-y-1/2 group-hover:scale-110 transition-transform" />
-                    <input 
-                        type="text" 
-                        placeholder="SEARCH USERS BY NAME OR EMAIL..." 
+                    <input
+                        type="text"
+                        placeholder="SEARCH USERS BY NAME OR EMAIL..."
                         className="w-full h-16 bg-gray-50 border border-gray-200 rounded-[1.5rem] pl-16 pr-8 text-[11px] font-black uppercase italic tracking-widest text-gray-900 placeholder:text-gray-400 focus:border-red-600/40 focus:bg-white transition-all focus:shadow-[0_0_20px_#dc262611]"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -73,7 +73,7 @@ export default function Users() {
             {/* User Data Table */}
             <div className="elite-glass-panel p-0 overflow-hidden bg-white border-gray-100 relative group shadow-2xl">
                 <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-red-600/[0.01] blur-[150px] pointer-events-none" />
-                
+
                 <div className="overflow-x-auto scrollbar-tactical">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -87,7 +87,7 @@ export default function Users() {
                         <tbody>
                             <AnimatePresence mode="popLayout">
                                 {filteredUsers.map((u, idx) => (
-                                    <motion.tr 
+                                    <motion.tr
                                         key={u.id}
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -123,7 +123,7 @@ export default function Users() {
                                         </td>
                                         <td className="py-8 px-12 text-right">
                                             <div className="flex justify-end gap-5">
-                                                <button 
+                                                <button
                                                     onClick={() => toggleStatus(u)}
                                                     className={`w-12 h-12 rounded-2xl border transition-all shadow-xl flex items-center justify-center text-xl group/btn ${u.is_active ? 'bg-red-600/5 border-red-600/20 text-red-600 hover:bg-red-600 hover:text-white' : 'bg-emerald-600/5 border-emerald-500/20 text-emerald-500 hover:bg-emerald-600 hover:text-white'}`}
                                                 >

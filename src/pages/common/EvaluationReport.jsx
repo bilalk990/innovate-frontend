@@ -11,7 +11,7 @@ import {
     TfiBolt,
     TfiShield,
     TfiPulse,
-    TfiMedall,
+    TfiMedallion,
     TfiStatsUp,
     TfiFile,
     TfiHarddrives,
@@ -36,7 +36,7 @@ export default function EvaluationReport() {
     const [generatingOffer, setGeneratingOffer] = useState(false);
     const [generatingPDF, setGeneratingPDF] = useState(false);
     const reportRef = useRef(null);
-    
+
     // New AI Features State
     const [behavioralTraits, setBehavioralTraits] = useState(null);
     const [loadingBehavioral, setLoadingBehavioral] = useState(false);
@@ -172,20 +172,52 @@ export default function EvaluationReport() {
         if (!reportRef.current) return;
         setGeneratingPDF(true);
         try {
+            // Enhanced options for better high-DPI capture and SVG stability
             const canvas = await html2canvas(reportRef.current, {
                 scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
+                logging: false,
+                allowTaint: true,
+                onclone: (clonedDoc) => {
+                    // Fix: Ensure all charts and icons are fully visible in the clone
+                    const radars = clonedDoc.querySelectorAll('.recharts-surface');
+                    radars.forEach(r => {
+                        r.style.width = '100%';
+                        r.style.height = '100%';
+                    });
+                }
             });
-            const imgData = canvas.toDataURL('image/png');
+            const imgData = canvas.toDataURL('image/png', 1.0);
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Evaluation_Report_${data?.id?.substring(0, 8)}.pdf`);
-        } catch { toast.error('PDF export failed. Please try again.'); }
+
+            // Handle multi-page if height exceeds A4 (approx 297mm)
+            if (pdfHeight > 297) {
+                let heightLeft = pdfHeight;
+                let position = 0;
+                while (heightLeft > 0) {
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= 297;
+                    if (heightLeft > 0) {
+                        pdf.addPage();
+                        position -= 297;
+                    }
+                }
+            } else {
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            }
+
+            pdf.save(`Evaluation_Report_${data?.id?.substring(0, 8) || 'Export'}.pdf`);
+            toast.success('PDF Audit exported successfully!');
+        } catch (err) {
+            console.error('[PDF Export Error]', err);
+            toast.error('PDF export failed. Please try printing the page (Ctrl+P) instead.');
+        }
         finally { setGeneratingPDF(false); }
     };
+
 
     if (loading) return <div className="flex items-center justify-center min-h-screen text-red-500 text-3xl animate-pulse"><TfiReload className="animate-spin" /></div>;
     if (error) return <div className="flex flex-col items-center justify-center min-h-screen p-10"><TfiPulse className="text-4xl text-red-500 mb-4" /><h2 className="text-xl font-black">{error}</h2></div>;
@@ -257,7 +289,7 @@ export default function EvaluationReport() {
                                     </div>
                                     <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-4">{m.label}</div>
                                     <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                        <motion.div 
+                                        <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: m.val + '%' }}
                                             transition={{ duration: 1.5, delay: 0.5 }}
@@ -329,7 +361,7 @@ export default function EvaluationReport() {
                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.4em] italic mt-1">Behavioral & Cognitive Diagnostics</p>
                         </div>
                     </div>
-                    
+
                     <p className="text-[15px] font-medium leading-relaxed text-gray-600 italic border-l-4 border-red-600 pl-8 mb-12 py-2">
                         {data.behavioral_summary || "The candidate profile shows high technical proficiency and strong communication skills for professional roles."}
                     </p>
@@ -342,7 +374,7 @@ export default function EvaluationReport() {
                         <div className="absolute top-0 right-0 w-48 h-48 blur-[80px] pointer-events-none" style={{
                             backgroundColor: data.overall_score >= 70 ? 'rgba(16, 185, 129, 0.1)' : data.overall_score >= 50 ? 'rgba(251, 191, 36, 0.1)' : 'rgba(239, 68, 68, 0.1)'
                         }} />
-                        
+
                         <div className="flex items-center justify-between mb-6 relative z-10">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg" style={{
@@ -422,22 +454,22 @@ export default function EvaluationReport() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 mb-10">
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                           <div className={`w-2 h-2 rounded-full ${data.confidence_score >= 70 ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
-                               Confidence: {data.confidence_score >= 80 ? 'High' : data.confidence_score >= 50 ? 'Moderate' : 'Low'} ({data.confidence_score ?? 'N/A'}%)
-                           </span>
+                            <div className={`w-2 h-2 rounded-full ${data.confidence_score >= 70 ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                                Confidence: {data.confidence_score >= 80 ? 'High' : data.confidence_score >= 50 ? 'Moderate' : 'Low'} ({data.confidence_score ?? 'N/A'}%)
+                            </span>
                         </div>
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                           <div className={`w-2 h-2 rounded-full ${data.proctoring_score >= 80 ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} />
-                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
-                               Integrity: {data.proctoring_score ?? 100}% · {data.tab_switch_count > 0 ? `${data.tab_switch_count} violations` : 'Clean'}
-                           </span>
+                            <div className={`w-2 h-2 rounded-full ${data.proctoring_score >= 80 ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} />
+                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                                Integrity: {data.proctoring_score ?? 100}% · {data.tab_switch_count > 0 ? `${data.tab_switch_count} violations` : 'Clean'}
+                            </span>
                         </div>
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                           <div className={`w-2 h-2 rounded-full ${data.recommendation === 'hire' ? 'bg-emerald-500' : data.recommendation === 'maybe' ? 'bg-yellow-400' : 'bg-red-500'}`} />
-                           <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
-                               Verdict: {(data.recommendation || 'pending').toUpperCase()}
-                           </span>
+                            <div className={`w-2 h-2 rounded-full ${data.recommendation === 'hire' ? 'bg-emerald-500' : data.recommendation === 'maybe' ? 'bg-yellow-400' : 'bg-red-500'}`} />
+                            <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                                Verdict: {(data.recommendation || 'pending').toUpperCase()}
+                            </span>
                         </div>
                     </div>
 
@@ -501,7 +533,7 @@ export default function EvaluationReport() {
                 {/* NEW AI FEATURES SECTION */}
                 <div className="mt-16 space-y-8">
                     <h2 className="text-2xl font-black text-gray-900 border-l-4 border-red-500 pl-4 mb-8">Advanced AI Analysis</h2>
-                    
+
                     {/* Behavioral Traits Analyzer */}
                     <div className="bg-white border-2 border-purple-100 rounded-[2.5rem] p-10 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/[0.02] blur-[80px] pointer-events-none" />
@@ -528,7 +560,7 @@ export default function EvaluationReport() {
                                 )}
                             </button>
                         </div>
-                        
+
                         {behavioralTraits && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -588,7 +620,7 @@ export default function EvaluationReport() {
                                 )}
                             </button>
                         </div>
-                        
+
                         {integrityScore && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -597,21 +629,19 @@ export default function EvaluationReport() {
                             >
                                 <div className="flex items-center justify-between mb-6">
                                     <span className="text-sm font-bold text-gray-700 uppercase tracking-wider">Integrity Score</span>
-                                    <span className={`text-5xl font-black ${
-                                        integrityScore.integrity_score >= 80 ? 'text-emerald-600' :
+                                    <span className={`text-5xl font-black ${integrityScore.integrity_score >= 80 ? 'text-emerald-600' :
                                         integrityScore.integrity_score >= 60 ? 'text-yellow-600' :
-                                        'text-red-600'
-                                    }`}>
+                                            'text-red-600'
+                                        }`}>
                                         {integrityScore.integrity_score}%
                                     </span>
                                 </div>
                                 <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden mb-6">
                                     <motion.div
-                                        className={`h-full ${
-                                            integrityScore.integrity_score >= 80 ? 'bg-emerald-600' :
+                                        className={`h-full ${integrityScore.integrity_score >= 80 ? 'bg-emerald-600' :
                                             integrityScore.integrity_score >= 60 ? 'bg-yellow-600' :
-                                            'bg-red-600'
-                                        }`}
+                                                'bg-red-600'
+                                            }`}
                                         initial={{ width: 0 }}
                                         animate={{ width: `${integrityScore.integrity_score}%` }}
                                         transition={{ duration: 1 }}
@@ -664,7 +694,7 @@ export default function EvaluationReport() {
                                 )}
                             </button>
                         </div>
-                        
+
                         {cultureFit && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -673,21 +703,19 @@ export default function EvaluationReport() {
                             >
                                 <div className="flex items-center justify-between mb-6">
                                     <span className="text-sm font-bold text-gray-700 uppercase tracking-wider">Culture Fit Score</span>
-                                    <span className={`text-5xl font-black ${
-                                        cultureFit.culture_fit_score >= 80 ? 'text-emerald-600' :
+                                    <span className={`text-5xl font-black ${cultureFit.culture_fit_score >= 80 ? 'text-emerald-600' :
                                         cultureFit.culture_fit_score >= 60 ? 'text-yellow-600' :
-                                        'text-red-600'
-                                    }`}>
+                                            'text-red-600'
+                                        }`}>
                                         {cultureFit.culture_fit_score}%
                                     </span>
                                 </div>
                                 <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden mb-6">
                                     <motion.div
-                                        className={`h-full ${
-                                            cultureFit.culture_fit_score >= 80 ? 'bg-emerald-600' :
+                                        className={`h-full ${cultureFit.culture_fit_score >= 80 ? 'bg-emerald-600' :
                                             cultureFit.culture_fit_score >= 60 ? 'bg-yellow-600' :
-                                            'bg-red-600'
-                                        }`}
+                                                'bg-red-600'
+                                            }`}
                                         initial={{ width: 0 }}
                                         animate={{ width: `${cultureFit.culture_fit_score}%` }}
                                         transition={{ duration: 1 }}
@@ -758,7 +786,7 @@ export default function EvaluationReport() {
                                 )}
                             </button>
                         </div>
-                        
+
                         {executiveSummary && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -800,7 +828,7 @@ export default function EvaluationReport() {
                                 )}
                             </button>
                         </div>
-                        
+
                         {predictiveScore && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -866,7 +894,7 @@ export default function EvaluationReport() {
                 {/* Offer Letter Module */}
                 <div className="mt-12 no-print">
                     {!offerDraft ? (
-                        <button 
+                        <button
                             onClick={handleGenerateOffer}
                             disabled={generatingOffer}
                             className="bg-black text-white w-full py-6 rounded-[2rem] text-sm font-black uppercase tracking-[0.2em] shadow-xl group hover:bg-red-600 transition-all"
@@ -874,7 +902,7 @@ export default function EvaluationReport() {
                             {generatingOffer ? '... Generating AI Draft' : '✨ Generate AI Offer Letter Draft'} <TfiBolt className="ml-2 group-hover:scale-125 transition-transform" />
                         </button>
                     ) : (
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="elite-card border-2 border-red-500 p-10 bg-red-50/10"

@@ -26,7 +26,7 @@ export default function TalentRediscovery() {
             setResult(r.data);
             const count = r.data?.total_strong_matches || r.data?.rediscovered?.length || 0;
             toast.success(`Found ${count} rediscoverable candidate${count !== 1 ? 's' : ''}!`);
-        } catch { toast.error('Talent rediscovery failed. Make sure you have past evaluations.'); }
+        } catch (err) { toast.error(err.response?.data?.error || 'Talent rediscovery failed. Make sure you have past evaluations.'); }
         finally { setLoading(false); }
     };
 

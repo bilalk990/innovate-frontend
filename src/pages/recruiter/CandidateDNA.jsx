@@ -32,7 +32,7 @@ export default function CandidateDNA() {
     const [activeTab, setActiveTab] = useState('disc');
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
     }, []);
 
     const handleProfile = async () => {
@@ -41,7 +41,7 @@ export default function CandidateDNA() {
         try {
             const r = await hrService.profileCandidateDNA({ candidate_id: candidateId });
             setResult(r.data);
-        } catch { toast.error('DNA profiling failed. Try again.'); }
+        } catch (err) { toast.error(err.response?.data?.error || 'DNA profiling failed. Try again.'); }
         finally { setLoading(false); }
     };
 

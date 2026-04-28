@@ -19,8 +19,21 @@ export default function FunnelAnalyzer() {
         if (!form.job_title.trim()) return toast.error('Enter job title.');
         if (!form.applications) return toast.error('Enter number of applications.');
         setLoading(true); setResult(null);
+        const sanitizedForm = {
+            ...form,
+            applications: parseInt(form.applications) || 0,
+            screened: parseInt(form.screened) || 0,
+            phone_screened: parseInt(form.phone_screened) || 0,
+            assessed: parseInt(form.assessed) || 0,
+            final_interview: parseInt(form.final_interview) || 0,
+            offers_made: parseInt(form.offers_made) || 0,
+            offers_accepted: parseInt(form.offers_accepted) || 0,
+            hired: parseInt(form.hired) || 0,
+            time_to_fill: parseInt(form.time_to_fill) || 0,
+            cost_per_hire: parseInt(form.cost_per_hire) || 0,
+        };
         try {
-            const r = await hrService.analyzeFunnel(form);
+            const r = await hrService.analyzeFunnel(sanitizedForm);
             setResult(r.data);
         } catch { toast.error('Analysis failed.'); }
         finally { setLoading(false); }

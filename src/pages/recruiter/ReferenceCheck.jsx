@@ -14,7 +14,7 @@ export default function ReferenceCheck() {
     const [activeTab, setActiveTab] = useState('targeted');
 
     useEffect(() => {
-        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => {});
+        authService.getUsers('candidate').then(r => setCandidates(r.data || [])).catch(() => { });
     }, []);
 
     const handleGenerate = async () => {
@@ -23,7 +23,10 @@ export default function ReferenceCheck() {
         try {
             const r = await hrService.getReferenceQuestions({ candidate_id: candidateId, job_title: jobTitle });
             setResult(r.data);
-        } catch { toast.error('Generation failed.'); }
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Generation failed.';
+            toast.error(msg);
+        }
         finally { setLoading(false); }
     };
 

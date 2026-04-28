@@ -355,7 +355,7 @@ export default function ResumeBuilder() {
                 education: user?.education || [],
                 job_target: jobTarget
             };
-            
+
             const { data } = await resumeService.generateAdvancedResume(profileData);
 
             // Normalize backend response
@@ -391,62 +391,51 @@ export default function ResumeBuilder() {
             const resumeElement = document.getElementById('resume-print');
             if (!resumeElement) throw new Error('Element not found');
 
-            // Clone the element to avoid modifying the original
-            const clonedElement = resumeElement.cloneNode(true);
-            clonedElement.style.position = 'absolute';
-            clonedElement.style.left = '-9999px';
-            document.body.appendChild(clonedElement);
+            // helper to convert oklch to rgb (simple fallback)
+            const fixOklch = (doc) => {
+                const elements = doc.querySelectorAll('*');
+                elements.forEach(el => {
+                    const styles = window.getComputedStyle(el);
 
-            const canvas = await html2canvas(clonedElement, {
+                    // html2canvas fails on oklch() strings. 
+                    // We detect them and force a safe standard color.
+                    if (styles.color?.includes('oklch')) el.style.color = '#1f2937'; // gray-800
+                    if (styles.backgroundColor?.includes('oklch')) {
+                        // If it's a known theme color, use hex
+                        if (el.classList.contains('bg-red-600')) el.style.backgroundColor = '#dc2626';
+                        else if (el.classList.contains('bg-black')) el.style.backgroundColor = '#000000';
+                        else el.style.backgroundColor = '#ffffff';
+                    }
+                    if (styles.borderColor?.includes('oklch')) el.style.borderColor = '#e2e8f0';
+                });
+            };
+
+            const canvas = await html2canvas(resumeElement, {
                 scale: 2,
                 useCORS: true,
                 logging: false,
                 backgroundColor: '#ffffff',
-                allowTaint: true,
-                foreignObjectRendering: false,
-                // Ignore CSS properties that cause issues
-                ignoreElements: (element) => {
-                    // Skip elements with problematic styles
-                    const style = window.getComputedStyle(element);
-                    return style.color?.includes('oklch') || 
-                           style.backgroundColor?.includes('oklch') ||
-                           style.borderColor?.includes('oklch');
-                },
                 onclone: (clonedDoc) => {
-                    // Replace oklch colors with fallback colors
-                    const allElements = clonedDoc.querySelectorAll('*');
-                    allElements.forEach(el => {
-                        const computedStyle = window.getComputedStyle(el);
-                        
-                        // Replace oklch colors with RGB equivalents
-                        if (computedStyle.color?.includes('oklch')) {
-                            el.style.color = 'rgb(0, 0, 0)'; // fallback to black
-                        }
-                        if (computedStyle.backgroundColor?.includes('oklch')) {
-                            el.style.backgroundColor = 'rgb(255, 255, 255)'; // fallback to white
-                        }
-                        if (computedStyle.borderColor?.includes('oklch')) {
-                            el.style.borderColor = 'rgb(0, 0, 0)'; // fallback to black
-                        }
-                    });
+                    const el = clonedDoc.getElementById('resume-print');
+                    if (el) {
+                        el.style.width = '800px';
+                        fixOklch(clonedDoc);
+                    }
                 }
             });
 
-            // Remove cloned element
-            document.body.removeChild(clonedElement);
-
             const imgData = canvas.toDataURL('image/png', 1.0);
-            const pdf = new jsPDF('p', 'mm', 'a4', true);
+            const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight, undefined, 'FAST');
-            pdf.save(`${resumeData.name.replace(/\s+/g, '_')}_Professional_Resume.pdf`);
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`${resumeData.name.replace(/\s+/g, '_')}_Resume.pdf`);
+
             toast.success('PDF Exported successfully!', { id: toastId });
         } catch (error) {
-            console.error("PDF Generation Error: ", error);
-            toast.error(`PDF export failed: ${error.message || 'Unknown error'}`, { id: toastId });
+            console.error("PDF Export Error:", error);
+            toast.error(`Export failed: ${error.message}`, { id: toastId });
         }
     };
 
@@ -491,7 +480,7 @@ export default function ResumeBuilder() {
                     <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-40 h-40 bg-red-600/10 blur-[80px]" />
                         <h3 className="text-[11px] font-black uppercase text-gray-600 tracking-[0.6em] mb-12 italic">Resume Details</h3>
-                        
+
                         <div className="space-y-8 relative z-10">
                             <div>
                                 <label className="text-[9px] font-black text-gray-700 uppercase mb-3 block tracking-[0.2em] italic">Target Job Title</label>
@@ -503,7 +492,7 @@ export default function ResumeBuilder() {
                                     className="elite-input w-full bg-white/[0.02] border-white/5 text-white"
                                 />
                             </div>
-                            
+
                             <div className="p-6 bg-white/[0.01] rounded-[1.5rem] border border-white/5 group/node">
                                 <div className="text-[9px] font-black text-gray-800 uppercase mb-6 tracking-widest italic group-hover/node:text-red-700 transition-colors">Profile Data Status</div>
                                 <div className="space-y-4">
@@ -571,12 +560,12 @@ export default function ResumeBuilder() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="h-full min-h-[600px] elite-glass-panel flex flex-col items-center justify-center p-20 text-center border-dashed border-2 border-white/5 relative overflow-hidden"
                             >
-                                 <div className="absolute inset-0 bg-white/[0.01] animate-pulse pointer-events-none" />
-                                 <TfiPulse size={80} className="text-gray-900 mb-12 animate-pulse opacity-30" />
-                                 <h2 className="text-4xl font-black uppercase italic text-gray-800 tracking-tighter mb-4">Awaiting Input</h2>
-                                 <p className="text-[11px] font-black text-gray-700 uppercase tracking-[0.8em] max-w-xs leading-loose italic">
+                                <div className="absolute inset-0 bg-white/[0.01] animate-pulse pointer-events-none" />
+                                <TfiPulse size={80} className="text-gray-900 mb-12 animate-pulse opacity-30" />
+                                <h2 className="text-4xl font-black uppercase italic text-gray-800 tracking-tighter mb-4">Awaiting Input</h2>
+                                <p className="text-[11px] font-black text-gray-700 uppercase tracking-[0.8em] max-w-xs leading-loose italic">
                                     Generate your resume to preview your professional profile.
-                                 </p>
+                                </p>
                             </motion.div>
                         )}
 
@@ -600,12 +589,12 @@ export default function ResumeBuilder() {
                         )}
 
                         {resumeData && !generating && (
-                             <motion.div
+                            <motion.div
                                 key="preview"
                                 initial={{ opacity: 0, y: 40 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="elite-glass-panel p-0 overflow-hidden bg-white/[0.02] shadow-[0_60px_100px_rgba(0,0,0,0.8)] border-white/10"
-                             >
+                            >
                                 <div className="bg-black/80 px-12 py-10 flex items-center justify-between border-b border-white/10">
                                     <div className="flex items-center gap-10">
                                         <div className="flex items-center gap-4">
@@ -619,32 +608,32 @@ export default function ResumeBuilder() {
                                         <TfiPrinter size={18} />
                                     </button>
                                 </div>
-                                
+
                                 <div className="p-12 overflow-auto max-h-[800px] panel-scrollbar flex justify-center bg-gray-950/50">
                                     <div className="w-full max-w-[800px] origin-top transform shadow-2xl">
                                         <TemplateComponent data={resumeData} />
                                     </div>
                                 </div>
-                                
+
                                 <div className="p-10 bg-black/60 backdrop-blur-xl border-t border-white/10 flex items-center justify-between gap-10">
-                                     <div className="flex gap-4">
-                                         {resumeData.ats_keywords?.slice(0, 4).map((kw, idx) => (
-                                             <span key={idx} className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black text-gray-600 uppercase italic tracking-widest">#{kw}</span>
-                                         ))}
-                                     </div>
-                                     <button
+                                    <div className="flex gap-4">
+                                        {resumeData.ats_keywords?.slice(0, 4).map((kw, idx) => (
+                                            <span key={idx} className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black text-gray-600 uppercase italic tracking-widest">#{kw}</span>
+                                        ))}
+                                    </div>
+                                    <button
                                         onClick={handleDownloadPDF}
                                         className="btn-elite btn-elite-primary px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl"
-                                     >
+                                    >
                                         DOWNLOAD PDF
-                                     </button>
+                                    </button>
                                 </div>
-                             </motion.div>
+                            </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
             </div>
-            
+
             <div className="mt-32 text-center">
                 <p className="text-[11px] font-black text-gray-950 uppercase tracking-[2em] italic opacity-20">InnovAIte Platform · Resume Engine V2.0</p>
             </div>
