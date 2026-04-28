@@ -189,7 +189,7 @@ export default function PolicyCompliance() {
                                                 <div className="text-[10px] text-gray-400 uppercase">Good Clauses</div>
                                             </div>
                                         </div>
-                                        {(result.laws_checked || []).length > 0 && (
+                                        {Array.isArray(result.laws_checked) && result.laws_checked.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
                                                 {result.laws_checked.map((law, i) => (
                                                     <span key={i} className="text-[10px] bg-blue-500/10 text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-lg">{law}</span>
@@ -214,12 +214,12 @@ export default function PolicyCompliance() {
                             {/* Violations */}
                             {activeTab === 'violations' && (
                                 <div className="space-y-4">
-                                    {(result.violations || []).length === 0 ? (
+                                    {!Array.isArray(result.violations) || result.violations.length === 0 ? (
                                         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-8 text-center">
                                             <div className="text-4xl mb-2">🎉</div>
                                             <p className="text-emerald-300 font-black text-sm uppercase">No critical violations found!</p>
                                         </div>
-                                    ) : (result.violations || []).map((v, i) => (
+                                    ) : result.violations.map((v, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-3">
                                             <div className="flex items-center gap-3 flex-wrap">
                                                 <div className={`text-[10px] font-black uppercase px-3 py-1 rounded-lg border ${SEVERITY_STYLE[v.severity] || ''}`}>{v.severity}</div>
@@ -253,11 +253,11 @@ export default function PolicyCompliance() {
                             {/* Warnings */}
                             {activeTab === 'warnings' && (
                                 <div className="space-y-3">
-                                    {(result.warnings || []).length === 0 ? (
+                                    {!Array.isArray(result.warnings) || result.warnings.length === 0 ? (
                                         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-8 text-center">
                                             <p className="text-emerald-300 font-black text-sm uppercase">No warnings found!</p>
                                         </div>
-                                    ) : (result.warnings || []).map((w, i) => (
+                                    ) : result.warnings.map((w, i) => (
                                         <div key={i} className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 space-y-2">
                                             <div className="text-sm font-black text-amber-300">{w.issue}</div>
                                             {w.clause && <p className="text-xs text-amber-200/70 italic border-l-2 border-amber-500/40 pl-3">"{w.clause}"</p>}
@@ -272,7 +272,7 @@ export default function PolicyCompliance() {
                                 <div className="space-y-3">
                                     <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">✅ What Your Policy Gets Right</div>
-                                        {(result.compliant_clauses || []).map((c, i) => (
+                                        {Array.isArray(result.compliant_clauses) && result.compliant_clauses.map((c, i) => (
                                             <div key={i} className="flex items-start gap-2 mb-2 text-sm text-emerald-200">
                                                 <TfiCheck className="text-emerald-400 flex-shrink-0 mt-0.5" />{c}
                                             </div>
@@ -286,16 +286,16 @@ export default function PolicyCompliance() {
                                 <div className="space-y-3">
                                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
                                         <div className="text-xs font-black uppercase tracking-widest text-amber-400 mb-3">📋 Legally Required Clauses That Are Missing</div>
-                                        {(result.missing_required_clauses || []).map((m, i) => (
+                                        {Array.isArray(result.missing_required_clauses) && result.missing_required_clauses.map((m, i) => (
                                             <div key={i} className="flex items-start gap-2 mb-2 text-sm text-amber-200">
                                                 <span className="text-amber-500 flex-shrink-0">⚠</span>{m}
                                             </div>
                                         ))}
-                                        {(result.missing_required_clauses || []).length === 0 && (
+                                        {(!Array.isArray(result.missing_required_clauses) || result.missing_required_clauses.length === 0) && (
                                             <p className="text-emerald-300 text-sm">All required clauses are present!</p>
                                         )}
                                     </div>
-                                    {(result.key_improvements || []).length > 0 && (
+                                    {Array.isArray(result.key_improvements) && result.key_improvements.length > 0 && (
                                         <div className="space-y-3">
                                             <div className="text-xs font-black uppercase tracking-widest text-gray-400">Priority Improvements</div>
                                             {result.key_improvements.map((imp, i) => (
@@ -337,7 +337,7 @@ export default function PolicyCompliance() {
                             {/* Next Steps */}
                             {activeTab === 'steps' && (
                                 <div className="space-y-3">
-                                    {(result.next_steps || []).map((step, i) => (
+                                    {Array.isArray(result.next_steps) && result.next_steps.map((step, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-start gap-3">
                                             <div className="w-7 h-7 rounded-xl bg-red-600 flex items-center justify-center text-xs font-black flex-shrink-0">{i + 1}</div>
                                             <span className="text-sm text-gray-200">{step}</span>
