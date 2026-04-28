@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TfiReload, TfiTarget, TfiStatsUp, TfiMap, TfiMedallion, TfiCheck } from 'react-icons/tfi';
+import { TfiReload, TfiTarget, TfiStatsUp, TfiMap, TfiCup, TfiCheck } from 'react-icons/tfi';
 import { toast } from 'sonner';
 import hrService from '../../services/hrService';
 

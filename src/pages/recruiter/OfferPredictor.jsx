@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TfiReload, TfiMedallion, TfiUser } from 'react-icons/tfi';
+import { TfiReload, TfiCup, TfiUser } from 'react-icons/tfi';
 import { toast } from 'sonner';
 import hrService from '../../services/hrService';
 import authService from '../../services/authService';
@@ -109,7 +109,7 @@ export default function OfferPredictor() {
                         </div>
                         <button onClick={handlePredict} disabled={loading}
                             className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:opacity-40 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2">
-                            {loading ? <><TfiReload className="animate-spin" /> Predicting...</> : <><TfiMedallion /> Predict Acceptance</>}
+                            {loading ? <><TfiReload className="animate-spin" /> Predicting...</> : <><TfiCup /> Predict Acceptance</>}
                         </button>
                     </div>
                 </div>

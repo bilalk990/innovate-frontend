@@ -11,7 +11,7 @@ import {
     TfiBolt,
     TfiShield,
     TfiPulse,
-    TfiMedallion,
+    TfiCup,
     TfiStatsUp,
     TfiFile,
     TfiHarddrives,
@@ -232,7 +232,7 @@ export default function EvaluationReport() {
     const metrics = [
         { label: 'Technical Accuracy', val: data.overall_score, color: '#E63946', icon: <TfiStatsUp /> },
         { label: 'Security Score', val: data.proctoring_score || 100, color: '#111', icon: <TfiShield /> },
-        { label: 'Culture Fit', val: data.culture_fit_score || 0, color: '#E63946', icon: <TfiMedall /> },
+        { label: 'Culture Fit', val: data.culture_fit_score || 0, color: '#E63946', icon: <TfiCup /> },
         { label: 'Job Alignment', val: data.resume_alignment_score || 0, color: '#111', icon: <TfiBolt /> },
     ];
 
@@ -688,7 +688,7 @@ export default function EvaluationReport() {
                                     </>
                                 ) : (
                                     <>
-                                        <TfiMedall />
+                                        <TfiCup />
                                         Analyze Fit
                                     </>
                                 )}

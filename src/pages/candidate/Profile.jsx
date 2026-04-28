@@ -16,7 +16,7 @@ import {
     TfiMobile,
     TfiMapAlt,
     TfiBriefcase,
-    TfiMedallion,
+    TfiCup,
     TfiPlus,
     TfiTrash,
     TfiAlert,

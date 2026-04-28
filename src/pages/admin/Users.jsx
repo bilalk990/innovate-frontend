@@ -12,9 +12,9 @@ import {
     TfiLock,
     TfiPowerOff,
     TfiAngleRight,
-    TfiHarddrives,
-    TfiMedallion
+    TfiHarddrives
 } from 'react-icons/tfi';
+
 import useFetch from '../../hooks/useFetch';
 import authService from '../../services/authService';
 import Loader from '../../components/Loader';

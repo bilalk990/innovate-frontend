@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
     TfiUser, TfiLayers, TfiCheck, TfiArrowRight, TfiArrowLeft, TfiBolt,
-    TfiBriefcase, TfiMedallion, TfiMapAlt, TfiMobile, TfiPulse, TfiClose,
-    TfiShield, TfiCup, TfiWorld, TfiPackage, TfiStar, TfiReload
+    TfiBriefcase, TfiCup, TfiMapAlt, TfiMobile, TfiPulse, TfiClose,
+    TfiShield, TfiWorld, TfiPackage, TfiStar, TfiReload
+
 } from 'react-icons/tfi';
 import useAuth from '../../hooks/useAuth';
 import authService from '../../services/authService';
@@ -137,7 +138,7 @@ export default function ProfileWizard() {
         { id: 2, label: 'Skills', icon: <TfiBolt /> },
         { id: 3, label: 'Projects', icon: <TfiPackage /> },
         { id: 4, label: 'Experience', icon: <TfiBriefcase /> },
-        { id: 5, label: 'Education', icon: <TfiMedall /> },
+        { id: 5, label: 'Education', icon: <TfiCup /> },
         { id: 6, label: 'Certs', icon: <TfiStar /> },
         { id: 7, label: 'Languages', icon: <TfiWorld /> },
         { id: 8, label: 'Achievements', icon: <TfiCup /> },
@@ -494,7 +495,7 @@ export default function ProfileWizard() {
                                 <div className="lg:col-span-5">
                                     <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden sticky top-6">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-white italic mb-12 flex items-center gap-3 underline underline-offset-8 decoration-red-600/20">
-                                            <TfiMedall className="text-red-600" /> Add Education
+                                            <TfiCup className="text-red-600" /> Add Education
                                         </h3>
                                         <div className="space-y-8">
                                             <div className="elite-input-group">
@@ -545,7 +546,7 @@ export default function ProfileWizard() {
                                     ))}
                                     {formData.education_history.length === 0 && (
                                         <div className="min-h-[500px] flex flex-col items-center justify-center py-24 elite-glass-panel border-dashed border-white/5 bg-white/[0.01]">
-                                            <TfiMedall className="text-7xl text-gray-900 mb-8 opacity-20" />
+                                            <TfiCup className="text-7xl text-gray-900 mb-8 opacity-20" />
                                             <p className="text-[11px] font-black uppercase italic text-gray-800 tracking-[0.5em]">No Education Added</p>
                                             <p className="text-[9px] text-gray-700 mt-4 tracking-[0.3em]">ADD YOUR ACADEMIC HISTORY</p>
                                         </div>
@@ -736,7 +737,7 @@ export default function ProfileWizard() {
                                                         { label: 'Skills Added', val: formData.detailed_skills.length, icon: <TfiBolt /> },
                                                         { label: 'Projects', val: formData.projects.length, icon: <TfiPackage /> },
                                                         { label: 'Experience', val: formData.work_history.length, icon: <TfiBriefcase /> },
-                                                        { label: 'Education', val: formData.education_history.length, icon: <TfiMedall /> },
+                                                        { label: 'Education', val: formData.education_history.length, icon: <TfiCup /> },
                                                         { label: 'Certifications', val: formData.certifications.length, icon: <TfiStar /> },
                                                         { label: 'Languages', val: formData.languages.length, icon: <TfiWorld /> }
                                                     ].map((stat, i) => (
