@@ -5,12 +5,12 @@ import { toast } from 'sonner';
 import hrService from '../../services/hrService';
 
 const REC_STYLE = {
-    'Reach Out Now': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    'Worth Considering': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    'Skip': 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    'Reach Out Now': 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    'Worth Considering': 'bg-blue-50 text-blue-600 border-blue-100',
+    'Skip': 'bg-gray-50 text-gray-600 border-gray-100',
 };
-const RISK_COLOR = { Low: 'text-emerald-400', Medium: 'text-amber-400', High: 'text-red-400' };
-const SCORE_COLOR = (s) => s >= 75 ? 'text-emerald-400' : s >= 50 ? 'text-amber-400' : 'text-red-400';
+const RISK_COLOR = { Low: 'text-emerald-600', Medium: 'text-amber-600', High: 'text-red-600' };
+const SCORE_COLOR = (s) => s >= 75 ? 'text-emerald-600' : s >= 50 ? 'text-amber-600' : 'text-red-600';
 
 export default function TalentRediscovery() {
     const [form, setForm] = useState({ job_title: '', jd_text: '' });
@@ -31,120 +31,154 @@ export default function TalentRediscovery() {
     };
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-8">
-            <div className="max-w-5xl mx-auto space-y-8">
-                <div>
-                    <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-                        Smart Talent <span className="text-red-600">Rediscovery</span>
+        <div className="min-h-screen bg-white text-gray-950 p-8">
+            <div className="max-w-6xl mx-auto space-y-12 pb-20">
+                
+                {/* Header */}
+                <div className="text-center pt-8">
+                    <h1 className="text-6xl font-black italic uppercase tracking-tighter text-gray-950 leading-none">
+                        TALENT <span className="text-red-600 underline decoration-red-600/20 underline-offset-8">REDISCOVERY</span>
                     </h1>
-                    <p className="text-gray-400 text-sm mt-1 uppercase tracking-widest">AI mines your past rejected candidates — finds hidden gems for new openings</p>
+                    <p className="text-gray-400 text-[10px] mt-6 font-black uppercase tracking-[0.4em] italic">AI Mining System for Historical Candidate Pools & Hidden Gems</p>
                 </div>
 
-                {/* How it works */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[['🗄️', 'Scans Past Pool', 'AI analyzes all candidates you previously evaluated or rejected'], ['🔄', 'Matches New Role', 'Finds transferable skills that fit your NEW job opening'], ['📩', 'Re-engagement Ready', 'Gives you personalized outreach scripts for each rediscovery']].map(([icon, title, desc]) => (
-                        <div key={title} className="bg-white/[0.03] border border-white/10 rounded-2xl p-4 text-center">
-                            <div className="text-2xl mb-2">{icon}</div>
-                            <div className="text-xs font-black uppercase tracking-widest text-white mb-1">{title}</div>
-                            <div className="text-[11px] text-gray-500">{desc}</div>
+                {/* Tactical Workflow */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    {[
+                        ['🗄️', 'ARCHIVE SCAN', 'AI ANALYZES ALL PREVIOUSLY EVALUATED OR REJECTED CANDIDATES'],
+                        ['🔄', 'DYNAMIC MATCHING', 'IDENTIFIES TRANSFERABLE SKILLS FOR THE NEW JOB DESIGNATION'],
+                        ['📩', 'RE-ENTRY PROTOCOL', 'GENERATES PERSONALIZED OUTREACH SCRIPTS FOR EACH TARGET']
+                    ].map(([icon, title, desc]) => (
+                        <div key={title} className="bg-gray-50 border-2 border-gray-100 rounded-[3rem] p-8 text-center hover:scale-105 transition-transform group">
+                            <div className="text-4xl mb-6 group-hover:rotate-12 transition-transform">{icon}</div>
+                            <div className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-950 mb-4 italic underline decoration-red-600/20 underline-offset-4">{title}</div>
+                            <div className="text-[10px] text-gray-400 font-black uppercase italic leading-relaxed">{desc}</div>
                         </div>
                     ))}
                 </div>
 
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
-                    <div>
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-400 block mb-2">New Job Title *</label>
-                        <input value={form.job_title} onChange={e => set('job_title', e.target.value)} placeholder="e.g. DevOps Engineer"
-                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-600" />
+                {/* Configuration Input */}
+                <div className="bg-white border-2 border-gray-50 rounded-[4rem] p-16 shadow-2xl space-y-10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/[0.01] blur-[80px]" />
+                    <div className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-400 italic flex items-center gap-4">
+                        <span className="w-12 h-1 bg-gray-950 rounded-full" /> NEW DESIGNATION CONFIG
                     </div>
-                    <div>
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-400 block mb-2">Job Description (optional but improves accuracy)</label>
-                        <textarea value={form.jd_text} onChange={e => set('jd_text', e.target.value)} rows={5}
-                            placeholder="Paste the new job description here..."
-                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-600 resize-none" />
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 italic ml-6">Target Job Title *</label>
+                            <input value={form.job_title} onChange={e => set('job_title', e.target.value)} placeholder="E.G. DEVOPS ARCHITECT"
+                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] px-10 py-6 text-sm text-gray-950 font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600/30 shadow-inner" />
+                        </div>
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 italic ml-6">Designation Requirements (Optional)</label>
+                            <textarea value={form.jd_text} onChange={e => set('jd_text', e.target.value)} rows={6}
+                                placeholder="PASTE JOB SPECIFICATIONS HERE FOR NEURAL MATCHING..."
+                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-[2.5rem] px-10 py-8 text-sm text-gray-950 font-black italic uppercase tracking-tighter focus:outline-none focus:border-red-600/30 shadow-inner resize-none" />
+                        </div>
+                        <button onClick={handleRediscover} disabled={loading}
+                            className="w-full py-8 bg-red-600 hover:bg-red-700 disabled:opacity-30 rounded-[2.5rem] font-black uppercase tracking-[0.5em] text-[11px] text-white transition-all duration-500 flex items-center justify-center gap-4 shadow-[0_20px_40px_-10px_rgba(220,38,38,0.3)] active:scale-[0.98] group">
+                            {loading ? <><TfiReload className="animate-spin text-xl" /> SCANNING ARCHIVES...</> : <><TfiSearch className="text-xl group-hover:scale-125 transition-transform" /> INITIALIZE REDISCOVERY</>}
+                        </button>
                     </div>
-                    <button onClick={handleRediscover} disabled={loading}
-                        className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:opacity-40 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2">
-                        {loading ? <><TfiReload className="animate-spin" /> Scanning Past Talent Pool...</> : <><TfiSearch /> Rediscover Hidden Talent</>}
-                    </button>
                 </div>
 
                 <AnimatePresence>
                     {result && (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                            {/* Summary */}
-                            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6">
-                                <div className="text-center flex-shrink-0">
-                                    <div className="text-5xl font-black text-red-400">{result.total_strong_matches ?? result.rediscovered?.length ?? 0}</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-gray-400 mt-1">Strong Matches</div>
+                        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+                            
+                            {/* Analytics Summary */}
+                            <div className="bg-gray-950 border-4 border-red-600/20 rounded-[4rem] p-16 shadow-2xl flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/5 blur-[120px]" />
+                                <div className="text-center flex-shrink-0 relative z-10">
+                                    <div className="text-[120px] font-black text-red-600 italic tracking-tighter leading-none group-hover:scale-110 transition-transform duration-700">{result.total_strong_matches ?? result.rediscovered?.length ?? 0}</div>
+                                    <div className="text-[10px] uppercase tracking-[0.6em] text-red-500 font-black mt-4 italic">NEURAL MATCHES DETECTED</div>
                                     {result.top_rediscovery && (
-                                        <div className="mt-2 text-xs font-black text-emerald-400">🏆 Top: {result.top_rediscovery}</div>
+                                        <div className="mt-8 bg-white/5 border border-white/10 px-8 py-3 rounded-full text-[10px] font-black text-emerald-400 italic uppercase tracking-widest">🏆 ELITE MATCH: {result.top_rediscovery}</div>
                                     )}
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-gray-300 text-sm leading-relaxed">{result.pool_summary}</p>
+                                <div className="flex-1 space-y-8 relative z-10 text-center lg:text-left">
+                                    <p className="text-2xl text-white font-black italic uppercase tracking-tighter leading-tight">"{result.pool_summary}"</p>
                                     {result.rediscovery_insight && (
-                                        <div className="mt-3 bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
-                                            <p className="text-blue-200 text-xs italic">💡 {result.rediscovery_insight}</p>
+                                        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 relative group/insight overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-3xl pointer-events-none" />
+                                            <p className="text-blue-300 text-sm font-black italic uppercase leading-relaxed tracking-tight">💡 INSIGHT: {result.rediscovery_insight}</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Rediscovered Candidates */}
-                            <div className="space-y-4">
-                                <div className="text-xs font-black uppercase tracking-widest text-gray-400">Rediscovered Candidates — Ranked by Fit</div>
+                            {/* Rediscovered Feed */}
+                            <div className="space-y-8">
+                                <div className="text-[11px] font-black uppercase tracking-[0.6em] text-gray-400 italic text-center underline decoration-red-600/20 underline-offset-8 mb-12">RANKED CANDIDATE MATRIX</div>
                                 {Array.isArray(result.rediscovered) && result.rediscovered.map((c, i) => (
-                                    <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 space-y-4">
-                                        <div className="flex items-center gap-4 flex-wrap">
-                                            <div className="w-10 h-10 rounded-xl bg-red-600/20 flex items-center justify-center text-red-400 text-sm font-black flex-shrink-0">#{i + 1}</div>
+                                    <div key={i} className="bg-white border-2 border-gray-50 rounded-[4rem] p-12 shadow-2xl space-y-10 hover:border-red-600/20 transition-all duration-500 group/card">
+                                        <div className="flex items-center gap-10 flex-wrap">
+                                            <div className="w-24 h-24 rounded-[2.5rem] bg-gray-950 text-white flex items-center justify-center text-3xl font-black italic shadow-2xl group-hover/card:rotate-12 transition-transform">#{i + 1}</div>
                                             <div className="flex-1">
-                                                <div className="text-sm font-black uppercase text-white">{c.name}</div>
-                                                <div className="text-[11px] text-gray-400 mt-0.5">Previously: {c.prev_rejection_reason}</div>
+                                                <div className="text-3xl font-black uppercase italic tracking-tighter text-gray-950 leading-none">{c.name}</div>
+                                                <div className="text-[10px] text-gray-400 font-black uppercase italic tracking-[0.2em] mt-3">PREVIOUS DECISION: {c.prev_rejection_reason}</div>
                                             </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className={`text-2xl font-black ${SCORE_COLOR(c.new_fit_score)}`}>{c.new_fit_score}%</div>
-                                                <div className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-xl border ${REC_STYLE[c.recommendation] || 'bg-gray-700/20 text-gray-400 border-gray-600/30'}`}>{c.recommendation}</div>
-                                                <div className={`text-[10px] font-black uppercase ${RISK_COLOR[c.risk_level] || 'text-gray-400'}`}>{c.risk_level} Risk</div>
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className={`text-6xl font-black italic tracking-tighter leading-none ${SCORE_COLOR(c.new_fit_score)}`}>{c.new_fit_score}%</div>
+                                                <div className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400 italic">FIT SCORE</div>
                                             </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-                                                <div className="text-[10px] text-emerald-400 font-black uppercase mb-1">Why Fit Now</div>
-                                                <div className="text-xs text-emerald-300">{c.why_fit_now}</div>
-                                            </div>
-                                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
-                                                <div className="text-[10px] text-blue-400 font-black uppercase mb-1">Transferable Skills</div>
-                                                <div className="text-xs text-blue-300">{(Array.isArray(c.transferable_skills) ? c.transferable_skills : []).join(', ') || '—'}</div>
-                                            </div>
-                                            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-                                                <div className="text-[10px] text-amber-400 font-black uppercase mb-1">Still Missing</div>
-                                                <div className="text-xs text-amber-300">{(Array.isArray(c.gap_from_new_role) ? c.gap_from_new_role : []).slice(0, 2).join(', ') || 'None identified'}</div>
+                                            <div className="flex flex-col gap-3">
+                                                <div className={`text-[10px] font-black uppercase italic tracking-widest px-8 py-3 rounded-full border-4 shadow-xl ${REC_STYLE[c.recommendation] || 'bg-gray-50 text-gray-600 border-gray-100'}`}>{c.recommendation}</div>
+                                                <div className={`text-[9px] font-black uppercase italic tracking-[0.4em] text-center ${RISK_COLOR[c.risk_level] || 'text-gray-400'}`}>{c.risk_level} ATTRITION RISK</div>
                                             </div>
                                         </div>
 
-                                        <div className="bg-gray-900/60 border border-white/5 rounded-xl p-4">
-                                            <div className="text-[10px] text-gray-400 font-black uppercase mb-2">📩 Re-engagement Angle: <span className="text-white">{c.outreach_angle}</span></div>
-                                            <div className="text-sm text-gray-200 italic border-l border-red-600/40 pl-3">"{c.sample_outreach}"</div>
-                                            <button onClick={() => {
-                                                navigator.clipboard.writeText(c.sample_outreach)
-                                                    .then(() => toast.success('Message copied!'))
-                                                    .catch(() => toast.error('Copy failed'));
-                                            }} className="mt-2 text-[10px] bg-white/5 hover:bg-white/10 text-gray-400 px-3 py-1 rounded-lg font-black uppercase tracking-widest transition-all">Copy Message</button>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="bg-emerald-50 border-2 border-emerald-100 rounded-[2.5rem] p-8 group/box hover:bg-white transition-all duration-500 shadow-sm">
+                                                <div className="text-[10px] text-emerald-600 font-black uppercase tracking-[0.4em] mb-6 italic">FIT LOGIC</div>
+                                                <div className="text-sm text-emerald-950 font-black italic uppercase leading-relaxed">"{c.why_fit_now}"</div>
+                                            </div>
+                                            <div className="bg-blue-50 border-2 border-blue-100 rounded-[2.5rem] p-8 group/box hover:bg-white transition-all duration-500 shadow-sm">
+                                                <div className="text-[10px] text-blue-600 font-black uppercase tracking-[0.4em] mb-6 italic">TRANSFERABLE VECTORS</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(Array.isArray(c.transferable_skills) ? c.transferable_skills : []).map(s => (
+                                                        <span key={s} className="bg-white border border-blue-200 text-[9px] font-black text-blue-800 uppercase px-3 py-1 rounded-full italic">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="bg-amber-50 border-2 border-amber-100 rounded-[2.5rem] p-8 group/box hover:bg-white transition-all duration-500 shadow-sm">
+                                                <div className="text-[10px] text-amber-600 font-black uppercase tracking-[0.4em] mb-6 italic">CAPABILITY GAPS</div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(Array.isArray(c.gap_from_new_role) ? c.gap_from_new_role : []).map(g => (
+                                                        <span key={g} className="bg-white border border-amber-200 text-[9px] font-black text-amber-800 uppercase px-3 py-1 rounded-full italic">{g}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gray-50 border-2 border-gray-100 rounded-[3.5rem] p-12 relative group/outreach overflow-hidden shadow-inner">
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/[0.01] blur-[80px]" />
+                                            <div className="text-[11px] font-black uppercase tracking-[0.6em] text-gray-400 mb-8 italic flex items-center justify-between">
+                                                <span>OUTREACH PROTOCOL: <span className="text-gray-950">{c.outreach_angle}</span></span>
+                                                <button onClick={() => {
+                                                    navigator.clipboard.writeText(c.sample_outreach).then(() => toast.success('Protocol Copied'));
+                                                }} className="px-8 py-3 bg-white border-2 border-gray-100 rounded-full text-[9px] font-black text-gray-400 hover:text-red-600 hover:border-red-600/30 transition-all shadow-sm">COPY SCRIPT</button>
+                                            </div>
+                                            <div className="bg-white border-2 border-gray-100 rounded-[2rem] p-10 shadow-sm">
+                                                <p className="text-lg text-gray-950 font-black italic uppercase leading-relaxed tracking-tight">"{c.sample_outreach}"</p>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
 
                                 {(!Array.isArray(result.rediscovered) || result.rediscovered.length === 0) && (
-                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 text-center">
-                                        <p className="text-amber-300 text-sm">No strong rediscoveries found for this role. Try completing more candidate evaluations to build your talent pool.</p>
+                                    <div className="bg-amber-50 border-4 border-amber-100 rounded-[3.5rem] p-16 text-center shadow-2xl">
+                                        <p className="text-xl text-amber-950 font-black italic uppercase tracking-tighter">NO STRONG REDISCOVERIES FOUND FOR THIS DESIGNATION. EXPAND YOUR ARCHIVE TO IMPROVE NEURAL MATCHING.</p>
                                     </div>
                                 )}
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
+            </div>
+        </div>
+    );
+}        </AnimatePresence>
             </div>
         </div>
     );
