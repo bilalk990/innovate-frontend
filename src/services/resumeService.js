@@ -2,9 +2,7 @@ import api from './api';
 
 const resumeService = {
     list: (params) => api.get('/resumes/', { params }),
-    upload: (formData) => api.post('/resumes/upload/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    upload: (formData) => api.post('/resumes/upload/', formData),
     get: (id) => api.get(`/resumes/${id}/`),
     getCandidateResume: (candidateId) => api.get('/resumes/', { params: { candidate_id: candidateId } }),
     // Feature 11 — AI Resume Generator
