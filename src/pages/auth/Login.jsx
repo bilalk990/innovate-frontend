@@ -101,9 +101,7 @@ export default function Login() {
                 {/* Brand Logo - Fixed Top Left */}
                 <div className="absolute top-12 left-12">
                     <Link to="/" className="flex items-center gap-4 group">
-                        <div className="w-10 h-10 bg-white/5 border border-white/10 text-red-600 font-extrabold text-xl flex items-center justify-center rounded-lg shadow-2xl transition-all group-hover:bg-red-600/10 group-hover:border-red-600/30">
-                            <TfiShield size={20} />
-                        </div>
+                        <img src="/logo.png" alt="InnovAIte" className="h-10 w-auto" />
                         <span className="text-2xl font-black tracking-tighter text-white uppercase italic">Innov<span className="text-[#dc2626]">AI</span>te</span>
                     </Link>
                 </div>

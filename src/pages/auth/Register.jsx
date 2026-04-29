@@ -108,7 +108,7 @@ export default function Register() {
                 {/* Brand Logo - Fixed Top Left */}
                 <div className="absolute top-12 left-12">
                     <Link to="/" className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white text-black font-black text-xl flex items-center justify-center rounded">I</div>
+                        <img src="/logo.png" alt="InnovAIte" className="h-10 w-auto" />
                         <span className="text-2xl font-black tracking-tighter text-white">Innov<span className="text-[#E63946]">AI</span>te</span>
                     </Link>
                 </div>

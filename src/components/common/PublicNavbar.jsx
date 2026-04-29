@@ -19,18 +19,7 @@ export default function PublicNavbar() {
         }}>
             {/* Logo with gradient background */}
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none' }}>
-                <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <TfiShield size={24} color="#dc2626" />
-                </div>
+                <img src="/logo.png" alt="InnovAIte" style={{ height: '40px', width: 'auto' }} />
                 <span style={{
                     fontSize: '24px',
                     fontWeight: 900,

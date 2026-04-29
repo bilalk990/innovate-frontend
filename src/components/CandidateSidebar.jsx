@@ -46,7 +46,7 @@ export default function CandidateSidebar() {
     <aside className="elite-sidebar">
       {/* Brand Logo */}
       <div className="sidebar-logo">
-        <div className="logo-icon">I</div>
+        <img src="/logo.png" alt="InnovAIte" className="h-10 w-auto" />
         <div className="logo-text uppercase tracking-tighter">Innov<span className="text-red-600">AI</span>te</div>
       </div>
 

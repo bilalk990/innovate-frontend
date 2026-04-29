@@ -50,7 +50,7 @@ export default function RecruiterSidebar() {
     <aside className="elite-sidebar">
       {/* Brand Logo */}
       <div className="sidebar-logo">
-        <div className="logo-icon bg-red-600 shadow-2xl shadow-red-600/30">R</div>
+        <img src="/logo.png" alt="InnovAIte" className="h-10 w-auto" />
         <div className="logo-text uppercase tracking-tighter italic">Innov<span className="text-red-600">AI</span>te <span className="text-[10px] font-black opacity-40 ml-1">Pro</span></div>
       </div>
 
