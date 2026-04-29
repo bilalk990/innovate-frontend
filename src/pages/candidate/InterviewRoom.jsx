@@ -49,9 +49,9 @@ export default function InterviewRoom() {
 
     // Mock Contexts
     const interview = { title: 'Senior AI Engineer Assessment', id: id };
-    const status = 'active';
 
     // Core States
+    const [interviewStatus, setInterviewStatus] = useState('active'); // Track actual interview status from backend
     const [audioMuted, setAudioMuted] = useState(false);
     const [videoOff, setVideoOff] = useState(false);
     const [hasVideoFeed, setHasVideoFeed] = useState(true);
@@ -420,6 +420,12 @@ export default function InterviewRoom() {
 
     // When candidate joins, send 'request_admit' to backend (backend then notifies recruiter)
     useEffect(() => {
+        // ✅ CRITICAL: Don't allow WebSocket connection if interview is completed
+        if (interviewStatus === 'completed') {
+            console.log('[WS] Interview completed, preventing WebSocket connection');
+            return;
+        }
+        
         if (user?.role === 'candidate' && admissionStatus === 'waiting') {
             // Delay to ensure WS connection is open
             const t = setTimeout(() => {
@@ -429,7 +435,7 @@ export default function InterviewRoom() {
             }, 1500);
             return () => clearTimeout(t);
         }
-    }, [user, admissionStatus, id]);
+    }, [user, admissionStatus, id, interviewStatus]);
 
     // CRITICAL FIX: When recruiter joins, send a ping to check if candidate is waiting
     useEffect(() => {
@@ -558,16 +564,32 @@ export default function InterviewRoom() {
             .then(r => r.ok ? r.json() : null)
             .then(data => {
                 if (!data) return;
+                
+                // ✅ CRITICAL: Check interview status - prevent rejoin if completed
+                if (data.status === 'completed') {
+                    console.log('[INTERVIEW] Interview has been ended by recruiter, preventing rejoin');
+                    toast.error('This interview has been ended by the recruiter. You cannot rejoin.', { duration: 6000 });
+                    
+                    // Redirect candidate to dashboard after 3 seconds
+                    if (user?.role === 'candidate') {
+                        setTimeout(() => {
+                            navigate('/candidate/dashboard');
+                        }, 3000);
+                    }
+                    return; // Stop further initialization
+                }
+                
+                setInterviewStatus(data.status || 'active');
                 setInterviewMongoId(data.id);
                 setBehaviorScore(data.behavior_score || 100); // Load existing behavior score
                 if (data.questions?.length > 0) {
                     setInterviewQuestions(data.questions);
                     setSuggestedQuestions(data.questions.slice(0, 3).map(q => q.text));
                 }
-                console.log('[INTERVIEW] Loaded interview data, MongoDB ID:', data.id);
+                console.log('[INTERVIEW] Loaded interview data, MongoDB ID:', data.id, 'Status:', data.status);
             })
             .catch(err => console.error('[INTERVIEW] Failed to load room data:', err));
-    }, [token, id]);
+    }, [token, id, user, navigate]);
     
     // Update behavior score when violations change
     useEffect(() => {
