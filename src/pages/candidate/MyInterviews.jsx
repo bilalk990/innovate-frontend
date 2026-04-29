@@ -132,8 +132,8 @@ export default function MyInterviews() {
                                                 <TfiCalendar className="text-red-600" />
                                                 <span>{formatDateTime(iv.scheduled_at).toUpperCase()}</span>
                                             </div>
-                                            <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 relative z-10 italic">
-                                                <TfiLocationPin className="text-gray-700" />
+                                            <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-[0.3em] text-gray-300 relative z-10 italic">
+                                                <TfiLocationPin className="text-red-600" />
                                                 <span>VIRTUAL INTERVIEW ROOM</span>
                                             </div>
                                             {iv.meet_link && (
