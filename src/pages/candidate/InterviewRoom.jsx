@@ -1366,8 +1366,8 @@ export default function InterviewRoom() {
                 console.warn('[EVALUATION] Transcript too short, skipping submission');
             }
 
-            // Trigger the XAI evaluation engine on the backend
-            console.log('[EVALUATION] Triggering XAI evaluation engine...');
+            // Trigger the XAI evaluation engine on the backend (ASYNC)
+            console.log('[EVALUATION] Triggering async XAI evaluation engine...');
             const evalRes = await fetch(`${apiUrl}/evaluations/trigger/`, {
                 method: 'POST',
                 headers: authHeaders,
@@ -1376,6 +1376,132 @@ export default function InterviewRoom() {
 
             console.log('[EVALUATION] Evaluation API response status:', evalRes.status);
 
+            // Check if it's async (202) or sync (200)
+            if (evalRes.status === 202) {
+                // Async processing - show immediate feedback and poll
+                const asyncData = await evalRes.json();
+                console.log('[EVALUATION] Async evaluation started:', asyncData);
+                
+                toast.info('Generating evaluation... This will take a moment.', { duration: 3000 });
+                
+                // Show loading state with progress
+                setEvaluationData({
+                    status: 'processing',
+                    message: 'AI is analyzing the interview...',
+                    overall_score: 0
+                });
+                setShowEvaluation(true);
+                setIsGeneratingEvaluation(false); // Stop spinner, show progress screen
+                
+                // Poll for completion every 3 seconds
+                const pollInterval = setInterval(async () => {
+                    try {
+                        console.log('[EVALUATION] Polling for evaluation completion...');
+                        const checkRes = await fetch(`${apiUrl}/evaluations/?interview_id=${mongoId}`, { 
+                            headers: authHeaders 
+                        });
+                        
+                        if (checkRes.ok) {
+                            const checkData = await checkRes.json();
+                            const evaluation = checkData.results?.[0] || checkData;
+                            
+                            // Check if evaluation is complete
+                            if (evaluation && evaluation.status === 'complete' && evaluation.overall_score !== undefined) {
+                                clearInterval(pollInterval);
+                                console.log('[EVALUATION] Evaluation complete! Loading full data...');
+                                
+                                // Process the completed evaluation
+                                const evalData = evaluation;
+                                const criteria = evalData.criterion_results || [];
+                                const getCriterionScore = (name) => {
+                                    const cr = criteria.find(c => c.criterion === name);
+                                    return cr ? Math.round((cr.score / 10) * 100) : null;
+                                };
+
+                                const semanticScore = getCriterionScore('semantic_accuracy');
+                                const keywordScore = getCriterionScore('keyword_alignment');
+                                const depthScore = getCriterionScore('response_depth');
+                                const resumeConsistency = getCriterionScore('resume_consistency');
+                                const technicalRaw = [semanticScore, keywordScore, depthScore, resumeConsistency].filter(s => s !== null);
+                                const technicalScore = technicalRaw.length
+                                    ? Math.round(technicalRaw.reduce((a, b) => a + b, 0) / technicalRaw.length)
+                                    : (evalData.resume_alignment_score ?? evalData.overall_score ?? 50);
+
+                                const clarityScore = getCriterionScore('communication_clarity');
+                                const completenessScore = getCriterionScore('response_completeness');
+                                const aiFluentScore = evalData.fluency_score || null;
+                                const commRaw = [clarityScore, completenessScore, aiFluentScore].filter(s => s !== null);
+                                const communicationScore = commRaw.length
+                                    ? Math.round(commRaw.reduce((a, b) => a + b, 0) / commRaw.length)
+                                    : (evalData.fluency_score ?? evalData.overall_score ?? 50);
+
+                                const confidenceIndicator = getCriterionScore('confidence_indicators');
+                                const aiConfScore = evalData.confidence_score || null;
+                                const behavRaw = [confidenceIndicator, aiConfScore].filter(s => s !== null);
+                                const behavioralScore = behavRaw.length
+                                    ? Math.round(behavRaw.reduce((a, b) => a + b, 0) / behavRaw.length)
+                                    : (evalData.confidence_score ?? evalData.overall_score ?? 50);
+
+                                const totalViolations = (evalData.tab_switch_count || 0) + detectedViolations.length;
+                                const integrityScore = evalData.proctoring_score ?? Math.max(0, 100 - totalViolations * 10);
+                                const overallScore = evalData.overall_score ?? Math.round(technicalScore * 0.4 + communicationScore * 0.2 + behavioralScore * 0.2 + integrityScore * 0.2);
+
+                                const recMap = { strong_yes: 'HIRE', yes: 'HIRE', maybe: 'MAYBE', no: 'REJECT', strong_no: 'REJECT' };
+                                const recommendation = recMap[evalData.recommendation] || 'MAYBE';
+                                const confidence = evalData.recommendation?.startsWith('strong') ? 'HIGH' : evalData.recommendation === 'maybe' ? 'MEDIUM' : 'HIGH';
+
+                                const finalEvaluation = {
+                                    eval_id: evalData.id || evalData._id || mongoId,
+                                    interview_id: mongoId,
+                                    overall_score: overallScore,
+                                    technical_score: technicalScore,
+                                    communication_score: communicationScore,
+                                    behavioral_score: behavioralScore,
+                                    integrity_score: integrityScore,
+                                    recommendation,
+                                    confidence,
+                                    violations_count: totalViolations,
+                                    violations: [
+                                        ...detectedViolations,
+                                        ...Array.from({ length: tabSwitchCount }, (_, i) => ({
+                                            type: 'TAB_SWITCH',
+                                            description: `Tab switch detected (#${i + 1})`,
+                                            timestamp: new Date().toISOString(),
+                                            severity: 'MEDIUM'
+                                        }))
+                                    ],
+                                    strengths: evalData.strengths?.length ? evalData.strengths : ['Participated in interview'],
+                                    weaknesses: evalData.weaknesses?.length ? evalData.weaknesses : ['Further analysis needed'],
+                                    summary: evalData.summary || `Candidate scored ${overallScore}/100.`,
+                                    behavioral_summary: evalData.behavioral_summary || '',
+                                    integrity_notes: evalData.integrity_notes || '',
+                                    culture_fit_score: evalData.culture_fit_score || 0,
+                                    ai_summary_used: evalData.ai_summary_used || false,
+                                    criterion_results: criteria,
+                                    resume_alignment_score: evalData.resume_alignment_score || 0
+                                };
+
+                                setEvaluationData(finalEvaluation);
+                                toast.success('✅ Evaluation complete!', { duration: 3000 });
+                            }
+                        }
+                    } catch (pollError) {
+                        console.error('[EVALUATION] Polling error:', pollError);
+                    }
+                }, 3000); // Poll every 3 seconds
+                
+                // Timeout after 2 minutes
+                setTimeout(() => {
+                    clearInterval(pollInterval);
+                    if (!evaluationData || evaluationData.status === 'processing') {
+                        toast.error('Evaluation is taking longer than expected. Please refresh.');
+                    }
+                }, 120000);
+                
+                return; // Exit early for async processing
+            }
+            
+            // Sync processing (200) - original code
             if (evalRes.ok) {
                 const evalData = await evalRes.json();
                 console.log('[EVALUATION] Backend XAI evaluation complete:', evalData);
