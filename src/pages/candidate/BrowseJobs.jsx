@@ -263,12 +263,12 @@ export default function BrowseJobs() {
                         <TfiTarget className={isScanning ? 'animate-spin' : 'animate-pulse'} />
                         {isScanning ? 'MATCHING...' : 'MATCH MY SKILLS'}
                     </button>
-                    <div className="relative group w-full md:w-[400px]">
-                        <div className="absolute left-7 top-1/2 -translate-y-1/2 text-red-600 z-10 flex items-center justify-center pointer-events-none group-focus-within:animate-pulse">
-                            <TfiSearch size={18} />
+                    <div className="relative group w-full md:w-[450px]">
+                        <div className="absolute left-8 top-1/2 -translate-y-1/2 text-red-600 z-10 flex items-center justify-center pointer-events-none group-focus-within:animate-pulse group-focus-within:scale-110 transition-transform">
+                            <TfiSearch size={20} />
                         </div>
                         <input
-                            className="elite-input pl-18 pr-8 py-6 bg-white border-gray-200 hover:border-red-600/40 focus:border-red-600 focus:bg-white rounded-[2rem] shadow-2xl transition-all text-gray-950 placeholder:text-gray-400 font-bold italic uppercase tracking-[0.2em] text-[12px]"
+                            className="elite-input pl-20 pr-10 py-7 bg-white border-gray-100 hover:border-red-600/30 focus:border-red-600 focus:bg-white rounded-[2rem] shadow-2xl transition-all text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[12px] outline-none"
                             placeholder="SEARCH CURRENT OPENINGS..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
