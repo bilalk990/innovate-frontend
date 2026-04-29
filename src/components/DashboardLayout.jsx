@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import useAuth from '../hooks/useAuth';
+import Loader from './Loader';
 
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -39,7 +40,9 @@ export default function DashboardLayout() {
           overflowY: 'auto',
           background: 'transparent'
         }}>
-          <Outlet />
+          <React.Suspense fallback={<div className="py-20"><Loader text="Initializing module..." /></div>}>
+            <Outlet />
+          </React.Suspense>
         </main>
       </div>
     </div>

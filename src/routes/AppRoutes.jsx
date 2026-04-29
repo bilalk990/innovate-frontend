@@ -94,7 +94,6 @@ export default function AppRoutes() {
     }
 
     return (
-        <Suspense fallback={<Loader fullScreen text="Securely loading platform content..." />}>
         <Routes>
             {/* Public Pages - With Navbar */}
             <Route element={<PublicLayout />}>
@@ -214,6 +213,5 @@ export default function AppRoutes() {
             } />
             <Route path="*" element={<NotFound />} />
         </Routes>
-        </Suspense>
     );
 }

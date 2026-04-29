@@ -46,9 +46,9 @@ export default function TopBar({ collapsed, userType }) {
   return (
     <header className="elite-topbar">
       {/* Search Hub */}
-      <div className={`elite-search-container ${searchFocused ? 'active ring-2 ring-red-600/10' : ''} border-gray-100 shadow-xl hover:border-red-600/30 transition-all group px-8 py-4 bg-gray-50/50`}>
+      <div className={`flex items-center gap-6 px-8 py-3 bg-white border border-gray-100 rounded-full shadow-lg transition-all hover:border-red-600/30 w-full max-w-[500px] group ${searchFocused ? 'ring-2 ring-red-600/10 border-red-600/50' : ''}`}>
         <div className="flex items-center justify-center transition-all group-hover:scale-110">
-          <Search size={18} className={`${searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} transition-colors`} />
+          <Search size={20} className={`${searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} transition-colors`} />
         </div>
         <input
           id="global-search"
@@ -59,10 +59,10 @@ export default function TopBar({ collapsed, userType }) {
           onKeyDown={handleSearch}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          className="elite-search-input text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[11px] bg-transparent"
+          className="w-full bg-transparent text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[11px] outline-none"
         />
         <div className={`flex items-center gap-4 transition-all duration-500 ${searchFocused ? 'opacity-0 scale-90' : 'opacity-100 scale-100'}`}>
-          <div className="elite-kbd border-gray-200 text-gray-400 flex items-center gap-2 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all px-3 py-1.5 shadow-sm">
+          <div className="elite-kbd border-gray-100 text-gray-400 flex items-center gap-2 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all px-3 py-1.5 shadow-sm">
             <span className="text-[8px] font-black opacity-40">CMD</span> <span className="mt-[1px]">K</span>
           </div>
         </div>

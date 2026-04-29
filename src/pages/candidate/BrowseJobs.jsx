@@ -244,7 +244,6 @@ export default function BrowseJobs() {
         }
     };
 
-    if (loading && !jobs) return <Loader fullScreen text="Loading Job Board..." />;
 
     return (
         <div className="elite-content pb-24">
@@ -263,23 +262,25 @@ export default function BrowseJobs() {
                         <TfiTarget className={isScanning ? 'animate-spin' : 'animate-pulse'} />
                         {isScanning ? 'MATCHING...' : 'MATCH MY SKILLS'}
                     </button>
-                    <div className="relative group w-full md:w-[450px]">
-                        <div className="absolute left-8 top-1/2 -translate-y-1/2 text-red-600 z-10 flex items-center justify-center pointer-events-none group-focus-within:animate-pulse group-focus-within:scale-110 transition-transform">
-                            <TfiSearch size={20} />
+                    <div className="flex items-center gap-6 w-full md:w-[500px] bg-white border border-gray-100 rounded-[2rem] px-8 py-2 shadow-2xl group transition-all hover:border-red-600/30">
+                        <div className="text-red-600 flex items-center justify-center group-focus-within:animate-pulse group-focus-within:scale-110 transition-transform">
+                            <TfiSearch size={22} />
                         </div>
                         <input
-                            className="elite-input pl-20 pr-10 py-7 bg-white border-gray-100 hover:border-red-600/30 focus:border-red-600 focus:bg-white rounded-[2rem] shadow-2xl transition-all text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[12px] outline-none"
+                            className="w-full py-4 bg-transparent text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[12px] outline-none"
                             placeholder="SEARCH CURRENT OPENINGS..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && reload()}
                         />
-                        <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">
+                        <div className="opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">
                             <div className="text-[9px] font-black uppercase text-red-600 tracking-widest italic bg-red-50 px-3 py-1 rounded-lg border border-red-100">Live</div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {loading && !jobs && <Loader text="Loading Job Board..." />}
 
             {/* AI Banner */}
             <div className="mb-16 p-12 bg-white rounded-[3rem] border border-red-100 relative overflow-hidden group shadow-2xl">
