@@ -1880,8 +1880,8 @@ export default function InterviewRoom() {
                             </button>
                         </div>
                         
-                        {/* Mini Self-View (PiP) */}
-                        <div className="absolute bottom-12 right-12 w-64 h-48 rounded-2xl overflow-hidden border-2 border-red-600/20 shadow-2xl z-20 bg-black">
+                        {/* Mini Self-View (PiP) - Moved to LEFT side */}
+                        <div className="absolute bottom-12 left-12 w-48 h-36 rounded-2xl overflow-hidden border-2 border-red-600/20 shadow-2xl z-20 bg-black">
                             <video ref={localVideo} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
                             <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-[8px] text-white font-bold tracking-widest uppercase">
                                 You
@@ -1914,8 +1914,8 @@ export default function InterviewRoom() {
                             </div>
                         )}
 
-                         {/* Chat HUD Overlay */}
-                         <div className="absolute bottom-12 left-12 z-20 flex flex-col items-start gap-4">
+                         {/* Chat HUD Overlay - Moved UP to avoid overlap with camera */}
+                         <div className="absolute bottom-52 left-12 z-20 flex flex-col items-start gap-4">
                             <button 
                                 onClick={() => setShowChat(!showChat)}
                                 className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest italic transition-all shadow-xl flex items-center gap-3 ${showChat ? 'bg-red-600 text-white shadow-red-600/20' : 'bg-black/60 backdrop-blur-md text-white border border-white/10 hover:bg-black/80'}`}
