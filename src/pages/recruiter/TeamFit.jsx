@@ -38,56 +38,56 @@ export default function TeamFit() {
     const breakdown = result?.fit_breakdown || {};
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-8">
+        <div className="min-h-screen bg-white text-black p-8">
             <div className="max-w-5xl mx-auto space-y-8">
                 <div>
-                    <h1 className="text-4xl font-black uppercase italic tracking-tighter">
+                    <h1 className="text-4xl font-black uppercase italic tracking-tighter text-black">
                         Team Fit <span className="text-red-600">Predictor</span>
                     </h1>
-                    <p className="text-gray-400 text-sm mt-1 uppercase tracking-widest">AI predicts how well a candidate will integrate with your team</p>
+                    <p className="text-gray-600 text-sm mt-1 uppercase tracking-widest">AI predicts how well a candidate will integrate with your team</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Candidate */}
-                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
-                        <div className="text-xs font-black uppercase tracking-widest text-gray-400">Candidate</div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-4">
+                        <div className="text-xs font-black uppercase tracking-widest text-gray-700">Candidate</div>
                         <select value={candidateId} onChange={e => setCandidateId(e.target.value)}
-                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-600">
+                            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:border-red-600">
                             <option value="">Select candidate...</option>
                             {candidates.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name} ({c.email})</option>)}
                         </select>
                     </div>
 
                     {/* Team */}
-                    <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
-                        <div className="text-xs font-black uppercase tracking-widest text-gray-400">Your Team Profile</div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-4">
+                        <div className="text-xs font-black uppercase tracking-widest text-gray-700">Your Team Profile</div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="text-[10px] uppercase tracking-widest text-gray-500 block mb-1">Team Size</label>
+                                <label className="text-[10px] uppercase tracking-widest text-gray-600 block mb-1">Team Size</label>
                                 <input type="number" value={team.size} onChange={e => setT('size', +e.target.value)}
-                                    className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" />
+                                    className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-black focus:outline-none focus:border-red-600" />
                             </div>
                             <div>
-                                <label className="text-[10px] uppercase tracking-widest text-gray-500 block mb-1">Management Style</label>
+                                <label className="text-[10px] uppercase tracking-widest text-gray-600 block mb-1">Management Style</label>
                                 <select value={team.management_style} onChange={e => setT('management_style', e.target.value)}
-                                    className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600">
+                                    className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-black focus:outline-none focus:border-red-600">
                                     {['Flat', 'Hierarchical', 'Agile', 'Mentorship-driven'].map(o => <option key={o}>{o}</option>)}
                                 </select>
                             </div>
                         </div>
                         {[['skills', 'Team Skills (comma-separated) *'], ['gaps', 'Team Gaps (comma-separated)'], ['challenges', 'Team Challenges']].map(([k, ph]) => (
                             <div key={k}>
-                                <label className="text-[10px] uppercase tracking-widest text-gray-500 block mb-1">{ph}</label>
+                                <label className="text-[10px] uppercase tracking-widest text-gray-600 block mb-1">{ph}</label>
                                 <input value={team[k]} onChange={e => setT(k, e.target.value)} placeholder={ph}
-                                    className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600" />
+                                    className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-black focus:outline-none focus:border-red-600" />
                             </div>
                         ))}
                         <div className="grid grid-cols-2 gap-3">
                             {[['work_style', ['Collaborative', 'Independent', 'Hybrid', 'Fast-paced']], ['culture', ['Fast-paced startup', 'Corporate', 'Remote-first', 'Creative agency', 'Research lab']]].map(([k, opts]) => (
                                 <div key={k}>
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 block mb-1">{k.replace('_', ' ')}</label>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-600 block mb-1">{k.replace('_', ' ')}</label>
                                     <select value={team[k]} onChange={e => setT(k, e.target.value)}
-                                        className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600">
+                                        className="w-full bg-white border border-gray-300 rounded-xl px-3 py-2.5 text-sm text-black focus:outline-none focus:border-red-600">
                                         {opts.map(o => <option key={o}>{o}</option>)}
                                     </select>
                                 </div>
@@ -97,7 +97,7 @@ export default function TeamFit() {
                 </div>
 
                 <button onClick={handleAnalyze} disabled={loading}
-                    className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:opacity-40 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2">
+                    className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:opacity-40 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 text-white">
                     {loading ? <><TfiReload className="animate-spin" /> Analyzing Team Fit...</> : <><TfiLayoutGrid2 /> Predict Team Fit</>}
                 </button>
 
