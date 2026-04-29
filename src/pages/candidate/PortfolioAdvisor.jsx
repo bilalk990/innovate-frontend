@@ -57,46 +57,49 @@ export default function PortfolioAdvisor() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-8">
+    <div className="min-h-screen bg-transparent p-8">
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-600/30 flex items-center justify-center text-red-500 text-xl">
+          <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-600/20 flex items-center justify-center text-red-600 text-xl shadow-sm">
             <TfiLayoutGrid2 />
           </div>
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight italic">Portfolio Project AI</h1>
-            <p className="text-gray-500 text-sm mt-0.5">AI-curated project ideas that make recruiters stop scrolling — tailored to your exact role</p>
+            <h1 className="text-3xl font-black uppercase tracking-tight italic text-gray-950">Portfolio Project AI</h1>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mt-1 italic">Tactical Asset Deployment</p>
           </div>
         </div>
       </div>
 
       {!result ? (
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-5">
-            <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 italic">Your Target</h2>
+          <div className="bg-white border border-gray-100 rounded-3xl p-10 space-y-8 shadow-2xl">
+            <div className="flex items-center gap-4">
+               <div className="w-1 h-6 bg-red-600" />
+               <h2 className="text-xs font-black uppercase tracking-widest text-gray-950 italic">Project Parameters</h2>
+            </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Target Role *</label>
+            <div className="elite-input-group">
+              <label className="elite-label">Target Role *</label>
               <input
                 value={form.target_role}
                 onChange={e => set('target_role', e.target.value)}
                 placeholder="e.g. Full Stack Developer, Data Scientist, UX Designer..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                className="elite-input"
               />
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Experience Level</label>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="elite-input-group">
+              <label className="elite-label">Experience Level</label>
+              <div className="grid grid-cols-2 gap-3">
                 {LEVELS.map(l => (
                   <button
                     key={l}
                     onClick={() => set('experience_level', l)}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider italic transition-all ${
+                    className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider italic transition-all ${
                       form.experience_level === l
-                        ? 'bg-red-600 text-white border border-red-500'
-                        : 'bg-white/5 text-gray-400 border border-white/10 hover:border-red-600/40 hover:text-white'
+                        ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                        : 'bg-gray-50 text-gray-400 border border-gray-100 hover:border-red-600/40 hover:text-gray-900'
                     }`}
                   >
                     {l}
@@ -105,35 +108,35 @@ export default function PortfolioAdvisor() {
               </div>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Industry</label>
+            <div className="elite-input-group">
+              <label className="elite-label">Industry</label>
               <input
                 value={form.industry}
                 onChange={e => set('industry', e.target.value)}
                 placeholder="Technology, Healthcare, Finance, E-commerce..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                className="elite-input"
               />
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">
+            <div className="elite-input-group">
+              <label className="elite-label">
                 Your Current Skills (optional — AI reads your resume)
               </label>
               <input
                 value={form.current_skills}
                 onChange={e => set('current_skills', e.target.value)}
                 placeholder="React, Python, Figma, SQL... (comma-separated)"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                className="elite-input"
               />
             </div>
 
             <button
               onClick={generate}
               disabled={loading}
-              className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest text-sm italic transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="elite-button btn-elite-primary w-full py-6 group"
             >
-              {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiBolt className="text-lg" />}
-              {loading ? 'Planning Your Portfolio...' : 'Generate Portfolio Plan'}
+              {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiBolt className="text-lg group-hover:scale-110 transition-transform" />}
+              {loading ? 'INITIALIZING ASSETS...' : 'EXECUTE PORTFOLIO STRATEGY'}
             </button>
           </div>
         </div>
@@ -147,24 +150,26 @@ export default function PortfolioAdvisor() {
           >
             {/* Bonus differentiator */}
             {result.bonus_differentiator && (
-              <div className="bg-red-600/10 border border-red-600/30 rounded-2xl p-4 flex items-start gap-3">
-                <TfiBolt className="text-red-400 text-lg flex-shrink-0 mt-0.5" />
+              <div className="bg-red-50 border border-red-100 rounded-2xl p-6 flex items-start gap-4 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-white border border-red-100 flex items-center justify-center text-red-600 shadow-sm flex-shrink-0">
+                   <TfiBolt className="text-xl" />
+                </div>
                 <div>
-                  <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1 italic">Bonus Differentiator</p>
-                  <p className="text-sm text-gray-200">{result.bonus_differentiator}</p>
+                  <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-2 italic">Intelligence Edge</p>
+                  <p className="text-sm text-gray-950 font-medium leading-relaxed italic">{result.bonus_differentiator}</p>
                 </div>
               </div>
             )}
 
             {/* Tab Navigation */}
-            <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
-              <div className="flex border-b border-white/8 overflow-x-auto">
+            <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="flex border-b border-gray-50 overflow-x-auto bg-gray-50/30">
                 {STRATEGY_TABS.map((t, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveTab(i)}
-                    className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${
-                      activeTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
+                    className={`flex-1 min-w-max px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] italic transition-all whitespace-nowrap ${
+                      activeTab === i ? 'bg-white text-red-600 border-b-2 border-red-600' : 'text-gray-400 hover:text-gray-950 hover:bg-gray-50'
                     }`}
                   >
                     {t}
@@ -172,40 +177,40 @@ export default function PortfolioAdvisor() {
                 ))}
               </div>
 
-              <div className="p-6">
+              <div className="p-8">
                 {/* Projects tab */}
                 {activeTab === 0 && (
                   <div className="space-y-4">
-                    <p className="text-xs text-gray-500 italic">Click a project to expand details:</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mb-6">Click a node to expand technical specifications:</p>
                     {(result.projects || []).map((proj, i) => {
                       const cc = complexityColor(proj.complexity || '');
                       const isExpanded = expandedProject === i;
                       return (
                         <div
                           key={i}
-                          className={`border rounded-2xl overflow-hidden transition-all cursor-pointer ${
-                            isExpanded ? 'border-red-600/40 bg-red-600/5' : 'border-white/8 bg-white/3 hover:border-white/20'
+                          className={`border-2 rounded-2xl overflow-hidden transition-all ${
+                            isExpanded ? 'border-red-600 bg-red-50/10 shadow-xl' : 'border-gray-50 bg-gray-50/50 hover:border-gray-200 hover:bg-white'
                           }`}
                           onClick={() => setExpandedProject(isExpanded ? null : i)}
                         >
-                          <div className="p-5 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl font-black text-gray-400 italic">
-                                {i + 1}
+                          <div className="p-6 flex items-center justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black italic transition-colors ${isExpanded ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'bg-white text-gray-400 border border-gray-100'}`}>
+                                {String(i + 1).padStart(2, '0')}
                               </div>
                               <div>
-                                <p className="font-black text-white uppercase tracking-wider text-sm italic">{proj.name}</p>
-                                {proj.tagline && <p className="text-xs text-gray-400 mt-0.5 italic">{proj.tagline}</p>}
+                                <p className="font-black text-gray-950 uppercase tracking-widest text-sm italic">{proj.name}</p>
+                                {proj.tagline && <p className="text-[11px] text-gray-500 mt-1 italic font-medium">{proj.tagline}</p>}
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 flex-shrink-0">
+                            <div className="flex items-center gap-4 flex-shrink-0">
                               {proj.complexity && (
-                                <span className={`text-[10px] font-black uppercase tracking-wider italic px-2 py-1 rounded-lg bg-${cc}-500/10 border border-${cc}-500/30 text-${cc}-400`}>
+                                <span className={`text-[9px] font-black uppercase tracking-widest italic px-3 py-1.5 rounded-lg bg-${cc}-50 text-${cc}-700 border border-${cc}-100 shadow-sm`}>
                                   {proj.complexity}
                                 </span>
                               )}
                               {proj.estimated_build_time && (
-                                <span className="text-[10px] text-gray-500 italic">{proj.estimated_build_time}</span>
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest italic bg-white px-3 py-1.5 rounded-lg border border-gray-100">{proj.estimated_build_time}</span>
                               )}
                             </div>
                           </div>
@@ -215,16 +220,16 @@ export default function PortfolioAdvisor() {
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="border-t border-white/8 p-5 space-y-4"
+                              className="border-t border-gray-100 p-8 space-y-8 bg-white shadow-inner"
                               onClick={e => e.stopPropagation()}
                             >
                               {/* Tech Stack */}
                               {proj.tech_stack && (
                                 <div>
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 italic">Tech Stack</p>
-                                  <div className="flex flex-wrap gap-2">
+                                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4 italic">System Stack</p>
+                                  <div className="flex flex-wrap gap-3">
                                     {(Array.isArray(proj.tech_stack) ? proj.tech_stack : proj.tech_stack.split(',')).map((t, ti) => (
-                                      <span key={ti} className="px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs font-bold text-blue-400">
+                                      <span key={ti} className="px-3 py-1.5 bg-gray-950 text-white rounded-lg text-[10px] font-black uppercase tracking-wider italic shadow-lg">
                                         {t.trim()}
                                       </span>
                                     ))}
@@ -232,48 +237,54 @@ export default function PortfolioAdvisor() {
                                 </div>
                               )}
 
-                              {/* Key Features */}
-                              {proj.key_features_to_build && (
-                                <div>
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 italic">Key Features to Build</p>
-                                  <div className="space-y-1.5">
-                                    {(Array.isArray(proj.key_features_to_build) ? proj.key_features_to_build : [proj.key_features_to_build]).map((f, fi) => (
-                                      <div key={fi} className="flex items-start gap-2">
-                                        <TfiTarget className="text-red-400 text-xs mt-0.5 flex-shrink-0" />
-                                        <p className="text-xs text-gray-300">{f}</p>
-                                      </div>
-                                    ))}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Key Features */}
+                                {proj.key_features_to_build && (
+                                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-950 mb-4 italic flex items-center gap-2">
+                                       <div className="w-1.5 h-1.5 rounded-full bg-red-600" /> DEPLOYMENT FEATURES
+                                    </p>
+                                    <div className="space-y-3">
+                                      {(Array.isArray(proj.key_features_to_build) ? proj.key_features_to_build : [proj.key_features_to_build]).map((f, fi) => (
+                                        <div key={fi} className="flex items-start gap-3">
+                                          <TfiTarget className="text-red-600 text-[10px] mt-1 flex-shrink-0" />
+                                          <p className="text-xs text-gray-700 font-medium">{f}</p>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
 
-                              {/* Wow Factor */}
-                              {proj.wow_factor && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-1 italic">Wow Factor</p>
-                                  <p className="text-xs text-gray-300">{proj.wow_factor}</p>
-                                </div>
-                              )}
+                                {/* Wow Factor */}
+                                {proj.wow_factor && (
+                                  <div className="bg-amber-50 border-2 border-amber-100 rounded-2xl p-6 shadow-sm">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-3 italic flex items-center gap-2">
+                                       <TfiStar size={10} /> DIFFERENTIATOR
+                                    </p>
+                                    <p className="text-xs text-amber-900 font-bold leading-relaxed italic">{proj.wow_factor}</p>
+                                  </div>
+                                )}
+                              </div>
 
                               {/* How to Present */}
                               {proj.how_to_present && (
-                                <div className="bg-white/3 rounded-xl p-3">
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 italic">How to Present</p>
-                                  <p className="text-xs text-gray-300">{proj.how_to_present}</p>
+                                <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-700 mb-3 italic">Presentation Strategy</p>
+                                  <p className="text-xs text-blue-900 leading-relaxed font-medium">{proj.how_to_present}</p>
                                 </div>
                               )}
 
-                              <div className="grid grid-cols-2 gap-3">
+                              <div className="grid grid-cols-2 gap-6">
                                 {proj.github_readme_tip && (
-                                  <div className="bg-white/3 rounded-xl p-3">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 italic">GitHub README Tip</p>
-                                    <p className="text-xs text-gray-400">{proj.github_readme_tip}</p>
+                                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Repository Protocol</p>
+                                    <p className="text-[11px] text-gray-700 leading-relaxed italic">{proj.github_readme_tip}</p>
                                   </div>
                                 )}
                                 {proj.live_demo_tip && (
-                                  <div className="bg-white/3 rounded-xl p-3">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 italic">Live Demo Tip</p>
-                                    <p className="text-xs text-gray-400">{proj.live_demo_tip}</p>
+                                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Visual Hook</p>
+                                    <p className="text-[11px] text-gray-700 leading-relaxed italic">{proj.live_demo_tip}</p>
                                   </div>
                                 )}
                               </div>
@@ -289,9 +300,11 @@ export default function PortfolioAdvisor() {
                 {activeTab === 1 && result.portfolio_strategy && (
                   <div className="space-y-4">
                     {(Array.isArray(result.portfolio_strategy) ? result.portfolio_strategy : [result.portfolio_strategy]).map((s, i) => (
-                      <div key={i} className="flex items-start gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
-                        <TfiStar className="text-red-400 text-sm mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-gray-300">{s}</p>
+                      <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="w-6 h-6 rounded-lg bg-red-600/10 flex items-center justify-center text-red-600 flex-shrink-0 mt-0.5">
+                           <TfiStar size={12} />
+                        </div>
+                        <p className="text-sm text-gray-800 font-medium leading-relaxed">{s}</p>
                       </div>
                     ))}
                   </div>
@@ -299,11 +312,13 @@ export default function PortfolioAdvisor() {
 
                 {/* GitHub Tips */}
                 {activeTab === 2 && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {(result.github_profile_tips || []).map((tip, i) => (
-                      <div key={i} className="flex items-start gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
-                        <TfiLightBulb className="text-yellow-400 text-sm mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-gray-300">{tip}</p>
+                      <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 flex-shrink-0 mt-0.5">
+                           <TfiLightBulb size={12} />
+                        </div>
+                        <p className="text-sm text-gray-800 font-medium leading-relaxed">{tip}</p>
                       </div>
                     ))}
                   </div>
@@ -313,9 +328,11 @@ export default function PortfolioAdvisor() {
                 {activeTab === 3 && result.demo_day_advice && (
                   <div className="space-y-4">
                     {(Array.isArray(result.demo_day_advice) ? result.demo_day_advice : [result.demo_day_advice]).map((a, i) => (
-                      <div key={i} className="flex items-start gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
-                        <TfiBolt className="text-red-400 text-sm mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-gray-300">{a}</p>
+                      <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="w-6 h-6 rounded-lg bg-red-600/10 flex items-center justify-center text-red-600 flex-shrink-0 mt-0.5">
+                           <TfiBolt size={12} />
+                        </div>
+                        <p className="text-sm text-gray-800 font-medium leading-relaxed">{a}</p>
                       </div>
                     ))}
                   </div>
@@ -323,11 +340,13 @@ export default function PortfolioAdvisor() {
 
                 {/* Presentation Tips */}
                 {activeTab === 4 && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {(result.presentation_tips || []).map((tip, i) => (
-                      <div key={i} className="flex items-start gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
-                        <TfiWrite className="text-blue-400 text-sm mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-gray-300">{tip}</p>
+                      <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0 mt-0.5">
+                           <TfiWrite size={12} />
+                        </div>
+                        <p className="text-sm text-gray-800 font-medium leading-relaxed">{tip}</p>
                       </div>
                     ))}
                   </div>
@@ -337,9 +356,9 @@ export default function PortfolioAdvisor() {
 
             <button
               onClick={() => setResult(null)}
-              className="text-xs text-gray-500 hover:text-red-400 font-black uppercase tracking-widest italic transition-colors"
+              className="text-[10px] text-gray-400 hover:text-red-600 font-black uppercase tracking-[0.3em] italic transition-all flex items-center gap-2"
             >
-              ← Generate New Portfolio Plan
+              <TfiReload size={10} /> RE-INITIALIZE STRATEGY
             </button>
           </motion.div>
         </AnimatePresence>

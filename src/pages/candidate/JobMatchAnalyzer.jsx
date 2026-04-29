@@ -16,7 +16,7 @@ const ScoreRing = ({ score }) => {
     <div className="flex flex-col items-center gap-3">
       <div className="relative w-40 h-40">
         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="#ffffff10" strokeWidth="8" />
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#f1f5f9" strokeWidth="8" />
           <circle
             cx="50" cy="50" r="42" fill="none"
             stroke={color} strokeWidth="8"
@@ -66,16 +66,16 @@ export default function JobMatchAnalyzer() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-8">
+    <div className="min-h-screen bg-transparent p-8">
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-600/30 flex items-center justify-center text-red-500 text-xl">
+          <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-600/20 flex items-center justify-center text-red-600 text-xl shadow-sm">
             <TfiTarget />
           </div>
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight italic">Job Match AI</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Deep-analyze any job description against your profile — know exactly where you stand</p>
+            <h1 className="text-3xl font-black uppercase tracking-tight italic text-gray-950">Job Match AI</h1>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mt-1 italic">Tactical Gap Analysis</p>
           </div>
         </div>
       </div>
@@ -83,48 +83,53 @@ export default function JobMatchAnalyzer() {
       {/* Input */}
       {!result && (
         <div className="max-w-3xl mx-auto space-y-6">
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-5">
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Target Role (optional)</label>
+          <div className="bg-white border border-gray-100 rounded-3xl p-10 space-y-8 shadow-2xl">
+            <div className="flex items-center gap-4">
+               <div className="w-1 h-6 bg-red-600" />
+               <h2 className="text-xs font-black uppercase tracking-widest text-gray-950 italic">Target Parameters</h2>
+            </div>
+
+            <div className="elite-input-group">
+              <label className="elite-label">Target Role (optional)</label>
               <input
                 value={targetRole}
                 onChange={e => setTargetRole(e.target.value)}
                 placeholder="e.g. Full Stack Developer"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                className="elite-input"
               />
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">
+            <div className="elite-input-group">
+              <label className="elite-label">
                 Your Skills Override (optional — AI auto-reads your resume)
               </label>
               <input
                 value={manualSkills}
                 onChange={e => setManualSkills(e.target.value)}
                 placeholder="React, Node.js, MongoDB, Python... (comma-separated)"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                className="elite-input"
               />
-              <p className="text-[10px] text-gray-600 mt-1 italic">Leave blank to use your saved resume skills automatically.</p>
+              <p className="text-[9px] text-gray-400 mt-2 italic font-black uppercase tracking-widest opacity-60">Leave blank to use your saved resume skills automatically.</p>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Job Description * (paste full JD)</label>
+            <div className="elite-input-group">
+              <label className="elite-label">Job Description * (paste full JD)</label>
               <textarea
                 value={jdText}
                 onChange={e => setJdText(e.target.value)}
                 rows={12}
-                placeholder="Paste the complete job description here — all requirements, responsibilities, and qualifications..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50 resize-none"
+                placeholder="Paste the complete job description here..."
+                className="elite-input min-h-[300px]"
               />
             </div>
 
             <button
               onClick={analyze}
               disabled={loading}
-              className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest text-sm italic transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="elite-button btn-elite-primary w-full py-6 group"
             >
-              {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiBarChart className="text-lg" />}
-              {loading ? 'Analyzing Match...' : 'Analyze My Match'}
+              {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiBarChart className="text-lg group-hover:scale-110 transition-transform" />}
+              {loading ? 'INITIALIZING ANALYSIS...' : 'EXECUTE MATCH ANALYSIS'}
             </button>
           </div>
         </div>
@@ -140,43 +145,43 @@ export default function JobMatchAnalyzer() {
             className="space-y-6"
           >
             {/* Score + verdict hero */}
-            <div className="bg-white/3 border border-white/8 rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8">
+            <div className="bg-white border border-gray-100 rounded-3xl p-10 flex flex-col md:flex-row items-center gap-12 shadow-2xl">
               <ScoreRing score={result.match_score || 0} />
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 space-y-6">
                 {result.overall_verdict && (
-                  <div className="bg-white/5 rounded-xl p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 italic">Overall Verdict</p>
-                    <p className="text-sm text-gray-200 leading-relaxed">{result.overall_verdict}</p>
+                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 shadow-inner">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-3 italic">Intelligence Verdict</p>
+                    <p className="text-sm text-gray-950 leading-relaxed font-medium">{result.overall_verdict}</p>
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-center">
-                    <p className="text-2xl font-black text-emerald-400">{(result.matched_skills || []).length}</p>
-                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-wider italic">Skills Matched</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 text-center shadow-sm transition-transform hover:scale-105">
+                    <p className="text-3xl font-black text-emerald-600 italic">{(result.matched_skills || []).length}</p>
+                    <p className="text-[9px] text-emerald-500 font-black uppercase tracking-widest italic mt-1">Skills Matched</p>
                   </div>
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
-                    <p className="text-2xl font-black text-red-400">{(result.missing_skills || []).length}</p>
-                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-wider italic">Skills Missing</p>
+                  <div className="bg-red-50 border border-red-100 rounded-2xl p-5 text-center shadow-sm transition-transform hover:scale-105">
+                    <p className="text-3xl font-black text-red-600 italic">{(result.missing_skills || []).length}</p>
+                    <p className="text-[9px] text-red-500 font-black uppercase tracking-widest italic mt-1">Skills Missing</p>
                   </div>
                 </div>
                 <button
                   onClick={() => { setResult(null); setJdText(''); }}
-                  className="text-xs text-gray-500 hover:text-red-400 font-black uppercase tracking-widest italic transition-colors"
+                  className="text-[10px] text-gray-400 hover:text-red-600 font-black uppercase tracking-[0.3em] italic transition-all flex items-center gap-2"
                 >
-                  ← Analyze Another Job
+                  <TfiReload size={10} /> RE-INITIALIZE ANALYSIS
                 </button>
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
-              <div className="flex border-b border-white/8 overflow-x-auto">
+            <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="flex border-b border-gray-50 overflow-x-auto bg-gray-50/30">
                 {TABS.map((t, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveTab(i)}
-                    className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${
-                      activeTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
+                    className={`flex-1 min-w-max px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] italic transition-all whitespace-nowrap ${
+                      activeTab === i ? 'bg-white text-red-600 border-b-2 border-red-600' : 'text-gray-400 hover:text-gray-950 hover:bg-gray-50'
                     }`}
                   >
                     {t}
@@ -184,34 +189,40 @@ export default function JobMatchAnalyzer() {
                 ))}
               </div>
 
-              <div className="p-6">
+              <div className="p-8">
                 {/* Match Score tab */}
                 {activeTab === 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-3 italic">✓ Matched Skills</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-4 italic flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" /> COMPATIBLE NODES
+                      </p>
                       {(result.matched_skills || []).map((s, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <TfiCheck className="text-emerald-400 text-xs flex-shrink-0" />
-                          <span className="text-sm text-gray-300">{s}</span>
+                        <div key={i} className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100/50">
+                          <TfiCheck className="text-emerald-600 text-xs flex-shrink-0" />
+                          <span className="text-xs font-black uppercase tracking-wider text-emerald-950 italic">{s}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-3 italic">~ Partial Match</p>
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-4 italic flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-amber-600" /> PARTIAL OVERLAP
+                      </p>
                       {(result.partial_skills || []).map((s, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <TfiStar className="text-yellow-400 text-xs flex-shrink-0" />
-                          <span className="text-sm text-gray-300">{typeof s === 'object' ? `${s.skill} (${s.gap})` : s}</span>
+                        <div key={i} className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100/50">
+                          <TfiStar className="text-amber-600 text-xs flex-shrink-0" />
+                          <span className="text-xs font-black uppercase tracking-wider text-amber-950 italic">{typeof s === 'object' ? `${s.skill} (${s.gap})` : s}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mb-3 italic">✗ Missing Skills</p>
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-4 italic flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-red-600" /> CRITICAL GAPS
+                      </p>
                       {(result.missing_skills || []).map((s, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <TfiClose className="text-red-400 text-xs flex-shrink-0" />
-                          <span className="text-sm text-gray-300">{s}</span>
+                        <div key={i} className="flex items-center gap-3 p-3 bg-red-50 rounded-xl border border-red-100/50">
+                          <TfiClose className="text-red-600 text-xs flex-shrink-0" />
+                          <span className="text-xs font-black uppercase tracking-wider text-red-950 italic">{s}</span>
                         </div>
                       ))}
                     </div>
@@ -220,25 +231,25 @@ export default function JobMatchAnalyzer() {
 
                 {/* Skills Gap */}
                 {activeTab === 1 && (
-                  <div className="space-y-3">
-                    <p className="text-xs text-gray-500 italic mb-4">Priority skills to acquire before applying:</p>
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mb-6">Priority skills to acquire before applying:</p>
                     {(result.missing_skills || []).map((skill, i) => {
                       const priority = i < 2 ? 'High' : i < 4 ? 'Medium' : 'Low';
-                      const color = i < 2 ? 'red' : i < 4 ? 'yellow' : 'gray';
+                      const color = i < 2 ? 'red' : i < 4 ? 'amber' : 'gray';
                       return (
-                        <div key={i} className={`flex items-center justify-between p-4 bg-${color}-500/10 border border-${color}-500/20 rounded-xl`}>
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full bg-${color}-400`} />
-                            <span className="text-sm font-bold text-white">{skill}</span>
+                        <div key={i} className={`flex items-center justify-between p-5 bg-${color}-50 border border-${color}-100 rounded-2xl transition-all hover:translate-x-2`}>
+                          <div className="flex items-center gap-4">
+                            <div className={`w-3 h-3 rounded-full bg-${color}-600 shadow-[0_0_10px_rgba(220,38,38,0.3)]`} />
+                            <span className="text-sm font-black text-gray-950 uppercase tracking-widest italic">{skill}</span>
                           </div>
-                          <span className={`text-[10px] font-black uppercase tracking-wider italic text-${color}-400`}>{priority} Priority</span>
+                          <span className={`text-[9px] font-black uppercase tracking-[0.2em] italic text-${color}-600 bg-white px-3 py-1 rounded-lg border border-${color}-100 shadow-sm`}>{priority} Priority</span>
                         </div>
                       );
                     })}
                     {(result.missing_skills || []).length === 0 && (
-                      <div className="text-center py-8">
-                        <TfiCheck className="text-5xl text-emerald-400 mx-auto mb-3" />
-                        <p className="text-gray-400 font-black uppercase tracking-widest text-sm italic">No major skill gaps!</p>
+                      <div className="text-center py-12">
+                        <TfiCheck className="text-6xl text-emerald-600 mx-auto mb-4 opacity-20" />
+                        <p className="text-gray-400 font-black uppercase tracking-[0.4em] text-xs italic">Optimal Alignment Detected</p>
                       </div>
                     )}
                   </div>
@@ -248,18 +259,24 @@ export default function JobMatchAnalyzer() {
                 {activeTab === 2 && (
                   <div className="space-y-4">
                     {(result.learning_plan || []).map((item, i) => (
-                      <div key={i} className="p-4 bg-white/3 border border-white/8 rounded-xl space-y-2">
+                      <div key={i} className="p-6 bg-gray-50 border border-gray-100 rounded-2xl space-y-3 shadow-sm hover:border-red-600/30 transition-all">
                         <div className="flex items-center justify-between">
-                          <p className="font-black text-white text-sm uppercase tracking-wider italic">{typeof item === 'object' ? item.skill : item}</p>
+                          <p className="font-black text-gray-950 text-sm uppercase tracking-widest italic">{typeof item === 'object' ? item.skill : item}</p>
                           {typeof item === 'object' && item.timeframe && (
-                            <span className="text-[10px] text-gray-500 italic">{item.timeframe}</span>
+                            <span className="text-[10px] font-black text-red-600 uppercase tracking-widest italic bg-white px-3 py-1 rounded-lg border border-red-100">{item.timeframe}</span>
                           )}
                         </div>
                         {typeof item === 'object' && item.resources && (
-                          <p className="text-xs text-gray-400">{Array.isArray(item.resources) ? item.resources.join(', ') : item.resources}</p>
+                          <div className="flex items-center gap-3">
+                             <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                             <p className="text-xs text-gray-600 font-medium italic">{Array.isArray(item.resources) ? item.resources.join(', ') : item.resources}</p>
+                          </div>
                         )}
                         {typeof item === 'object' && item.how && (
-                          <p className="text-xs text-gray-400">{item.how}</p>
+                          <div className="flex items-start gap-3 bg-white p-4 rounded-xl border border-gray-50 mt-4 shadow-inner">
+                             <TfiLightBulb className="text-amber-500 mt-0.5 flex-shrink-0" />
+                             <p className="text-[12px] text-gray-700 leading-relaxed font-medium">{item.how}</p>
+                          </div>
                         )}
                       </div>
                     ))}
@@ -268,23 +285,23 @@ export default function JobMatchAnalyzer() {
 
                 {/* ATS & Application */}
                 {activeTab === 3 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {result.ats_pass_prediction && (
-                      <div className={`p-4 rounded-xl border ${result.ats_pass_prediction.toLowerCase().includes('high') || result.ats_pass_prediction.toLowerCase().includes('likely') ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-yellow-500/10 border-yellow-500/30'}`}>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 italic">ATS Pass Prediction</p>
-                        <p className="text-sm font-bold text-white">{result.ats_pass_prediction}</p>
+                      <div className={`p-6 rounded-2xl border-2 ${result.ats_pass_prediction.toLowerCase().includes('high') || result.ats_pass_prediction.toLowerCase().includes('likely') ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100 shadow-sm'}`}>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-2 italic">ATS Pass Prediction</p>
+                        <p className="text-xl font-black text-gray-950 italic uppercase tracking-tight">{result.ats_pass_prediction}</p>
                       </div>
                     )}
                     {result.application_advice && (
-                      <div className="bg-white/3 border border-white/8 rounded-xl p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Application Advice</p>
-                        <p className="text-sm text-gray-300 leading-relaxed">{result.application_advice}</p>
+                      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 italic">Deployment Strategy</p>
+                        <p className="text-sm text-gray-700 leading-relaxed font-medium italic">{result.application_advice}</p>
                       </div>
                     )}
                     {result.resume_tips && (
-                      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2 italic">Resume Tips for This Role</p>
-                        <p className="text-sm text-gray-300 leading-relaxed">{Array.isArray(result.resume_tips) ? result.resume_tips.join(' • ') : result.resume_tips}</p>
+                      <div className="bg-red-50 border border-red-100 rounded-2xl p-6 shadow-sm">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-3 italic">Resume Optimization Protocols</p>
+                        <p className="text-sm text-gray-800 leading-relaxed font-medium">{Array.isArray(result.resume_tips) ? result.resume_tips.join(' • ') : result.resume_tips}</p>
                       </div>
                     )}
                   </div>
@@ -292,12 +309,12 @@ export default function JobMatchAnalyzer() {
 
                 {/* Interview Prep */}
                 {activeTab === 4 && (
-                  <div className="space-y-3">
-                    <p className="text-xs text-gray-500 italic mb-4">Likely interview questions based on this JD:</p>
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic mb-6">Predicted interview vectors based on this JD:</p>
                     {(result.interview_likely_questions || []).map((q, i) => (
-                      <div key={i} className="flex items-start gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
-                        <span className="text-red-500 font-black text-sm flex-shrink-0">{i + 1}.</span>
-                        <p className="text-sm text-gray-300">{q}</p>
+                      <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 border border-gray-100 rounded-2xl hover:border-red-600/30 transition-all group">
+                        <span className="w-8 h-8 rounded-lg bg-gray-950 text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 group-hover:bg-red-600 transition-colors shadow-lg italic">{String(i + 1).padStart(2, '0')}</span>
+                        <p className="text-sm text-gray-800 font-bold leading-relaxed">{q}</p>
                       </div>
                     ))}
                   </div>

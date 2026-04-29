@@ -46,24 +46,29 @@ export default function TopBar({ collapsed, userType }) {
   return (
     <header className="elite-topbar">
       {/* Search Hub */}
-      <div className={`flex items-center gap-6 px-8 py-3 bg-white border border-gray-100 rounded-full shadow-lg transition-all hover:border-red-600/30 w-full max-w-[500px] group ${searchFocused ? 'ring-2 ring-red-600/10 border-red-600/50' : ''}`}>
-        <div className="flex items-center justify-center transition-all group-hover:scale-110">
-          <Search size={20} className={`${searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} transition-colors`} />
+      <div className="flex items-center gap-4 w-full max-w-[550px]">
+        <div 
+          onClick={() => document.getElementById('global-search')?.focus()}
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-lg border border-gray-100 cursor-pointer ${searchFocused ? 'bg-red-600 text-white border-red-600 scale-110 shadow-red-600/20' : 'bg-white text-gray-400 hover:text-red-600 hover:border-red-600'}`}
+        >
+          <Search size={18} className={searchFocused ? 'animate-pulse' : ''} />
         </div>
-        <input
-          id="global-search"
-          type="text"
-          placeholder="SEARCH JOBS AND ACTIVITY..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleSearch}
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => setSearchFocused(false)}
-          className="w-full bg-transparent text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[11px] outline-none"
-        />
-        <div className={`flex items-center gap-4 transition-all duration-500 ${searchFocused ? 'opacity-0 scale-90' : 'opacity-100 scale-100'}`}>
-          <div className="elite-kbd border-gray-100 text-gray-400 flex items-center gap-2 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all px-3 py-1.5 shadow-sm">
-            <span className="text-[8px] font-black opacity-40">CMD</span> <span className="mt-[1px]">K</span>
+        <div className={`flex-1 flex items-center gap-6 px-8 py-3.5 bg-white border border-gray-100 rounded-full shadow-lg transition-all hover:border-red-600/30 group ${searchFocused ? 'ring-2 ring-red-600/10 border-red-600/50' : ''}`}>
+          <input
+            id="global-search"
+            type="text"
+            placeholder="SEARCH JOBS AND ACTIVITY..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleSearch}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            className="w-full bg-transparent text-gray-950 placeholder:text-gray-300 font-black italic uppercase tracking-[0.2em] text-[11px] outline-none"
+          />
+          <div className={`flex items-center gap-4 transition-all duration-500 ${searchFocused ? 'opacity-0 scale-90' : 'opacity-100 scale-100'}`}>
+            <div className="elite-kbd border-gray-100 text-gray-400 flex items-center gap-2 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all px-3 py-1.5 shadow-sm">
+              <span className="text-[8px] font-black opacity-40">CMD</span> <span className="mt-[1px]">K</span>
+            </div>
           </div>
         </div>
       </div>

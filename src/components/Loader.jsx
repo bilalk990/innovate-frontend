@@ -56,11 +56,13 @@ export default function Loader({ text, fullScreen = false }) {
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-[#050505] z-[9999] flex items-center justify-center overflow-hidden">
-        {/* Radar scan effect */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(220,38,38,0.05)_0%,_transparent_70%)]" />
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent animate-[pulse_2s_infinite]" />
-        {content}
+      <div className="fixed inset-0 bg-white/95 backdrop-blur-xl z-[9999] flex items-center justify-center overflow-hidden">
+        {/* Modern high-contrast scan effect */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(220,38,38,0.03)_0%,_transparent_80%)]" />
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-600/30 to-transparent animate-[shimmer_2s_infinite]" />
+        <div className="relative z-10">
+            {content}
+        </div>
       </div>
     );
   }

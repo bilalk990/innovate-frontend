@@ -402,13 +402,13 @@ export default function ResumeBuilder() {
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                 <div>
                     <h1 className="elite-tactical-header">Resume Builder</h1>
-                    <p className="elite-sub-header mt-2 text-gray-400 font-black uppercase tracking-[0.4em] text-[10px] italic">Professional Document Generation · Engine 4.0</p>
+                    <p className="elite-sub-header mt-2 text-gray-500 font-black uppercase tracking-[0.4em] text-[10px] italic">Professional Document Generation · Engine 4.0</p>
                 </div>
                 {resumeData && (
                     <div className="flex gap-4">
                         <button
                             onClick={handleDownloadPDF}
-                            className="btn-elite btn-elite-primary px-8 flex items-center gap-4 py-4 text-[10px] font-black uppercase tracking-widest shadow-2xl"
+                            className="elite-button btn-elite-primary px-8 flex items-center gap-4 py-4 text-[10px] font-black uppercase tracking-widest shadow-2xl"
                         >
                             <TfiDownload className="animate-pulse" /> Export PDF
                         </button>
@@ -418,13 +418,13 @@ export default function ResumeBuilder() {
 
             {/* Warning Alert */}
             {!hasProfile && (
-                <div className="mb-12 p-8 elite-glass-panel border-amber-500/20 bg-amber-500/5 flex items-center gap-6">
-                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 text-2xl animate-pulse border border-amber-500/10">
+                <div className="mb-12 p-8 bg-amber-50 border border-amber-100 rounded-3xl flex items-center gap-6 shadow-sm">
+                    <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-amber-500 text-2xl animate-pulse border border-amber-100 shadow-sm">
                         <TfiTarget />
                     </div>
                     <div>
-                        <p className="text-[12px] font-black uppercase tracking-[0.3em] text-amber-500">Profile Data Missing</p>
-                        <p className="text-[10px] text-amber-500/60 font-black uppercase tracking-widest mt-1 italic">Populate your skills and bio in the Profile Section to enable resume builder.</p>
+                        <p className="text-[12px] font-black uppercase tracking-[0.3em] text-amber-600">Profile Data Missing</p>
+                        <p className="text-[10px] text-amber-600/60 font-black uppercase tracking-widest mt-1 italic">Populate your skills and bio in the Profile Section to enable resume builder.</p>
                     </div>
                 </div>
             )}
@@ -432,24 +432,24 @@ export default function ResumeBuilder() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 {/* Left: Configuration */}
                 <div className="lg:col-span-4 space-y-10">
-                    <div className="elite-glass-panel p-10 bg-black/40 border-white/5 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-red-600/10 blur-[80px]" />
-                        <h3 className="text-[11px] font-black uppercase text-gray-600 tracking-[0.6em] mb-12 italic">Resume Details</h3>
+                    <div className="bg-white border border-gray-100 rounded-[3rem] p-10 relative overflow-hidden shadow-xl">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-red-600/5 blur-[80px]" />
+                        <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-[0.6em] mb-12 italic">Resume Details</h3>
 
                         <div className="space-y-8 relative z-10">
-                            <div>
-                                <label className="text-[9px] font-black text-gray-700 uppercase mb-3 block tracking-[0.2em] italic">Target Job Title</label>
+                            <div className="elite-input-group">
+                                <label className="elite-label">Target Job Title</label>
                                 <input
                                     type="text"
                                     value={jobTarget}
                                     onChange={e => setJobTarget(e.target.value)}
                                     placeholder="e.g. Lead Dev-Ops / Architect"
-                                    className="elite-input w-full bg-white/[0.02] border-white/5 text-white"
+                                    className="elite-input w-full"
                                 />
                             </div>
 
-                            <div className="p-6 bg-white/[0.01] rounded-[1.5rem] border border-white/5 group/node">
-                                <div className="text-[9px] font-black text-gray-800 uppercase mb-6 tracking-widest italic group-hover/node:text-red-700 transition-colors">Profile Data Status</div>
+                            <div className="p-8 bg-gray-50 rounded-[2rem] border border-gray-100 group/node">
+                                <div className="text-[9px] font-black text-gray-400 uppercase mb-6 tracking-widest italic group-hover/node:text-red-600 transition-colors">Profile Data Status</div>
                                 <div className="space-y-4">
                                     {[
                                         { label: 'Skills', ok: (user?.detailed_skills?.length || 0) > 0 },
@@ -458,7 +458,7 @@ export default function ResumeBuilder() {
                                     ].map(n => (
                                         <div key={n.label} className="flex justify-between items-center">
                                             <span className="text-[10px] font-black uppercase text-gray-600 italic tracking-widest">{n.label} Data</span>
-                                            <div className={`w-2 h-2 rounded-full ${n.ok ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-800 shadow-[0_0_8px_#991b1b]'}`} />
+                                            <div className={`w-2 h-2 rounded-full ${n.ok ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-600 shadow-[0_0_8px_#dc2626]'}`} />
                                         </div>
                                     ))}
                                 </div>
@@ -467,37 +467,42 @@ export default function ResumeBuilder() {
                             <button
                                 onClick={handleGenerate}
                                 disabled={generating || !hasProfile}
-                                className={`w-full py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 italic shadow-2xl ${generating ? 'bg-gray-900 text-gray-700 animate-pulse' : 'bg-red-600 text-white hover:bg-black active:scale-[0.98]'}`}
+                                className={`elite-button w-full py-6 group ${generating ? 'bg-gray-100 text-gray-400' : 'btn-elite-primary'}`}
                             >
                                 {generating ? <TfiReload className="animate-spin" /> : <TfiBolt className={hasProfile ? 'animate-pulse' : ''} />}
-                                {generating ? 'Generating...' : 'Generate Resume'}
+                                {generating ? 'GENERATING ASSETS...' : 'EXECUTE GENERATION'}
                             </button>
 
                         </div>
                     </div>
 
-                    {/* Template Selector Terminal */}
-                    <div className="elite-glass-panel p-10 bg-black/40">
-                        <h3 className="text-[11px] font-black uppercase text-gray-700 tracking-[0.6em] mb-12 italic">Resume Templates</h3>
-                        <div className="space-y-3">
+                    {/* Template Selector */}
+                    <div className="bg-white border border-gray-100 rounded-[3rem] p-10 shadow-xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 blur-[60px]" />
+                        <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-[0.6em] mb-12 italic">Resume Templates</h3>
+                        <div className="space-y-4 relative z-10">
                             {TEMPLATES.map(t => (
                                 <button
                                     key={t.id}
                                     onClick={() => setSelectedTemplate(t.id)}
-                                    className={`w-full p-6 text-left rounded-2xl border transition-all flex items-center justify-between group/t ${selectedTemplate === t.id ? 'bg-red-600/10 border-red-600 shadow-2xl shadow-red-600/20' : 'bg-white/[0.01] border-white/5 hover:border-white/10'}`}
+                                    className={`w-full p-6 text-left rounded-2xl border-2 transition-all flex items-center justify-between group/t ${selectedTemplate === t.id ? 'border-red-600 bg-red-50/30 shadow-lg' : 'bg-gray-50 border-gray-50 hover:border-gray-200 hover:bg-white'}`}
                                 >
                                     <div>
-                                        <div className={`text-[12px] font-black uppercase italic tracking-tighter ${selectedTemplate === t.id ? 'text-white' : 'text-gray-500 group-hover/t:text-gray-300'}`}>{t.label} Template</div>
-                                        <div className="text-[9px] font-black text-gray-700 tracking-widest uppercase mt-1 italic group-hover/t:text-gray-500 transition-colors">{t.desc}</div>
+                                        <div className={`text-[12px] font-black uppercase italic tracking-tighter ${selectedTemplate === t.id ? 'text-gray-950' : 'text-gray-400 group-hover/t:text-gray-600'}`}>{t.label}</div>
+                                        <div className="text-[9px] font-black text-gray-400 tracking-widest uppercase mt-1 italic group-hover/t:text-gray-500 transition-colors">{t.desc}</div>
                                     </div>
-                                    {selectedTemplate === t.id && <TfiCheck className="text-red-600" />}
+                                    {selectedTemplate === t.id && (
+                                        <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-600/20">
+                                            <TfiCheck size={14} />
+                                        </div>
+                                    )}
                                 </button>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Right: Preview Terminal */}
+                {/* Right: Preview */}
                 <div className="lg:col-span-8">
                     <AnimatePresence mode="wait">
                         {!resumeData && !generating && (
@@ -505,13 +510,15 @@ export default function ResumeBuilder() {
                                 key="empty"
                                 initial={{ opacity: 0, scale: 0.98 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="h-full min-h-[600px] elite-glass-panel flex flex-col items-center justify-center p-20 text-center border-dashed border-2 border-white/5 relative overflow-hidden"
+                                className="h-full min-h-[600px] bg-white border-2 border-dashed border-gray-100 rounded-[3rem] flex flex-col items-center justify-center p-20 text-center relative overflow-hidden"
                             >
-                                <div className="absolute inset-0 bg-white/[0.01] animate-pulse pointer-events-none" />
-                                <TfiPulse size={80} className="text-gray-900 mb-12 animate-pulse opacity-30" />
-                                <h2 className="text-4xl font-black uppercase italic text-gray-800 tracking-tighter mb-4">Awaiting Input</h2>
-                                <p className="text-[11px] font-black text-gray-700 uppercase tracking-[0.8em] max-w-xs leading-loose italic">
-                                    Generate your resume to preview your professional profile.
+                                <div className="absolute inset-0 bg-gray-50/50 animate-pulse pointer-events-none" />
+                                <div className="w-24 h-24 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-200 border border-gray-100 shadow-inner mb-8 relative z-10">
+                                    <TfiLayers size={40} />
+                                </div>
+                                <h2 className="text-3xl font-black uppercase italic text-gray-950 tracking-tighter mb-4 relative z-10">Awaiting Initialization</h2>
+                                <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.6em] max-w-xs leading-loose italic relative z-10">
+                                    Define your target role and execute generation to preview assets.
                                 </p>
                             </motion.div>
                         )}
@@ -521,17 +528,17 @@ export default function ResumeBuilder() {
                                 key="loading"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="h-full min-h-[600px] elite-glass-panel flex flex-col items-center justify-center p-20 text-center"
+                                className="h-full min-h-[600px] bg-white border border-gray-100 rounded-[3rem] flex flex-col items-center justify-center p-20 text-center shadow-2xl"
                             >
-                                <div className="relative w-40 h-40 mb-16">
-                                    <div className="absolute inset-0 border-4 border-red-900/20 rounded-[3rem] animate-spin duration-[3000ms]" />
-                                    <div className="absolute inset-4 border-4 border-red-600/40 rounded-[2.5rem] animate-spin-reverse duration-[2000ms]" />
-                                    <div className="flex items-center justify-center h-full text-5xl text-red-600 drop-shadow-[0_0_20px_#dc2626]">
+                                <div className="relative w-40 h-40 mb-12">
+                                    <div className="absolute inset-0 border-4 border-red-600/10 rounded-[3rem] animate-spin duration-[3000ms]" />
+                                    <div className="absolute inset-4 border-4 border-red-600/30 rounded-[2.5rem] animate-spin-reverse duration-[2000ms]" />
+                                    <div className="flex items-center justify-center h-full text-5xl text-red-600">
                                         <TfiReload className="animate-spin" />
                                     </div>
                                 </div>
-                                <h3 className="text-4xl font-black uppercase italic text-white tracking-tighter mb-4">Generating Resume...</h3>
-                                <p className="text-[12px] font-black text-red-600 uppercase tracking-[1em] animate-pulse italic">AI Processing In Progress</p>
+                                <h3 className="text-3xl font-black uppercase italic text-gray-950 tracking-tighter mb-4">Generating Resume...</h3>
+                                <p className="text-[11px] font-black text-red-600 uppercase tracking-[0.8em] animate-pulse italic">AI Processing In Progress</p>
                             </motion.div>
                         )}
 
@@ -540,39 +547,39 @@ export default function ResumeBuilder() {
                                 key="preview"
                                 initial={{ opacity: 0, y: 40 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="elite-glass-panel p-0 overflow-hidden bg-white/[0.02] shadow-[0_60px_100px_rgba(0,0,0,0.8)] border-white/10"
+                                className="bg-white border border-gray-100 rounded-[3rem] overflow-hidden shadow-2xl"
                             >
-                                <div className="bg-black/80 px-12 py-10 flex items-center justify-between border-b border-white/10">
-                                    <div className="flex items-center gap-10">
+                                <div className="bg-gray-50 px-10 py-8 flex items-center justify-between border-b border-gray-100">
+                                    <div className="flex items-center gap-8">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_10px_#dc2626] animate-pulse" />
-                                            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-white italic">LIVE PREVIEW</span>
+                                            <div className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_10px_#dc2626] animate-pulse" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-950 italic">TRANSMISSION ACTIVE</span>
                                         </div>
-                                        <div className="h-4 w-[1px] bg-white/10" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-600 italic">{selectedTemplate.toUpperCase()} TEMPLATE</span>
+                                        <div className="h-4 w-[1px] bg-gray-200" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 italic">{selectedTemplate.toUpperCase()} TEMPLATE</span>
                                     </div>
-                                    <button onClick={() => window.print()} className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all">
+                                    <button onClick={() => window.print()} className="w-12 h-12 rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-red-600 hover:border-red-600 transition-all shadow-sm flex items-center justify-center">
                                         <TfiPrinter size={18} />
                                     </button>
                                 </div>
 
-                                <div className="p-12 overflow-auto max-h-[800px] panel-scrollbar flex justify-center bg-gray-950/50">
-                                    <div className="w-full max-w-[800px] origin-top transform shadow-2xl">
+                                <div className="p-12 overflow-auto max-h-[850px] panel-scrollbar flex justify-center bg-gray-100/30 shadow-inner">
+                                    <div className="w-full max-w-[800px] origin-top transform shadow-[0_30px_60px_rgba(0,0,0,0.1)]">
                                         <TemplateComponent data={resumeData} />
                                     </div>
                                 </div>
 
-                                <div className="p-10 bg-black/60 backdrop-blur-xl border-t border-white/10 flex items-center justify-between gap-10">
-                                    <div className="flex gap-4">
+                                <div className="p-10 bg-white border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-8">
+                                    <div className="flex flex-wrap justify-center gap-3">
                                         {resumeData.ats_keywords?.slice(0, 4).map((kw, idx) => (
-                                            <span key={idx} className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black text-gray-600 uppercase italic tracking-widest">#{kw}</span>
+                                            <span key={idx} className="px-4 py-2 rounded-xl bg-gray-50 border border-gray-100 text-[9px] font-black text-gray-400 uppercase italic tracking-widest hover:text-red-600 hover:border-red-600 transition-colors">#{kw}</span>
                                         ))}
                                     </div>
                                     <button
                                         onClick={handleDownloadPDF}
-                                        className="btn-elite btn-elite-primary px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl"
+                                        className="elite-button btn-elite-primary px-10 py-5 group"
                                     >
-                                        DOWNLOAD PDF
+                                        <TfiDownload className="group-hover:scale-110 transition-transform" /> DOWNLOAD PDF
                                     </button>
                                 </div>
                             </motion.div>

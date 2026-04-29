@@ -51,16 +51,16 @@ export default function CoverLetterGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-8">
+    <div className="min-h-screen bg-transparent p-8">
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-3">
-          <div className="w-12 h-12 rounded-2xl bg-red-600/20 border border-red-600/30 flex items-center justify-center text-red-500 text-xl">
+          <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-600/20 flex items-center justify-center text-red-600 text-xl shadow-sm">
             <TfiWrite />
           </div>
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight italic">Cover Letter AI</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Paste any job description — get a tailored, ready-to-send cover letter</p>
+            <h1 className="text-3xl font-black uppercase tracking-tight italic text-gray-950">Cover Letter AI</h1>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mt-1 italic">Tactical Content Generation</p>
           </div>
         </div>
       </div>
@@ -68,40 +68,43 @@ export default function CoverLetterGenerator() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Input Panel */}
         <div className="space-y-6">
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-5">
-            <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 italic">Job Details</h2>
+          <div className="bg-white border border-gray-100 rounded-3xl p-10 space-y-8 shadow-2xl">
+            <div className="flex items-center gap-4">
+               <div className="w-1 h-6 bg-red-600" />
+               <h2 className="text-xs font-black uppercase tracking-widest text-gray-950 italic">Deployment Parameters</h2>
+            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Job Title *</label>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="elite-input-group">
+                <label className="elite-label">Job Title *</label>
                 <input
                   value={form.job_title}
                   onChange={e => set('job_title', e.target.value)}
                   placeholder="e.g. Senior React Developer"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                  className="elite-input"
                 />
               </div>
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Company Name *</label>
+              <div className="elite-input-group">
+                <label className="elite-label">Company Name *</label>
                 <input
                   value={form.company_name}
                   onChange={e => set('company_name', e.target.value)}
                   placeholder="e.g. Google"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
+                  className="elite-input"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Writing Tone</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="elite-input-group">
+              <label className="elite-label">Writing Tone</label>
+              <div className="flex flex-wrap gap-3">
                 {TONES.map(t => (
                   <button
                     key={t}
                     onClick={() => set('tone', t)}
-                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider italic transition-all ${form.tone === t
-                        ? 'bg-red-600 text-white border border-red-500'
-                        : 'bg-white/5 text-gray-400 border border-white/10 hover:border-red-600/40 hover:text-white'
+                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider italic transition-all ${form.tone === t
+                        ? 'bg-red-600 text-white shadow-lg shadow-red-600/20'
+                        : 'bg-gray-50 text-gray-400 border border-gray-100 hover:border-red-600/40 hover:text-gray-900'
                       }`}
                   >
                     {t}
@@ -110,25 +113,25 @@ export default function CoverLetterGenerator() {
               </div>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block italic">Job Description * (paste full JD)</label>
+            <div className="elite-input-group">
+              <label className="elite-label">Job Description * (paste full JD)</label>
               <textarea
                 value={form.jd_text}
                 onChange={e => set('jd_text', e.target.value)}
                 rows={10}
-                placeholder="Paste the complete job description here — responsibilities, requirements, nice-to-haves..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50 resize-none"
+                placeholder="Paste the complete job description here..."
+                className="elite-input min-h-[200px]"
               />
-              <p className="text-[10px] text-gray-600 mt-1 italic">AI uses your saved resume skills + this JD to personalise every line.</p>
+              <p className="text-[9px] text-gray-400 mt-2 italic font-black uppercase tracking-widest opacity-60">AI uses your saved resume skills + this JD to personalise every line.</p>
             </div>
 
             <button
               onClick={generate}
               disabled={loading}
-              className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest text-sm italic transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="elite-button btn-elite-primary w-full py-6 group"
             >
-              {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiWrite className="text-lg" />}
-              {loading ? 'Generating Letter...' : 'Generate Cover Letter'}
+              {loading ? <TfiReload className="animate-spin text-lg" /> : <TfiWrite className="text-lg group-hover:scale-110 transition-transform" />}
+              {loading ? 'GENERATING SYSTEM...' : 'EXECUTE GENERATION'}
             </button>
           </div>
         </div>
@@ -141,24 +144,24 @@ export default function CoverLetterGenerator() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.5 }}
-              className="space-y-4"
+              className="space-y-6"
             >
               {/* Subject line hero */}
               {result.subject_line && (
-                <div className="bg-red-600/10 border border-red-600/30 rounded-2xl p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-1 italic">Email Subject Line</p>
-                  <p className="text-white font-bold text-sm">{result.subject_line}</p>
+                <div className="bg-red-600/5 border border-red-600/10 rounded-2xl p-6 shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-600 mb-2 italic">Intelligence Subject Line</p>
+                  <p className="text-gray-950 font-black italic text-sm">{result.subject_line}</p>
                 </div>
               )}
 
               {/* Tabs */}
-              <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
-                <div className="flex border-b border-white/8 overflow-x-auto">
+              <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="flex border-b border-gray-50 overflow-x-auto bg-gray-50/30">
                   {TABS.map((t, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveTab(i)}
-                      className={`flex-1 min-w-max px-4 py-3 text-[10px] font-black uppercase tracking-widest italic transition-all whitespace-nowrap ${activeTab === i ? 'bg-red-600/15 text-red-400 border-b-2 border-red-600' : 'text-gray-500 hover:text-white'
+                      className={`flex-1 min-w-max px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] italic transition-all whitespace-nowrap ${activeTab === i ? 'bg-white text-red-600 border-b-2 border-red-600' : 'text-gray-400 hover:text-gray-950 hover:bg-gray-50'
                         }`}
                     >
                       {t}
@@ -166,20 +169,20 @@ export default function CoverLetterGenerator() {
                   ))}
                 </div>
 
-                <div className="p-6">
+                <div className="p-8">
                   {/* Cover Letter */}
                   {activeTab === 0 && (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       <div className="flex justify-end">
                         <button
                           onClick={copyLetter}
-                          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-wider italic text-gray-400 hover:text-white hover:border-red-600/40 transition-all"
+                          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-950 text-white text-[10px] font-black uppercase tracking-widest italic hover:bg-red-600 transition-all shadow-xl active:scale-95"
                         >
                           {copied ? <TfiCheck className="text-emerald-400" /> : <FiCopy />}
-                          {copied ? 'Copied!' : 'Copy Letter'}
+                          {copied ? 'SECURED!' : 'COPY LOG'}
                         </button>
                       </div>
-                      <div className="bg-white text-gray-900 rounded-xl p-6 text-sm leading-relaxed whitespace-pre-wrap font-serif shadow-lg">
+                      <div className="bg-gray-50 text-gray-950 rounded-2xl p-10 text-[14px] leading-relaxed whitespace-pre-wrap font-serif border border-gray-100 shadow-inner">
                         {result.cover_letter || '—'}
                       </div>
                     </div>
@@ -187,19 +190,19 @@ export default function CoverLetterGenerator() {
 
                   {/* Keywords Used */}
                   {activeTab === 1 && (
-                    <div className="space-y-3">
-                      <p className="text-xs text-gray-500 italic">Keywords from the JD that were naturally embedded in your letter:</p>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="space-y-6">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Keywords from the JD that were naturally embedded in your letter:</p>
+                      <div className="flex flex-wrap gap-3">
                         {(result.keywords_used || []).map((kw, i) => (
-                          <span key={i} className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-xs font-black text-emerald-400 uppercase tracking-wider italic">
+                          <span key={i} className="px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-[10px] font-black uppercase tracking-wider italic">
                             {kw}
                           </span>
                         ))}
                       </div>
                       {result.ats_tip && (
-                        <div className="mt-4 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                          <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1 italic">ATS Tip</p>
-                          <p className="text-sm text-gray-300">{result.ats_tip}</p>
+                        <div className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-6">
+                          <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 italic">ATS Optimization Strategy</p>
+                          <p className="text-sm text-gray-700 leading-relaxed font-medium">{result.ats_tip}</p>
                         </div>
                       )}
                     </div>
@@ -207,12 +210,14 @@ export default function CoverLetterGenerator() {
 
                   {/* JD Requirements Addressed */}
                   {activeTab === 2 && (
-                    <div className="space-y-3">
-                      <p className="text-xs text-gray-500 italic">How your letter addresses specific JD requirements:</p>
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">How your letter addresses specific JD requirements:</p>
                       {(result.jd_requirements_addressed || []).map((item, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-white/3 rounded-xl">
-                          <TfiCheck className="text-emerald-400 text-sm mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-gray-300">{typeof item === 'object' ? `${item.requirement}: ${item.how_addressed}` : item}</p>
+                        <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                          <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 mt-0.5">
+                             <TfiCheck size={12} />
+                          </div>
+                          <p className="text-sm text-gray-800 font-medium">{typeof item === 'object' ? `${item.requirement}: ${item.how_addressed}` : item}</p>
                         </div>
                       ))}
                     </div>
@@ -220,18 +225,20 @@ export default function CoverLetterGenerator() {
 
                   {/* Tips */}
                   {activeTab === 3 && (
-                    <div className="space-y-4">
-                      <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 italic">Customization Tips</h3>
+                    <div className="space-y-6">
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-950 italic">Tactical Customization Tips</h3>
                       {(result.customization_tips || []).map((tip, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-white/3 rounded-xl">
-                          <TfiLightBulb className="text-yellow-400 text-sm mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-gray-300">{tip}</p>
+                        <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                          <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 mt-0.5">
+                             <TfiLightBulb size={12} />
+                          </div>
+                          <p className="text-sm text-gray-800 font-medium">{tip}</p>
                         </div>
                       ))}
                       {result.follow_up_tip && (
-                        <div className="bg-red-600/10 border border-red-600/20 rounded-xl p-4 mt-4">
-                          <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1 italic">Follow-up Strategy</p>
-                          <p className="text-sm text-gray-300">{result.follow_up_tip}</p>
+                        <div className="bg-red-50 border border-red-100 rounded-2xl p-6 mt-8">
+                          <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-2 italic">Post-Submission Protocol</p>
+                          <p className="text-sm text-gray-700 leading-relaxed font-medium">{result.follow_up_tip}</p>
                         </div>
                       )}
                     </div>
@@ -244,13 +251,13 @@ export default function CoverLetterGenerator() {
 
         {/* Empty state */}
         {!result && !loading && (
-          <div className="hidden xl:flex flex-col items-center justify-center h-80 border border-dashed border-white/10 rounded-2xl text-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-gray-600 text-3xl">
+          <div className="hidden xl:flex flex-col items-center justify-center min-h-[500px] border-2 border-dashed border-gray-100 rounded-3xl text-center gap-6 bg-gray-50/30">
+            <div className="w-20 h-20 rounded-[2.5rem] bg-white shadow-xl border border-gray-100 flex items-center justify-center text-gray-200 text-3xl animate-pulse">
               <TfiWrite />
             </div>
             <div>
-              <p className="text-gray-500 font-black uppercase tracking-widest text-xs italic">Your letter appears here</p>
-              <p className="text-gray-700 text-xs mt-1">Fill in job details and paste the JD to begin</p>
+              <p className="text-gray-950 font-black uppercase tracking-[0.4em] text-[10px] italic">Awaiting Parameters</p>
+              <p className="text-gray-400 text-[11px] mt-2 font-medium italic">Execute generation to visualize output stream</p>
             </div>
           </div>
         )}
