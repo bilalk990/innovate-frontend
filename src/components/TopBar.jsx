@@ -15,6 +15,7 @@ export default function TopBar({ collapsed, userType }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleSearch = (e) => {
     if (e.key === 'Enter' && query.trim()) {
@@ -26,9 +27,17 @@ export default function TopBar({ collapsed, userType }) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   // Global Ctrl+K Focus
@@ -93,8 +102,8 @@ export default function TopBar({ collapsed, userType }) {
 
         {/* Tactical User Identity */}
         <div 
-          onClick={handleLogout} 
-          className="elite-user-dropdown-trigger group"
+          onClick={handleLogoutClick} 
+          className="elite-user-dropdown-trigger group cursor-pointer"
         >
           <div className="user-node-avatar">
             {user?.name?.charAt(0) || 'U'}
@@ -108,6 +117,38 @@ export default function TopBar({ collapsed, userType }) {
           <ChevronDown size={14} className="text-gray-600 group-hover:text-white transition-colors ml-2" />
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                <LogOut size={24} className="text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-gray-900 uppercase tracking-wider">Confirm Logout</h3>
+                <p className="text-sm text-gray-500 mt-1">Are you sure you want to logout?</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={cancelLogout}
+                className="flex-1 px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold uppercase tracking-wider text-sm transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-wider text-sm transition-all shadow-lg shadow-red-600/20"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

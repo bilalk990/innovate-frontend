@@ -133,13 +133,22 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
 
   const userType = user?.role || 'candidate';
   const navigation = userType === 'admin' ? adminNavigation : (userType === 'recruiter' ? recruiterNavigation : candidateNavigation);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   return (
@@ -226,7 +235,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           )}
           {!collapsed && (
             <button
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
               className="p-3 rounded-xl bg-white border border-gray-100 text-gray-400 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
             >
               <TfiPowerOff className="text-lg" />
@@ -234,6 +243,38 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           )}
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                <TfiPowerOff size={24} className="text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-gray-900 uppercase tracking-wider">Confirm Logout</h3>
+                <p className="text-sm text-gray-500 mt-1">Are you sure you want to logout?</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={cancelLogout}
+                className="flex-1 px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold uppercase tracking-wider text-sm transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-wider text-sm transition-all shadow-lg shadow-red-600/20"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
