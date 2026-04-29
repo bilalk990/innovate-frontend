@@ -46,8 +46,10 @@ export default function TopBar({ collapsed, userType }) {
   return (
     <header className="elite-topbar">
       {/* Search Hub */}
-      <div className={`elite-search-container ${searchFocused ? 'active' : ''} border-gray-100 shadow-sm hover:border-red-600/30 transition-all group`}>
-        <Search size={16} className={`${searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} group-hover:scale-110 transition-transform`} />
+      <div className={`elite-search-container ${searchFocused ? 'active ring-2 ring-red-600/10' : ''} border-gray-100 shadow-xl hover:border-red-600/30 transition-all group px-8 py-4 bg-gray-50/50`}>
+        <div className="flex items-center justify-center transition-all group-hover:scale-110">
+          <Search size={18} className={`${searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} transition-colors`} />
+        </div>
         <input
           id="global-search"
           type="text"
@@ -57,10 +59,12 @@ export default function TopBar({ collapsed, userType }) {
           onKeyDown={handleSearch}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          className="elite-search-input text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px]"
+          className="elite-search-input text-gray-950 placeholder:text-gray-400 font-black italic uppercase tracking-[0.2em] text-[11px] bg-transparent"
         />
-        <div className="elite-kbd border-gray-200 text-gray-400 flex items-center gap-1 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all">
-          <span className="text-[8px]">CTRL</span> K
+        <div className={`flex items-center gap-4 transition-all duration-500 ${searchFocused ? 'opacity-0 scale-90' : 'opacity-100 scale-100'}`}>
+          <div className="elite-kbd border-gray-200 text-gray-400 flex items-center gap-2 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all px-3 py-1.5 shadow-sm">
+            <span className="text-[8px] font-black opacity-40">CMD</span> <span className="mt-[1px]">K</span>
+          </div>
         </div>
       </div>
 

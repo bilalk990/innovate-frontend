@@ -263,15 +263,20 @@ export default function BrowseJobs() {
                         <TfiTarget className={isScanning ? 'animate-spin' : 'animate-pulse'} />
                         {isScanning ? 'MATCHING...' : 'MATCH MY SKILLS'}
                     </button>
-                    <div className="relative group w-[350px]">
-                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600 z-10" />
+                    <div className="relative group w-full md:w-[400px]">
+                        <div className="absolute left-7 top-1/2 -translate-y-1/2 text-red-600 z-10 flex items-center justify-center pointer-events-none group-focus-within:animate-pulse">
+                            <TfiSearch size={18} />
+                        </div>
                         <input
-                            className="elite-input pl-16 pr-8 py-5 bg-gray-50 border-gray-100 hover:border-red-600/30 focus:border-red-600/50 rounded-[2rem] shadow-xl transition-all text-gray-900 placeholder:text-gray-400"
+                            className="elite-input pl-18 pr-8 py-6 bg-white border-gray-200 hover:border-red-600/40 focus:border-red-600 focus:bg-white rounded-[2rem] shadow-2xl transition-all text-gray-950 placeholder:text-gray-400 font-bold italic uppercase tracking-[0.2em] text-[12px]"
                             placeholder="SEARCH CURRENT OPENINGS..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && reload()}
                         />
+                        <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">
+                            <div className="text-[9px] font-black uppercase text-red-600 tracking-widest italic bg-red-50 px-3 py-1 rounded-lg border border-red-100">Live</div>
+                        </div>
                     </div>
                 </div>
             </div>
