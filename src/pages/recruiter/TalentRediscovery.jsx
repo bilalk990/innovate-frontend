@@ -178,8 +178,4 @@ export default function TalentRediscovery() {
             </div>
         </div>
     );
-}        </AnimatePresence>
-            </div>
-        </div>
-    );
 }

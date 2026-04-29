@@ -295,7 +295,3 @@ export default function SentimentTracker() {
         </div>
     );
 }
-            </div>
-        </div>
-    );
-}
