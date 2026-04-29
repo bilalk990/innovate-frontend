@@ -102,9 +102,18 @@ export default function ResumeUpload() {
         const fd = new FormData();
         fd.append('resume', file);
         try {
-            await resumeService.upload(fd);
+            console.log('[Resume] Starting upload for:', file.name);
+            const res = await resumeService.upload(fd);
+            console.log('[Resume] Upload success:', res.data);
             reload();
         } catch (err) {
+            console.error('[Resume] Upload error details:', {
+                message: err.message,
+                response: err.response?.data,
+                status: err.response?.status,
+                headers: err.response?.headers,
+                config: err.config
+            });
             setUploadError(err.response?.data?.error || 'Upload failed. Please try again.');
         } finally {
             setUploading(false);
