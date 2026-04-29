@@ -83,10 +83,10 @@ export default function EmailCampaign() {
                                 <div className="text-xs font-black uppercase tracking-widest text-gray-400">Select Recipients</div>
                                 <div className="text-xs text-gray-500">{selected.length} selected</div>
                             </div>
-                            <div className="relative group">
-                                <TfiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-red-500 transition-colors" />
+                            <div className="relative group flex items-center bg-black/50 border border-white/5 rounded-xl overflow-hidden transition-all focus-within:border-red-600/30">
+                                <TfiSearch className="absolute left-4 text-gray-500 z-10 flex-shrink-0 pointer-events-none group-focus-within:text-red-500 transition-colors" />
                                 <input 
-                                    className="w-full bg-black/50 border border-white/5 rounded-xl pl-12 pr-4 py-2.5 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-red-600/30 transition-all"
+                                    className="w-full pl-12 pr-4 py-2.5 bg-transparent text-xs text-white placeholder:text-gray-600 outline-none border-none"
                                     placeholder="Filter candidates..."
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}

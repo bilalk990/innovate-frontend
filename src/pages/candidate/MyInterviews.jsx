@@ -67,12 +67,12 @@ export default function MyInterviews() {
                     <p className="elite-sub-header mt-2 text-gray-400 font-black uppercase tracking-[0.4em] text-[10px] italic">Interview Schedule · {interviews.length} Total Interviews</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
-                    <div className="relative group w-full md:w-[350px]">
-                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600 z-10 transition-transform group-hover:scale-110" />
+                    <div className="relative group w-full md:w-[350px] flex items-center bg-white/5 border border-white/10 rounded-[1.5rem] overflow-hidden transition-all focus-within:border-red-600/40 focus-within:bg-white/10 focus-within:shadow-[0_0_20px_#dc262611]">
+                        <TfiSearch className="absolute left-5 text-red-600 z-10 flex-shrink-0 transition-transform group-hover:scale-110 pointer-events-none" />
                         <input
                             type="text"
                             placeholder="SEARCH SCHEDULE..."
-                            className="w-full h-14 bg-white/5 border border-white/10 rounded-[1.5rem] pl-16 pr-8 text-[11px] font-black uppercase italic tracking-widest text-white placeholder:text-gray-500 focus:border-red-600/40 focus:bg-white/10 transition-all focus:shadow-[0_0_20px_#dc262611]"
+                            className="w-full h-14 pl-12 pr-6 bg-transparent text-[11px] font-black uppercase italic tracking-widest text-white placeholder:text-gray-500 outline-none border-none"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />

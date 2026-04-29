@@ -120,9 +120,9 @@
 }
 
 .hr-card-premium {
-    background: var(--hr-black);
-    color: var(--hr-white);
-    border: none;
+    background: var(--hr-white);
+    color: var(--hr-black);
+    border: 2px solid var(--hr-red-soft);
     box-shadow: var(--hr-shadow-lg);
 }
 
@@ -161,20 +161,20 @@
 }
 
 .btn-hr-secondary {
-    background: var(--hr-black);
-    color: white;
+    background: var(--hr-white);
+    color: var(--hr-black);
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     padding: 1rem 2rem;
     border-radius: 8px;
-    border: 1px solid var(--hr-border-dark);
+    border: 2px solid var(--hr-border);
     cursor: pointer;
     transition: var(--hr-transition);
 }
 
 .btn-hr-secondary:hover {
-    background: #000;
+    background: var(--hr-bg);
     border-color: var(--hr-red);
 }
 

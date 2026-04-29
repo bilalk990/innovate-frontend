@@ -134,12 +134,12 @@ export default function JobPostings() {
                     <p className="hr-subheading mt-2">Active Openings · Candidate Pipeline Management</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
-                    <div className="relative group w-full md:w-[350px]">
-                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-hr-red z-10 transition-transform group-hover:scale-110" />
+                    <div className="relative group w-full md:w-[350px] flex items-center bg-white border border-gray-200 hover:border-red-500/30 focus-within:border-red-500/50 rounded-2xl shadow-xl transition-all overflow-hidden">
+                        <TfiSearch className="absolute left-5 text-red-600 z-10 flex-shrink-0 transition-transform group-hover:scale-110 pointer-events-none" />
                         <input
                             type="text"
                             placeholder="SEARCH OPENINGS..."
-                            className="hr-input pl-16 pr-8 py-5 bg-white border-hr-border hover:border-hr-red/30 focus:border-hr-red/50 rounded-2xl shadow-xl transition-all text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px]"
+                            className="w-full pl-12 pr-6 py-5 bg-transparent text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px] outline-none border-none"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />

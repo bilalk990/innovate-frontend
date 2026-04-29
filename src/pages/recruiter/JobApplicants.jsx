@@ -181,12 +181,12 @@ export default function JobApplicants() {
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-6">
-                    <div className="relative group w-full md:w-[300px]">
-                        <TfiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-hr-red z-10 transition-transform group-hover:scale-110" />
+                    <div className="relative group w-full md:w-[300px] flex items-center bg-white border border-gray-200 hover:border-red-500/30 focus-within:border-red-500/50 rounded-xl shadow-xl transition-all overflow-hidden">
+                        <TfiSearch className="absolute left-4 text-red-600 z-10 flex-shrink-0 transition-transform group-hover:scale-110 pointer-events-none" />
                         <input
                             type="text"
                             placeholder="SEARCH CANDIDATES..."
-                            className="hr-input pl-14 pr-6 py-4 bg-white border-hr-border hover:border-hr-red/30 focus:border-hr-red/50 rounded-xl shadow-xl transition-all text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[9px]"
+                            className="w-full pl-12 pr-6 py-4 bg-transparent text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[9px] outline-none border-none"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />

@@ -446,10 +446,10 @@ export default function ScheduleInterview() {
                             </h3>
 
                             {/* Candidate Search */}
-                            <div className="relative mb-8">
-                                <TfiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <div className="relative mb-8 flex items-center bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden transition-all focus-within:border-red-500/50 focus-within:bg-white focus-within:shadow-lg">
+                                <TfiSearch className="absolute left-5 text-gray-400 z-10 flex-shrink-0 pointer-events-none" />
                                 <input
-                                    className="hr-input bg-gray-50 border-gray-100 focus:bg-white text-gray-900 pl-14 h-16 shadow-inner tracking-widest"
+                                    className="w-full h-16 pl-14 pr-6 bg-transparent text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px] outline-none border-none"
                                     placeholder="SCAN NAME / ENCRYPTED EMAIL..."
                                     value={candidateSearch}
                                     onChange={e => setCandidateSearch(e.target.value)}

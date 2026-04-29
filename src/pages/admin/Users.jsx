@@ -58,12 +58,12 @@ export default function Users() {
                     <p className="elite-sub-header mt-2 text-gray-500 font-black uppercase tracking-[0.4em] text-[10px] italic">User Management · Global Region</p>
                 </div>
 
-                <div className="header-search md:max-w-xl w-full relative group">
-                    <TfiSearch className="text-red-700 z-10 absolute left-6 top-1/2 -translate-y-1/2 group-hover:scale-110 transition-transform" />
+                <div className="header-search md:max-w-xl w-full relative group flex items-center bg-gray-50 border border-gray-200 rounded-[1.5rem] overflow-hidden transition-all focus-within:border-red-600/40 focus-within:bg-white focus-within:shadow-[0_0_20px_#dc262611]">
+                    <TfiSearch className="text-red-700 z-10 absolute left-6 group-hover:scale-110 transition-transform pointer-events-none" />
                     <input
                         type="text"
                         placeholder="SEARCH USERS BY NAME OR EMAIL..."
-                        className="w-full h-16 bg-gray-50 border border-gray-200 rounded-[1.5rem] pl-16 pr-8 text-[11px] font-black uppercase italic tracking-widest text-gray-900 placeholder:text-gray-400 focus:border-red-600/40 focus:bg-white transition-all focus:shadow-[0_0_20px_#dc262611]"
+                        className="w-full h-16 pl-16 pr-8 bg-transparent text-[11px] font-black uppercase italic tracking-widest text-gray-900 placeholder:text-gray-400 outline-none border-none"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />

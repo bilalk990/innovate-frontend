@@ -108,17 +108,17 @@ export default function JDAnalyzer() {
             </div>
 
             {/* Purpose/Info Section */}
-            <div className="hr-card p-8 bg-gray-950 text-white border-none mb-12 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 blur-[100px] pointer-events-none" />
+            <div className="hr-card p-8 bg-white text-gray-950 border-2 border-red-50 mb-12 relative overflow-hidden group shadow-xl">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/[0.03] blur-[100px] pointer-events-none" />
                 <div className="flex items-start gap-6 relative">
-                    <div className="w-14 h-14 rounded-2xl bg-red-600 flex items-center justify-center text-2xl shadow-xl shadow-red-600/20 group-hover:scale-110 transition-transform duration-700">
+                    <div className="w-14 h-14 rounded-2xl bg-gray-950 text-red-600 flex items-center justify-center text-2xl shadow-xl shadow-red-600/10 group-hover:scale-110 transition-transform duration-700">
                         <TfiInfoAlt />
                     </div>
                     <div>
                         <h3 className="text-lg font-black uppercase italic tracking-widest mb-2">What is this for?</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed max-w-2xl font-medium italic">
+                        <p className="text-xs text-gray-500 leading-relaxed max-w-2xl font-medium italic">
                             This tool helps you write better job postings. It checks if your job is interesting, easy to read, and free of bias. 
-                            Switch to <span className="text-red-500 font-black">DIFFICULTY CHECK</span> to find out how hard the interview should be for a specific candidate.
+                            Switch to <span className="text-red-600 font-black">DIFFICULTY CHECK</span> to find out how hard the interview should be for a specific candidate.
                         </p>
                     </div>
                 </div>
@@ -300,7 +300,7 @@ export default function JDAnalyzer() {
                                             </div>
                                         </div>
                                         <div className="flex gap-4">
-                                            <div className="text-center p-6 bg-gray-950 text-white rounded-2xl shadow-xl">
+                                        <div className="text-center p-6 bg-white text-gray-950 rounded-2xl shadow-xl border border-gray-100">
                                                 <p className="text-[9px] font-black uppercase tracking-widest mb-1 italic opacity-60">Experience</p>
                                                 <p className="text-2xl font-black italic uppercase">{calibrationResult.experience_level || 'Junior'}</p>
                                             </div>
@@ -332,12 +332,12 @@ export default function JDAnalyzer() {
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="hr-card p-10 bg-gray-950 text-white shadow-xl relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 blur-[50px] pointer-events-none" />
-                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-red-500 mb-8 italic relative">FOCUS AREAS</h2>
+                                    <div className="hr-card p-10 bg-white text-gray-950 shadow-2xl border-2 border-red-50 relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/[0.03] blur-[50px] pointer-events-none" />
+                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-red-600 mb-8 italic relative">FOCUS AREAS</h2>
                                         <div className="flex flex-wrap gap-3 relative">
                                             {(calibrationResult.focus_areas || []).map((area, i) => (
-                                                <span key={i} className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[11px] font-black italic uppercase tracking-widest text-white hover:bg-red-600 hover:border-red-600 transition-all">
+                                                <span key={i} className="px-5 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-[11px] font-black italic uppercase tracking-widest text-gray-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all">
                                                     {area}
                                                 </span>
                                             ))}

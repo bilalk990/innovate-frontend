@@ -107,7 +107,7 @@ export default function Candidates() {
                             onChange={e => setSearch(e.target.value)}
                         />
                     </div>
-                    <div className="px-6 py-4 bg-gray-950 text-white rounded-2xl shadow-lg border border-red-600/20 flex-shrink-0">
+                    <div className="px-6 py-4 bg-white text-gray-950 rounded-2xl shadow-lg border-2 border-red-50 flex-shrink-0">
                         <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-4">
                             Operational Records <span className="text-hr-red text-xl font-black leading-none">{evaluations.length}</span>
                         </span>
