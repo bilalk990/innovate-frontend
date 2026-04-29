@@ -9,7 +9,7 @@ export default function PublicNavbar() {
             left: 0,
             right: 0,
             zIndex: 100,
-            padding: '24px 80px',
+            padding: '16px 80px',
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(30px)',
             borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
@@ -20,9 +20,9 @@ export default function PublicNavbar() {
         }}>
             {/* Logo with gradient background */}
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none' }}>
-                <img src="/logo.png" alt="InnovAIte" style={{ height: '60px', width: 'auto' }} />
+                <img src="/logo.png" alt="InnovAIte" style={{ height: '80px', width: 'auto' }} />
                 <span style={{
-                    fontSize: '24px',
+                    fontSize: '28px',
                     fontWeight: 900,
                     letterSpacing: '-0.8px',
                     color: '#0a0a0a'
