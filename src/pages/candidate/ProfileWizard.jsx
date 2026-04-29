@@ -298,8 +298,8 @@ export default function ProfileWizard() {
                                         )}
                                     </div>
 
-                                        <div className="relative group/search">
-                                            <div className="absolute inset-x-0 -bottom-2 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-focus-within/search:opacity-100 transition-opacity blur-[1px]" />
+                                    <div className="relative group/search">
+                                        <div className="absolute inset-x-0 -bottom-2 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-focus-within/search:opacity-100 transition-opacity blur-[1px]" />
                                         <EliteAutocomplete
                                             placeholder="ADD SKILL (E.G. REACT, PROJECT MANAGEMENT)..."
                                             suggestions={SKILLS_LIST}

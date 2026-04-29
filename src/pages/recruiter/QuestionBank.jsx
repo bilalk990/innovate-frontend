@@ -90,11 +90,13 @@ export default function QuestionBank() {
         setAiGenerating(true);
         setModalError('');
         try {
+            console.log('[QuestionBank] Sending AI generate request:', { job_title: aiJobTitle, count: 15 });
             const res = await interviewService.aiGenerateQuestionBank({
                 job_title: aiJobTitle,
                 job_description: aiJobDesc,
                 count: 15,
             });
+            console.log('[QuestionBank] AI generate response:', res.data);
             const generated = (res.data.questions || []).map(q => ({
                 text: q.text,
                 category: q.category,
@@ -107,8 +109,11 @@ export default function QuestionBank() {
             if (!bankForm.name) setBankForm(f => ({ ...f, name: `${aiJobTitle} Bank`, job_title: aiJobTitle }));
             setShowAiPanel(false);
             toast.success(`Generated ${generated.length} questions!`);
-        } catch {
-            setModalError('AI generation failed. Please try again.');
+        } catch (err) {
+            const msg = err.response?.data?.error || err.message || 'AI generation failed. Please try again.';
+            console.error('[QuestionBank] AI generate error:', err.response?.data || err.message);
+            setModalError(msg);
+            toast.error(msg);
         } finally {
             setAiGenerating(false);
         }
