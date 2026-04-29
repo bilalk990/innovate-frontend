@@ -90,11 +90,12 @@ export default function QuestionBank() {
         setAiGenerating(true);
         setModalError('');
         try {
-            console.log('[QuestionBank] Sending AI generate request:', { job_title: aiJobTitle, count: 15 });
+            // CRITICAL FIX: Reduce count to 5 for Vercel serverless timeout (10s limit)
+            console.log('[QuestionBank] Sending AI generate request:', { job_title: aiJobTitle, count: 5 });
             const res = await interviewService.aiGenerateQuestionBank({
                 job_title: aiJobTitle,
                 job_description: aiJobDesc,
-                count: 15,
+                count: 5,  // Reduced from 15 to avoid Vercel timeout
             });
             console.log('[QuestionBank] AI generate response:', res.data);
             const generated = (res.data.questions || []).map(q => ({
