@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { TfiBolt, TfiCheck, TfiAlert, TfiStatsUp, TfiWrite, TfiReload } from 'react-icons/tfi';
-import useAuth from '../../hooks/useAuth';
+import { TfiBolt, TfiCheck, TfiAlert, TfiStatsUp, TfiWrite, TfiReload, TfiInfoAlt, TfiTarget } from 'react-icons/tfi';
+import interviewService from '../../services/interviewService';
 import '../../styles/hr.css';
 
 // ── Score Badge ──
@@ -11,9 +11,9 @@ function ScoreBadge({ score, label }) {
                   score >= 50 ? 'bg-amber-100 text-amber-700' :
                                 'bg-red-100 text-red-700';
     return (
-        <div className={`flex flex-col items-center p-4 rounded-2xl ${color} min-w-[90px]`}>
-            <span className="text-2xl font-black">{score}</span>
-            <span className="text-[9px] uppercase tracking-widest font-bold mt-1">{label}</span>
+        <div className={`flex flex-col items-center p-6 rounded-2xl ${color} min-w-[120px] shadow-sm border border-black/5`}>
+            <span className="text-3xl font-black italic">{score}%</span>
+            <span className="text-[10px] uppercase tracking-widest font-black mt-2 italic">{label}</span>
         </div>
     );
 }
@@ -21,347 +21,334 @@ function ScoreBadge({ score, label }) {
 // ── Bias Flag Card ──
 function BiasFlagCard({ flag }) {
     const severityMap = {
-        gender_coded: { color: 'border-pink-400 bg-pink-50', label: 'Gender Coded' },
+        gender_coded: { color: 'border-pink-400 bg-pink-50', label: 'Gender Bias' },
         age_bias: { color: 'border-orange-400 bg-orange-50', label: 'Age Bias' },
-        exclusionary: { color: 'border-red-400 bg-red-50', label: 'Exclusionary' },
-        vague_requirement: { color: 'border-gray-400 bg-gray-50', label: 'Vague Req.' },
+        exclusionary: { color: 'border-red-400 bg-red-50', label: 'Restricted' },
+        vague_requirement: { color: 'border-gray-400 bg-gray-50', label: 'Not Clear' },
     };
     const style = severityMap[flag.type] || { color: 'border-gray-300 bg-gray-50', label: flag.type };
     return (
-        <div className={`border-l-4 p-4 rounded-r-xl ${style.color}`}>
-            <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9px] font-black uppercase tracking-wider text-gray-500">{style.label}</span>
+        <div className={`border-l-4 p-5 rounded-r-2xl ${style.color} shadow-sm mb-4`}>
+            <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 italic">{style.label}</span>
             </div>
-            <p className="text-xs font-semibold text-gray-800 mb-1">❝ {flag.text} ❞</p>
-            <p className="text-[10px] text-gray-600">→ {flag.suggestion}</p>
+            <p className="text-sm font-bold text-gray-950 mb-2 italic">"{flag.text}"</p>
+            <p className="text-[11px] text-gray-600 font-medium">Suggestion: {flag.suggestion}</p>
         </div>
     );
 }
 
 export default function JDAnalyzer() {
-    const { token } = useAuth();
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-
     const [jobTitle, setJobTitle] = useState('');
     const [jobDescription, setJobDescription] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
 
-    // Feature 8: Difficulty Calibrator
+    // Difficulty Check state
     const [calibrationLoading, setCalibrationLoading] = useState(false);
     const [calibrationResult, setCalibrationResult] = useState(null);
     const [candidateId, setCandidateId] = useState('');
     const [activeTab, setActiveTab] = useState('jd'); // 'jd' | 'difficulty'
 
-    const analyzeJD = async () => {
+    const handleAnalyzeJD = async () => {
         if (!jobDescription.trim()) {
-            toast.error('Please enter a job description.');
+            toast.error('Please enter a job description first.');
             return;
         }
         setLoading(true);
         setResult(null);
         try {
-            const res = await fetch(`${apiUrl}/interviews/analyze-jd/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ job_title: jobTitle, job_description: jobDescription })
+            const res = await interviewService.analyzeJD({ 
+                job_title: jobTitle, 
+                job_description: jobDescription 
             });
-            if (!res.ok) throw new Error('Analysis failed');
-            const data = await res.json();
-            setResult(data.jd_analysis);
-            toast.success('JD Analysis complete!');
+            
+            // The API returns { jd_analysis: { ... } }
+            const analysisData = res.data.jd_analysis || res.data;
+            setResult(analysisData);
+            toast.success('Analysis successful!');
         } catch (e) {
-            toast.error('Analysis failed. Please try again.');
+            toast.error('Analysis failed. Please check your connection.');
+            console.error(e);
         }
         setLoading(false);
     };
 
-    const calibrateDifficulty = async () => {
-        if (!candidateId.trim() && !jobTitle.trim()) {
-            toast.error('Enter a Candidate ID and Job Title.');
+    const handleCalibrate = async () => {
+        if (!candidateId.trim()) {
+            toast.error('Please enter a Candidate ID.');
             return;
         }
         setCalibrationLoading(true);
         setCalibrationResult(null);
         try {
-            const res = await fetch(`${apiUrl}/interviews/calibrate-difficulty/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({
-                    candidate_id: candidateId,
-                    job_title: jobTitle,
-                    job_description: jobDescription
-                })
+            const res = await interviewService.calibrateDifficulty({
+                candidate_id: candidateId,
+                job_title: jobTitle,
+                job_description: jobDescription
             });
-            if (!res.ok) throw new Error('Calibration failed');
-            const data = await res.json();
-            setCalibrationResult(data.calibration);
-            toast.success('Difficulty calibrated!');
+            const calibrationData = res.data.calibration || res.data;
+            setCalibrationResult(calibrationData);
+            toast.success('Interview level recommended!');
         } catch (e) {
-            toast.error('Calibration failed. Please try again.');
+            toast.error('Calibration failed.');
         }
         setCalibrationLoading(false);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 md:p-10">
-            <div className="max-w-4xl mx-auto space-y-8">
-
-                {/* Header */}
-                <div>
-                    <h1 className="text-2xl font-black text-gray-900 uppercase tracking-wider">AI Tools</h1>
-                    <p className="text-sm text-gray-500 mt-1">Job Description Analyzer + Interview Difficulty Calibrator</p>
+        <div className="animate-fade-in pb-20 px-6 max-w-5xl mx-auto">
+            {/* Header */}
+            <div className="mb-12">
+                <h1 className="hr-heading text-4xl mb-4 italic">AI HR TOOLS</h1>
+                <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                    <p className="text-[11px] font-black uppercase text-gray-400 tracking-[0.4em] italic">Optimize Job Postings & Difficulty Levels</p>
                 </div>
-
-                {/* Tab Switch */}
-                <div className="flex gap-2 bg-white border border-gray-100 rounded-2xl p-1 w-fit shadow-sm">
-                    {[
-                        { key: 'jd', label: '📋 JD Analyzer' },
-                        { key: 'difficulty', label: '🎯 Difficulty Calibrator' },
-                    ].map(tab => (
-                        <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                                activeTab === tab.key
-                                    ? 'bg-red-600 text-white shadow'
-                                    : 'text-gray-500 hover:text-gray-800'
-                            }`}>{tab.label}</button>
-                    ))}
-                </div>
-
-                <AnimatePresence mode="wait">
-
-                {/* ── JD ANALYZER TAB ── */}
-                {activeTab === 'jd' && (
-                <motion.div key="jd" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    className="space-y-6">
-
-                    {/* Input */}
-                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-                        <input
-                            type="text"
-                            value={jobTitle}
-                            onChange={e => setJobTitle(e.target.value)}
-                            placeholder="Job Title (e.g. Senior Backend Engineer)"
-                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                        />
-                        <textarea
-                            value={jobDescription}
-                            onChange={e => setJobDescription(e.target.value)}
-                            rows={8}
-                            placeholder="Paste your full job description here..."
-                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
-                        />
-                        <button
-                            onClick={analyzeJD}
-                            disabled={loading}
-                            className="w-full py-3.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-wider text-sm transition-all flex items-center justify-center gap-2"
-                        >
-                            {loading ? <><TfiReload className="animate-spin" /> Analyzing...</> : <><TfiBolt /> Analyze JD with AI</>}
-                        </button>
-                    </div>
-
-                    {/* Results */}
-                    {result && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-
-                        {/* Score Row */}
-                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-5">Analysis Scores</h2>
-                            <div className="flex gap-4 flex-wrap">
-                                <ScoreBadge score={result.attractiveness_score} label="Attractiveness" />
-                                <ScoreBadge score={result.clarity_score} label="Clarity" />
-                                <ScoreBadge score={result.bias_score} label="Bias-Free" />
-                            </div>
-                            <div className="mt-4 flex gap-3 flex-wrap">
-                                <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
-                                    result.readability === 'excellent' ? 'bg-emerald-100 text-emerald-700' :
-                                    result.readability === 'good' ? 'bg-blue-100 text-blue-700' :
-                                    result.readability === 'average' ? 'bg-amber-100 text-amber-700' :
-                                    'bg-red-100 text-red-700'
-                                }`}>Readability: {result.readability}</span>
-                                <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
-                                    result.candidate_appeal === 'high' ? 'bg-emerald-100 text-emerald-700' :
-                                    result.candidate_appeal === 'medium' ? 'bg-amber-100 text-amber-700' :
-                                    'bg-red-100 text-red-700'
-                                }`}>Appeal: {result.candidate_appeal}</span>
-                                <span className="text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider bg-gray-100 text-gray-600">
-                                    Target: {result.estimated_applicant_quality} level
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Summary */}
-                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3">AI Assessment</h2>
-                            <p className="text-sm text-gray-700 leading-relaxed">{result.summary}</p>
-                        </div>
-
-                        {/* Bias Flags */}
-                        {result.bias_flags?.length > 0 && (
-                        <div className="bg-white rounded-2xl border border-red-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-red-500 mb-4 flex items-center gap-2">
-                                <TfiAlert /> {result.bias_flags.length} Bias Flag{result.bias_flags.length > 1 ? 's' : ''} Detected
-                            </h2>
-                            <div className="space-y-3">
-                                {result.bias_flags.map((flag, i) => <BiasFlagCard key={i} flag={flag} />)}
-                            </div>
-                        </div>
-                        )}
-
-                        {/* Improvements */}
-                        {result.improvements?.length > 0 && (
-                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4 flex items-center gap-2">
-                                <TfiStatsUp /> Suggested Improvements
-                            </h2>
-                            <ul className="space-y-2">
-                                {result.improvements.map((imp, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                                        <TfiCheck className="text-red-500 mt-0.5 shrink-0" />{imp}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        )}
-
-                        {/* Strengths */}
-                        {result.strengths?.length > 0 && (
-                        <div className="bg-emerald-50 rounded-2xl border border-emerald-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-emerald-600 mb-4">✓ What's Working Well</h2>
-                            <ul className="space-y-2">
-                                {result.strengths.map((s, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                                        <TfiCheck className="text-emerald-500 mt-0.5 shrink-0" />{s}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        )}
-
-                        {/* Missing Sections */}
-                        {result.missing_sections?.length > 0 && (
-                        <div className="bg-amber-50 rounded-2xl border border-amber-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-amber-600 mb-4">⚠️ Missing Sections</h2>
-                            <div className="flex flex-wrap gap-2">
-                                {result.missing_sections.map((s, i) => (
-                                    <span key={i} className="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-semibold">{s}</span>
-                                ))}
-                            </div>
-                        </div>
-                        )}
-
-                    </motion.div>
-                    )}
-                </motion.div>
-                )}
-
-                {/* ── DIFFICULTY CALIBRATOR TAB ── */}
-                {activeTab === 'difficulty' && (
-                <motion.div key="difficulty" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    className="space-y-6">
-
-                    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-                        <p className="text-xs text-gray-500 leading-relaxed">
-                            Enter a candidate's ID and job details. AI will analyze the resume and recommend the ideal interview difficulty level + question distribution.
-                        </p>
-                        <input
-                            type="text"
-                            value={candidateId}
-                            onChange={e => setCandidateId(e.target.value)}
-                            placeholder="Candidate User ID (from dashboard)"
-                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                        />
-                        <input
-                            type="text"
-                            value={jobTitle}
-                            onChange={e => setJobTitle(e.target.value)}
-                            placeholder="Job Title"
-                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-                        />
-                        <textarea
-                            value={jobDescription}
-                            onChange={e => setJobDescription(e.target.value)}
-                            rows={4}
-                            placeholder="Job Description (optional but improves accuracy)"
-                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
-                        />
-                        <button
-                            onClick={calibrateDifficulty}
-                            disabled={calibrationLoading}
-                            className="w-full py-3.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-wider text-sm transition-all flex items-center justify-center gap-2"
-                        >
-                            {calibrationLoading ? <><TfiReload className="animate-spin" /> Calibrating...</> : <><TfiBolt /> Calibrate Difficulty</>}
-                        </button>
-                    </div>
-
-                    {/* Calibration Results */}
-                    {calibrationResult && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-
-                        {/* Main Result */}
-                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xs font-black uppercase tracking-widest text-gray-500">Calibration Result</h2>
-                                <span className={`text-xs font-black px-4 py-1.5 rounded-full uppercase ${
-                                    calibrationResult.recommended_difficulty === 'hard' ? 'bg-red-100 text-red-700' :
-                                    calibrationResult.recommended_difficulty === 'medium' ? 'bg-amber-100 text-amber-700' :
-                                    'bg-green-100 text-green-700'
-                                }`}>{calibrationResult.recommended_difficulty} difficulty</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                <div className="bg-gray-50 rounded-xl p-4">
-                                    <p className="text-[9px] font-black uppercase text-gray-400 mb-1">Experience Level</p>
-                                    <p className="text-lg font-black text-gray-800 capitalize">{calibrationResult.experience_level}</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-xl p-4">
-                                    <p className="text-[9px] font-black uppercase text-gray-400 mb-1">Est. Years</p>
-                                    <p className="text-lg font-black text-gray-800">{calibrationResult.estimated_years_experience} yrs</p>
-                                </div>
-                            </div>
-                            <p className="text-sm text-gray-600 leading-relaxed border-l-4 border-red-400 pl-3">{calibrationResult.rationale}</p>
-                        </div>
-
-                        {/* Question Distribution */}
-                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">Recommended Question Distribution</h2>
-                            <div className="space-y-3">
-                                {Object.entries(calibrationResult.question_distribution || {}).map(([diff, count]) => (
-                                    <div key={diff} className="flex items-center gap-4">
-                                        <span className={`text-[9px] font-black uppercase w-14 ${
-                                            diff === 'hard' ? 'text-red-600' :
-                                            diff === 'medium' ? 'text-amber-600' : 'text-green-600'
-                                        }`}>{diff}</span>
-                                        <div className="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                                            <div className={`h-2.5 rounded-full ${
-                                                diff === 'hard' ? 'bg-red-500' :
-                                                diff === 'medium' ? 'bg-amber-500' : 'bg-green-500'
-                                            }`} style={{ width: `${(count / 10) * 100}%` }} />
-                                        </div>
-                                        <span className="text-xs font-black text-gray-600 w-6">{count}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Focus Areas */}
-                        {calibrationResult.focus_areas?.length > 0 && (
-                        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">Focus Areas to Probe</h2>
-                            <div className="flex flex-wrap gap-2">
-                                {calibrationResult.focus_areas.map((area, i) => (
-                                    <span key={i} className="text-xs bg-red-50 text-red-700 border border-red-100 px-3 py-1 rounded-full font-semibold">{area}</span>
-                                ))}
-                            </div>
-                        </div>
-                        )}
-
-                    </motion.div>
-                    )}
-                </motion.div>
-                )}
-
-                </AnimatePresence>
             </div>
+
+            {/* Purpose/Info Section */}
+            <div className="hr-card p-8 bg-gray-950 text-white border-none mb-12 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 blur-[100px] pointer-events-none" />
+                <div className="flex items-start gap-6 relative">
+                    <div className="w-14 h-14 rounded-2xl bg-red-600 flex items-center justify-center text-2xl shadow-xl shadow-red-600/20 group-hover:scale-110 transition-transform duration-700">
+                        <TfiInfoAlt />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-black uppercase italic tracking-widest mb-2">What is this for?</h3>
+                        <p className="text-xs text-gray-400 leading-relaxed max-w-2xl font-medium italic">
+                            This tool helps you write better job postings. It checks if your job is interesting, easy to read, and free of bias. 
+                            Switch to <span className="text-red-500 font-black">DIFFICULTY CHECK</span> to find out how hard the interview should be for a specific candidate.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tab Switch */}
+            <div className="flex gap-4 mb-10 bg-white p-2 rounded-[2rem] border border-gray-100 shadow-xl w-fit">
+                {[
+                    { key: 'jd', label: 'JOB ANALYZER', icon: <TfiWrite /> },
+                    { key: 'difficulty', label: 'DIFFICULTY CHECK', icon: <TfiTarget /> },
+                ].map(tab => (
+                    <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                        className={`flex items-center gap-3 px-8 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest italic transition-all ${
+                            activeTab === tab.key
+                                ? 'bg-red-600 text-white shadow-xl shadow-red-600/20 scale-105'
+                                : 'text-gray-400 hover:text-gray-950 hover:bg-gray-50'
+                        }`}>
+                        {tab.icon} {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            <AnimatePresence mode="wait">
+                {activeTab === 'jd' ? (
+                    <motion.div key="jd" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-10">
+                        {/* Input Area */}
+                        <div className="hr-card p-10 bg-white border-gray-100 shadow-2xl space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest italic ml-2">Job Title</label>
+                                <input
+                                    type="text"
+                                    value={jobTitle}
+                                    onChange={e => setJobTitle(e.target.value)}
+                                    placeholder="e.g. Senior Software Engineer"
+                                    className="hr-input bg-gray-50 border-gray-100 focus:bg-white text-gray-950 italic"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest italic ml-2">Full Job Description</label>
+                                <textarea
+                                    value={jobDescription}
+                                    onChange={e => setJobDescription(e.target.value)}
+                                    rows={8}
+                                    placeholder="Paste your job requirements and details here..."
+                                    className="hr-input bg-gray-50 border-gray-100 focus:bg-white text-gray-950 italic h-48 py-5"
+                                />
+                            </div>
+                            <button
+                                onClick={handleAnalyzeJD}
+                                disabled={loading}
+                                className="btn-hr-primary w-full py-6 text-xs flex items-center justify-center gap-4 shadow-xl shadow-red-600/20 active:scale-[0.98]"
+                            >
+                                {loading ? <><TfiReload className="animate-spin text-lg" /> ANALYZING...</> : <><TfiBolt className="text-lg" /> ANALYZE JOB POSTING</>}
+                            </button>
+                        </div>
+
+                        {/* Analysis Results */}
+                        {result && (
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
+                                <div className="hr-card p-10 bg-white border-gray-100 shadow-2xl">
+                                    <h2 className="text-xs font-black uppercase tracking-[0.3em] text-red-600 mb-8 italic">AI Assessment Results</h2>
+                                    <div className="flex gap-6 flex-wrap mb-10">
+                                        <ScoreBadge score={result.attractiveness_score || 0} label="Attractiveness" />
+                                        <ScoreBadge score={result.clarity_score || 0} label="Clarity" />
+                                        <ScoreBadge score={result.bias_score || 0} label="Bias-Free" />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Readability</p>
+                                            <p className="text-lg font-black italic text-gray-950 uppercase">{result.readability || 'Normal'}</p>
+                                        </div>
+                                        <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Candidate Appeal</p>
+                                            <p className="text-lg font-black italic text-gray-950 uppercase">{result.candidate_appeal || 'Normal'}</p>
+                                        </div>
+                                        <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 italic">Target Level</p>
+                                            <p className="text-lg font-black italic text-gray-950 uppercase">{result.estimated_applicant_quality || 'All'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="hr-card p-10 bg-white border-gray-100 shadow-2xl">
+                                    <h2 className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-4 italic">Detailed AI Summary</h2>
+                                    <p className="text-sm text-gray-800 leading-relaxed font-medium italic">{result.summary}</p>
+                                </div>
+
+                                {result.bias_flags?.length > 0 && (
+                                    <div className="hr-card p-10 border-red-100 bg-red-50/30">
+                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-red-600 mb-6 flex items-center gap-3 italic">
+                                            <TfiAlert size={20} /> {result.bias_flags.length} Potential Issues Found
+                                        </h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {result.bias_flags.map((flag, i) => <BiasFlagCard key={i} flag={flag} />)}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="hr-card p-10 bg-white shadow-xl">
+                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-red-600 mb-6 flex items-center gap-3 italic">
+                                            <TfiStatsUp /> IMPROVEMENTS
+                                        </h2>
+                                        <ul className="space-y-4">
+                                            {(result.improvements || []).map((imp, i) => (
+                                                <li key={i} className="flex items-start gap-4 text-[13px] font-bold text-gray-800 italic">
+                                                    <TfiCheck className="text-red-600 mt-1 shrink-0" /> {imp}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="hr-card p-10 bg-emerald-50/30 border-emerald-100 shadow-xl">
+                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-emerald-600 mb-6 italic">✓ STRENGTHS</h2>
+                                        <ul className="space-y-4">
+                                            {(result.strengths || []).map((s, i) => (
+                                                <li key={i} className="flex items-start gap-4 text-[13px] font-bold text-gray-800 italic">
+                                                    <TfiCheck className="text-emerald-600 mt-1 shrink-0" /> {s}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                ) : (
+                    <motion.div key="difficulty" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-10">
+                        <div className="hr-card p-10 bg-white border-gray-100 shadow-2xl space-y-8">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest italic ml-2">Candidate User ID</label>
+                                <input
+                                    type="text"
+                                    value={candidateId}
+                                    onChange={e => setCandidateId(e.target.value)}
+                                    placeholder="Enter Candidate ID (e.g. 5)"
+                                    className="hr-input bg-gray-50 border-gray-100 focus:bg-white text-gray-950 italic"
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest italic ml-2">Job Title</label>
+                                    <input
+                                        type="text"
+                                        value={jobTitle}
+                                        onChange={e => setJobTitle(e.target.value)}
+                                        placeholder="Job Title"
+                                        className="hr-input bg-gray-50 border-gray-100 focus:bg-white italic"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest italic ml-2">Job Description (Optional)</label>
+                                    <input
+                                        type="text"
+                                        value={jobDescription}
+                                        onChange={e => setJobDescription(e.target.value)}
+                                        placeholder="Job Details"
+                                        className="hr-input bg-gray-50 border-gray-100 focus:bg-white italic"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleCalibrate}
+                                disabled={calibrationLoading}
+                                className="btn-hr-primary w-full py-6 text-xs flex items-center justify-center gap-4 shadow-xl shadow-red-600/20 active:scale-[0.98]"
+                            >
+                                {calibrationLoading ? <><TfiReload className="animate-spin text-lg" /> CHECKING...</> : <><TfiTarget className="text-lg" /> CALCULATE LEVEL</>}
+                            </button>
+                        </div>
+
+                        {calibrationResult && (
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
+                                <div className="hr-card p-10 bg-white border-gray-100 shadow-2xl">
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-10 border-b border-gray-100">
+                                        <div>
+                                            <h2 className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Recommended Level</h2>
+                                            <div className="text-4xl font-black italic text-red-600 uppercase tracking-tighter">
+                                                {calibrationResult.recommended_difficulty || 'Medium'} Complexity
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="text-center p-6 bg-gray-950 text-white rounded-2xl shadow-xl">
+                                                <p className="text-[9px] font-black uppercase tracking-widest mb-1 italic opacity-60">Experience</p>
+                                                <p className="text-2xl font-black italic uppercase">{calibrationResult.experience_level || 'Junior'}</p>
+                                            </div>
+                                            <div className="text-center p-6 bg-red-600 text-white rounded-2xl shadow-xl">
+                                                <p className="text-[9px] font-black uppercase tracking-widest mb-1 italic opacity-60">Est. Years</p>
+                                                <p className="text-2xl font-black italic">{calibrationResult.estimated_years_experience || 0}Y</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-lg font-bold text-gray-800 leading-relaxed italic border-l-4 border-red-600 pl-6">
+                                        {calibrationResult.rationale}
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="hr-card p-10 bg-white shadow-xl">
+                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-red-600 mb-8 italic">Question Mix</h2>
+                                        <div className="space-y-6">
+                                            {Object.entries(calibrationResult.question_distribution || { Easy: 3, Medium: 5, Hard: 2 }).map(([diff, count]) => (
+                                                <div key={diff} className="space-y-2">
+                                                    <div className="flex justify-between items-end">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest italic text-gray-950">{diff} Questions</span>
+                                                        <span className="text-lg font-black italic text-red-600">{count}</span>
+                                                    </div>
+                                                    <div className="h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-100 shadow-inner">
+                                                        <motion.div initial={{ width: 0 }} animate={{ width: `${(count / 10) * 100}%` }} className="h-full bg-red-600" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="hr-card p-10 bg-gray-950 text-white shadow-xl relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 blur-[50px] pointer-events-none" />
+                                        <h2 className="text-[11px] font-black uppercase tracking-widest text-red-500 mb-8 italic relative">FOCUS AREAS</h2>
+                                        <div className="flex flex-wrap gap-3 relative">
+                                            {(calibrationResult.focus_areas || []).map((area, i) => (
+                                                <span key={i} className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[11px] font-black italic uppercase tracking-widest text-white hover:bg-red-600 hover:border-red-600 transition-all">
+                                                    {area}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

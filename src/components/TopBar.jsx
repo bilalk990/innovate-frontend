@@ -31,22 +31,37 @@ export default function TopBar({ collapsed, userType }) {
     navigate('/login');
   };
 
+  // Global Ctrl+K Focus
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('global-search')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <header className="elite-topbar">
       {/* Search Hub */}
-      <div className={`elite-search-container ${searchFocused ? 'active' : ''} border-gray-100 shadow-sm hover:border-red-600/30 transition-all`}>
-        <Search size={16} className={searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} />
+      <div className={`elite-search-container ${searchFocused ? 'active' : ''} border-gray-100 shadow-sm hover:border-red-600/30 transition-all group`}>
+        <Search size={16} className={`${searchFocused ? 'text-red-600 animate-pulse' : 'text-gray-400'} group-hover:scale-110 transition-transform`} />
         <input
+          id="global-search"
           type="text"
-          placeholder="Search jobs and activity..."
+          placeholder="SEARCH JOBS AND ACTIVITY..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleSearch}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          className="elite-search-input text-gray-900 placeholder:text-gray-400"
+          className="elite-search-input text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px]"
         />
-        <div className="elite-kbd border-gray-200 text-gray-400">⌘K</div>
+        <div className="elite-kbd border-gray-200 text-gray-400 flex items-center gap-1 group-hover:bg-red-600/5 group-hover:text-red-600 transition-all">
+          <span className="text-[8px]">CTRL</span> K
+        </div>
       </div>
 
       {/* Strategic Actions */}

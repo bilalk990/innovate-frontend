@@ -7,7 +7,7 @@ const authService = {
     updateProfile: (data) => api.patch('/auth/profile/', data),
     googleLogin: (token, role) => api.post('/auth/google-login/', { token, role }),
     changePassword: (data) => api.post('/auth/change-password/', data),
-    getUsers: (role) => api.get('/auth/users/', { params: role ? { role } : {} }),
+    getUsers: (role, params = {}) => api.get('/auth/users/', { params: { ...params, ...(role ? { role } : {}) } }),
     getCandidateProfile: (userId) => api.get(`/auth/users/${userId}/`),
     updateUser: (id, data) => api.patch(`/auth/users/${id}/`, data),
     toggleStatus: (id) => api.patch(`/auth/users/${id}/`, { is_active: 'toggle' }),

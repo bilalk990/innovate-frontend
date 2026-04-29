@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   TfiPlus,
@@ -14,7 +14,9 @@ import {
   TfiBolt,
   TfiReload,
   TfiCheck,
+  TfiSearch,
 } from 'react-icons/tfi';
+import { useEffect, useCallback } from 'react';
 import useFetch from '../../hooks/useFetch';
 import jobService from '../../services/jobService';
 import useAuth from '../../hooks/useAuth';
@@ -35,11 +37,21 @@ const EMPTY_JOB = {
 
 export default function JobPostings() {
     const { user } = useAuth();
-    const listJobs = useCallback(() => jobService.list(), []);
+    const [searchParams] = useSearchParams();
+    const [search, setSearch] = useState(searchParams.get('search') || '');
+    const listJobs = useCallback(() => jobService.list({ search }), [search]);
     const listApplications = useCallback(() => jobService.myApplications(), []);
 
     const { data: jobs, loading, execute: reload } = useFetch(listJobs);
     const { data: applications } = useFetch(listApplications);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            reload();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, reload]);
 
     const [showPostModal, setShowPostModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -121,13 +133,25 @@ export default function JobPostings() {
                     <h1 className="hr-heading">Job Postings</h1>
                     <p className="hr-subheading mt-2">Active Openings · Candidate Pipeline Management</p>
                 </div>
-                <button
-                    onClick={() => setShowPostModal(true)}
-                    className="btn-hr-primary group"
-                >
-                    <TfiPlus className="group-hover:rotate-90 transition-transform duration-500" />
-                    CREATE NEW JOB
-                </button>
+                <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
+                    <div className="relative group w-full md:w-[350px]">
+                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-hr-red z-10 transition-transform group-hover:scale-110" />
+                        <input
+                            type="text"
+                            placeholder="SEARCH OPENINGS..."
+                            className="hr-input pl-16 pr-8 py-5 bg-white border-hr-border hover:border-hr-red/30 focus:border-hr-red/50 rounded-2xl shadow-xl transition-all text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px]"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <button
+                        onClick={() => setShowPostModal(true)}
+                        className="btn-hr-primary group py-5 px-10"
+                    >
+                        <TfiPlus className="group-hover:rotate-90 transition-transform duration-500" />
+                        CREATE NEW JOB
+                    </button>
+                </div>
             </div>
 
             {/* Active Nodes Grid */}

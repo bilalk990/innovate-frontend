@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -11,7 +11,9 @@ import {
     TfiClose,
     TfiCheck,
     TfiLayers,
+    TfiSearch,
 } from 'react-icons/tfi';
+import { useEffect, useCallback } from 'react';
 import useFetch from '../../hooks/useFetch';
 import jobService from '../../services/jobService';
 import Loader from '../../components/Loader';
@@ -50,11 +52,21 @@ const ACTION_LABELS = {
 export default function JobApplicants() {
     const { jobId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const [search, setSearch] = useState(searchParams.get('search') || '');
     const getJob = useCallback(() => jobService.get(jobId), [jobId]);
-    const getApplicants = useCallback(() => jobService.getJobApplicants(jobId), [jobId]);
+    const getApplicants = useCallback(() => jobService.getJobApplicants(jobId, { search }), [jobId, search]);
 
     const { data: job } = useFetch(getJob);
-    const { data: jobApps, loading, refetch } = useFetch(getApplicants);
+    const { data: jobApps, loading, refetch: reload } = useFetch(getApplicants);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            reload();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, reload]);
     const [selectedApp, setSelectedApp] = useState(null);
     const [updatingId, setUpdatingId] = useState(null);
     const [confirmAction, setConfirmAction] = useState(null); // { appId, status }
@@ -105,7 +117,7 @@ export default function JobApplicants() {
             if (selectedApp?.id === appId) {
                 setSelectedApp(prev => ({ ...prev, status: updatedApp.status }));
             }
-            refetch();
+            reload();
         } catch (err) {
             toast.error(err?.response?.data?.error || 'Failed to update status.');
         } finally {
@@ -168,18 +180,22 @@ export default function JobApplicants() {
                         <p className="hr-subheading text-[10px] mt-1">Hiring Pipeline · {apps.length} Applicant{apps.length !== 1 ? 's' : ''}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-6">
+                    <div className="relative group w-full md:w-[300px]">
+                        <TfiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-hr-red z-10 transition-transform group-hover:scale-110" />
+                        <input
+                            type="text"
+                            placeholder="SEARCH CANDIDATES..."
+                            className="hr-input pl-14 pr-6 py-4 bg-white border-hr-border hover:border-hr-red/30 focus:border-hr-red/50 rounded-xl shadow-xl transition-all text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[9px]"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
                     <div className="px-6 py-3 bg-white border border-hr-border rounded-xl shadow-sm">
                         <span className="text-[10px] font-black text-hr-text-muted uppercase tracking-widest flex items-center gap-3">
                             RECORDS <span className="text-hr-red text-xl leading-none">{apps.length}</span>
                         </span>
                     </div>
-                    <Link
-                        to={`/recruiter/ranking?jobId=${jobId}`}
-                        className="btn-hr-secondary py-3 px-6 text-[10px]"
-                    >
-                        <TfiStatsUp /> AI RANK ALL
-                    </Link>
                 </div>
             </div>
 

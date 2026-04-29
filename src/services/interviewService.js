@@ -23,7 +23,7 @@ const interviewService = {
     suggestSlots: (data) => api.post('/interviews/suggest-slots/', data),
     // End/complete an interview
     complete: (id) => api.post(`/interviews/${id}/end/`),
-    listQuestionBanks: () => api.get('/interviews/question-banks/'),
+    listQuestionBanks: (params) => api.get('/interviews/question-banks/', { params }),
     createQuestionBank: (data) => api.post('/interviews/question-banks/', data),
     getQuestionBank: (bankId) => api.get(`/interviews/question-banks/${bankId}/`),
     updateQuestionBank: (bankId, data) => api.patch(`/interviews/question-banks/${bankId}/`, data),

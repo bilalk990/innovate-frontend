@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TfiReload, TfiWrite, TfiUser, TfiClose } from 'react-icons/tfi';
+import { TfiReload, TfiWrite, TfiUser, TfiClose, TfiSearch } from 'react-icons/tfi';
+import { useCallback } from 'react';
 import { toast } from 'sonner';
 import hrService from '../../services/hrService';
 import authService from '../../services/authService';
@@ -20,13 +21,21 @@ export default function EmailCampaign() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [activeTab, setActiveTab] = useState('template');
+    const [search, setSearch] = useState('');
     const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
-    useEffect(() => {
-        authService.getUsers('candidate')
+    const fetchCandidates = useCallback(() => {
+        authService.getUsers('candidate', { search })
             .then(r => setAllCandidates(Array.isArray(r.data) ? r.data : (r.data?.results || [])))
             .catch(() => { });
-    }, []);
+    }, [search]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchCandidates();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [fetchCandidates]);
 
     const toggleCandidate = (c) => {
         const id = String(c.id || c._id);
@@ -69,9 +78,20 @@ export default function EmailCampaign() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Candidate Selector */}
                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="text-xs font-black uppercase tracking-widest text-gray-400">Select Recipients</div>
-                            <div className="text-xs text-gray-500">{selected.length} selected</div>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <div className="text-xs font-black uppercase tracking-widest text-gray-400">Select Recipients</div>
+                                <div className="text-xs text-gray-500">{selected.length} selected</div>
+                            </div>
+                            <div className="relative group">
+                                <TfiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-red-500 transition-colors" />
+                                <input 
+                                    className="w-full bg-black/50 border border-white/5 rounded-xl pl-12 pr-4 py-2.5 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-red-600/30 transition-all"
+                                    placeholder="Filter candidates..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
+                            </div>
                         </div>
                         <div className="max-h-52 overflow-y-auto space-y-1.5 pr-1">
                             {allCandidates.map(c => {

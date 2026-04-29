@@ -373,7 +373,7 @@ export default function ScheduleInterview() {
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/[0.03] blur-[40px] pointer-events-none" />
                                             <div className="flex items-center justify-between mb-6 relative">
                                                 <h4 className="text-sm font-black text-gray-950 flex items-center gap-3 uppercase italic tracking-widest">
-                                                    <TfiBolt className="text-red-600 animate-pulse" /> AI Optimized Slots
+                                                    <TfiBolt className="text-red-600 animate-pulse" /> AI Recommended Slots
                                                 </h4>
                                                 <button onClick={() => setShowSlots(false)} className="text-gray-400 hover:text-red-600 transition-colors"><TfiClose /></button>
                                             </div>
@@ -442,7 +442,7 @@ export default function ScheduleInterview() {
                     <div className="col-5 space-y-8">
                         <div className="hr-card p-10 bg-white border-2 border-gray-100 shadow-2xl shadow-gray-200/50">
                             <h3 className="text-xs font-black text-gray-950 mb-8 flex items-center gap-4 border-l-4 border-red-600 pl-4 uppercase italic tracking-widest">
-                                <TfiUser className="text-red-600" /> MISSION CANDIDATE
+                                <TfiUser className="text-red-600" /> SELECT CANDIDATE
                             </h3>
 
                             {/* Candidate Search */}
@@ -620,7 +620,7 @@ export default function ScheduleInterview() {
                             className="btn-hr-primary flex-2 py-6 shadow-[0_0_40px_rgba(230,57,70,0.3)]"
                         >
                             {loading ? <TfiReload className="animate-spin mr-3" /> : null}
-                            {loading ? 'DEPLOYING...' : 'SCHEDULE INTERVIEW 🚀'}
+                            {loading ? 'SAVING...' : 'SCHEDULE INTERVIEW 🚀'}
                         </button>
                     </div>
                 </div>

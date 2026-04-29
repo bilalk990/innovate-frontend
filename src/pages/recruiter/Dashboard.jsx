@@ -121,7 +121,7 @@ export default function RecruiterDashboard() {
                         <TfiReload className="text-lg" /> REFRESH UPLINK
                     </button>
                     <button onClick={() => navigate('/recruiter/schedule')} className="btn-hr-primary py-5 px-10 shadow-2xl shadow-red-600/20 active:scale-95 flex items-center gap-4">
-                        <TfiBolt className="text-xl" /> DEPLOY INTERVIEW
+                        <TfiBolt className="text-xl" /> SCHEDULE INTERVIEW
                     </button>
                 </div>
             </div>
@@ -160,7 +160,7 @@ export default function RecruiterDashboard() {
                 <div className="xl:col-span-8 hr-card p-12 hover:shadow-2xl hover:shadow-gray-200/50 transition-all">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                         <div>
-                            <h3 className="text-2xl font-black italic text-gray-950 tracking-tight uppercase mb-2">Operational Pipeline</h3>
+                            <h3 className="text-2xl font-black italic text-gray-950 tracking-tight uppercase mb-2">Applicant Pipeline</h3>
                             <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em] italic">Real-Time Interview Monitoring</p>
                         </div>
                         <button onClick={() => navigate('/recruiter/candidates')} className="text-[10px] font-black text-red-600 hover:text-gray-950 transition-colors uppercase tracking-[0.3em] underline underline-offset-8 italic decoration-red-200">VIEW FULL PIPELINE →</button>
@@ -238,7 +238,7 @@ export default function RecruiterDashboard() {
                             <TfiShield size={24} className="text-red-600" />
                             <span className="text-[10px] font-black uppercase text-red-600 tracking-[0.4em] italic font-black">System Efficiency</span>
                         </div>
-                        <h4 className="text-2xl font-black italic text-gray-950 mb-4 tracking-tighter uppercase">Infiltration Rating</h4>
+                        <h4 className="text-2xl font-black italic text-gray-950 mb-4 tracking-tighter uppercase">System Accuracy</h4>
                         <div className="flex gap-4 items-end mb-8 group-hover:translate-x-1 transition-transform">
                             <span className="text-6xl font-black italic text-gray-950 leading-none tracking-tighter transition-all">{sysMetrics.infiltration}</span>
                             <span className="text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-2">Optimized</span>

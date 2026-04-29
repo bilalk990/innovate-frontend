@@ -8,7 +8,7 @@ const jobService = {
     remove: (id) => api.delete(`/jobs/${id}/`),
     apply: (jobId) => api.post('/jobs/applications/', { job_id: jobId }),
     myApplications: () => api.get('/jobs/applications/'),
-    getJobApplicants: (jobId) => api.get(`/jobs/${jobId}/applicants/`),
+    getJobApplicants: (jobId, params) => api.get(`/jobs/${jobId}/applicants/`, { params }),
     updateApplicationStatus: (appId, status) => api.patch(`/jobs/applications/${appId}/`, { status }),
     // Feature 4 — AI Resume vs JD Gap Analyzer
     getGapAnalysis: (jobId) => api.get(`/jobs/${jobId}/gap-analysis/`),

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -16,8 +16,10 @@ import {
   TfiPulse,
   TfiBolt,
   TfiTarget,
-  TfiVolume
+  TfiVolume,
+  TfiSearch
 } from 'react-icons/tfi';
+import { useEffect, useCallback } from 'react';
 import interviewService from '../../services/interviewService';
 import useFetch from '../../hooks/useFetch';
 import Loader from '../../components/Loader';
@@ -25,8 +27,18 @@ import { formatDateTime } from '../../utils/formatDate';
 
 export default function MyInterviews() {
     const navigate = useNavigate();
-    const listInterviews = useCallback(() => interviewService.list({ limit: 50 }), []);
+    const [search, setSearch] = useState('');
+
+    const listInterviews = useCallback(() => interviewService.list({ search, limit: 50 }), [search]);
     const { data: interviewsData, loading, execute: reload } = useFetch(listInterviews);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            reload();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, reload]);
 
     const interviews = interviewsData?.results || interviewsData || [];
 
@@ -54,13 +66,25 @@ export default function MyInterviews() {
                     <h1 className="elite-tactical-header">My Interviews</h1>
                     <p className="elite-sub-header mt-2 text-gray-400 font-black uppercase tracking-[0.4em] text-[10px] italic">Interview Schedule · {interviews.length} Total Interviews</p>
                 </div>
-                <button 
-                  onClick={reload} 
-                  className="group elite-glass-panel py-4 px-10 border-white/5 bg-white/5 text-gray-500 hover:text-white transition-all flex items-center gap-4 italic"
-                >
-                    <TfiReload className="group-hover:rotate-180 transition-transform duration-1000 text-red-600" /> 
-                    <span className="uppercase tracking-[0.3em] font-black text-[10px]">Refresh Schedule</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
+                    <div className="relative group w-full md:w-[350px]">
+                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-red-600 z-10 transition-transform group-hover:scale-110" />
+                        <input
+                            type="text"
+                            placeholder="SEARCH SCHEDULE..."
+                            className="w-full h-14 bg-white/5 border border-white/10 rounded-[1.5rem] pl-16 pr-8 text-[11px] font-black uppercase italic tracking-widest text-white placeholder:text-gray-500 focus:border-red-600/40 focus:bg-white/10 transition-all focus:shadow-[0_0_20px_#dc262611]"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <button 
+                      onClick={reload} 
+                      className="group elite-glass-panel py-4 px-10 border-white/5 bg-white/5 text-gray-500 hover:text-white transition-all flex items-center gap-4 italic"
+                    >
+                        <TfiReload className="group-hover:rotate-180 transition-transform duration-1000 text-red-600" /> 
+                        <span className="uppercase tracking-[0.3em] font-black text-[10px]">Refresh</span>
+                    </button>
+                </div>
             </div>
 
             <div className="space-y-24">

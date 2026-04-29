@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     TfiTarget,
@@ -11,8 +11,10 @@ import {
     TfiReload,
     TfiLayers,
     TfiUser,
-    TfiArrowRight
+    TfiArrowRight,
+    TfiSearch
 } from 'react-icons/tfi';
+import { useEffect, useCallback } from 'react';
 import reportService from '../../services/reportService';
 import Loader from '../../components/Loader';
 import { formatDateTime } from '../../utils/formatDate';
@@ -45,7 +47,20 @@ const recommendationStyle = (rec) => {
 
 export default function Candidates() {
     const navigate = useNavigate();
-    const { data: evaluationsData, loading } = useFetch(reportService.listEvaluations);
+    const [searchParams] = useSearchParams();
+    const [search, setSearch] = useState(searchParams.get('search') || '');
+    
+    const fetchEvaluations = useCallback(() => reportService.listEvaluations({ search }), [search]);
+    const { data: evaluationsData, loading, execute: reload } = useFetch(fetchEvaluations);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            reload();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, reload]);
+
     const evaluations = Array.isArray(evaluationsData) ? evaluationsData : (evaluationsData?.results || []);
     const [selected, setSelected] = useState(null);
     const [hrNotes, setHrNotes] = useState('');
@@ -81,10 +96,22 @@ export default function Candidates() {
                     <h1 className="hr-heading">Talent Repository</h1>
                     <p className="hr-subheading mt-2">Evaluation Database · AI Performance Index</p>
                 </div>
-                <div className="px-6 py-3 bg-gray-900 text-white rounded-xl shadow-lg border border-red-600/20">
-                    <span className="text-xs font-black uppercase tracking-widest flex items-center gap-3">
-                        Total Assessments <span className="text-red-600 text-xl font-black">{evaluations.length}</span>
-                    </span>
+                <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
+                    <div className="relative group w-full md:w-[400px]">
+                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-hr-red z-10 transition-transform group-hover:scale-110" />
+                        <input
+                            type="text"
+                            placeholder="SEARCH ASSESSMENTS OR CANDIDATES..."
+                            className="hr-input pl-16 pr-8 py-5 bg-white border-hr-border hover:border-hr-red/30 focus:border-hr-red/50 rounded-2xl shadow-xl transition-all text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px]"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="px-6 py-4 bg-gray-950 text-white rounded-2xl shadow-lg border border-red-600/20 flex-shrink-0">
+                        <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-4">
+                            Operational Records <span className="text-hr-red text-xl font-black leading-none">{evaluations.length}</span>
+                        </span>
+                    </div>
                 </div>
             </div>
 

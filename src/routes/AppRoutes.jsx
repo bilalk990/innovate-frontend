@@ -62,7 +62,6 @@ const JobApplicants         = lazy(() => import('../pages/recruiter/JobApplicant
 const RecruiterProfileWizard = lazy(() => import('../pages/recruiter/RecruiterProfileWizard'));
 const RecruiterProfile      = lazy(() => import('../pages/recruiter/RecruiterProfile'));
 const GoogleCalendarCallback = lazy(() => import('../pages/recruiter/GoogleCalendarCallback'));
-const CandidateRanking      = lazy(() => import('../pages/recruiter/CandidateRanking'));
 const QuestionBank          = lazy(() => import('../pages/recruiter/QuestionBank'));
 const CandidateProfile      = lazy(() => import('../pages/recruiter/CandidateProfile'));
 const JDAnalyzer            = lazy(() => import('../pages/recruiter/JDAnalyzer'));
@@ -165,7 +164,6 @@ export default function AppRoutes() {
                 <Route path="jobs/:jobId/applicants" element={<JobApplicants />} />
                 <Route path="candidates" element={<Candidates />} />
                 <Route path="evaluations/:evalId" element={<EvaluationReport />} />
-                <Route path="ranking" element={<CandidateRanking />} />
                 <Route path="question-bank" element={<QuestionBank />} />
                 <Route path="jd-analyzer" element={<JDAnalyzer />} />
                 <Route path="applications" element={<JobApplicants />} />

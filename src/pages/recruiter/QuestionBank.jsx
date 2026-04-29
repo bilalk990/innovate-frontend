@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -12,7 +12,9 @@ import {
     TfiReload,
     TfiAlert,
     TfiPencil,
+    TfiSearch,
 } from 'react-icons/tfi';
+import { useEffect, useCallback } from 'react';
 import useFetch from '../../hooks/useFetch';
 import interviewService from '../../services/interviewService';
 import Loader from '../../components/Loader';
@@ -25,9 +27,19 @@ const DIFFICULTY_STYLES = {
 
 export default function QuestionBank() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const [search, setSearch] = useState(searchParams.get('search') || '');
 
-    const fetchBanks = useCallback(() => interviewService.listQuestionBanks(), []);
+    const fetchBanks = useCallback(() => interviewService.listQuestionBanks({ search }), [search]);
     const { data: banks, loading, execute: reload } = useFetch(fetchBanks);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            reload();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, reload]);
 
     // Create/Edit bank modal state
     const [showModal, setShowModal] = useState(false);
@@ -72,7 +84,8 @@ export default function QuestionBank() {
     const addMQ = () => setModalQuestions(qs => [...qs, { text: '', category: 'general', difficulty: 'medium', expected_keywords: '', ideal_answer: '' }]);
     const removeMQ = (i) => setModalQuestions(qs => qs.filter((_, idx) => idx !== i));
 
-    const handleAiGenerate = async () => {
+    const handleAiGenerate = async (e) => {
+        if (e) e.preventDefault();
         if (!aiJobTitle.trim()) return setModalError('Job title required for AI generation.');
         setAiGenerating(true);
         setModalError('');
@@ -93,6 +106,7 @@ export default function QuestionBank() {
             setModalQuestions([...validPrior, ...generated]);
             if (!bankForm.name) setBankForm(f => ({ ...f, name: `${aiJobTitle} Bank`, job_title: aiJobTitle }));
             setShowAiPanel(false);
+            toast.success(`Generated ${generated.length} questions!`);
         } catch {
             setModalError('AI generation failed. Please try again.');
         } finally {
@@ -100,7 +114,8 @@ export default function QuestionBank() {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e) => {
+        if (e) e.preventDefault();
         const validQ = modalQuestions.filter(q => q.text.trim());
         if (!bankForm.name.trim()) return setModalError('Bank name is required.');
         if (validQ.length === 0) return setModalError('At least 1 question required.');
@@ -160,13 +175,25 @@ export default function QuestionBank() {
                     <h1 className="hr-heading">Question Bank</h1>
                     <p className="hr-subheading mt-2">AI-Powered Content Library</p>
                 </div>
-                <div className="flex gap-4">
-                    <button onClick={() => navigate('/recruiter/schedule')} className="btn-hr-secondary py-3 px-6 text-[10px]">
-                        ← SCHEDULE
-                    </button>
-                    <button onClick={openCreate} className="btn-hr-primary py-3 px-6 text-[10px]">
-                        <TfiPlus /> NEW BANK
-                    </button>
+                <div className="flex flex-wrap items-center gap-6 w-full md:w-auto">
+                    <div className="relative group w-full md:w-[350px]">
+                        <TfiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-hr-red z-10 transition-transform group-hover:scale-110" />
+                        <input
+                            type="text"
+                            placeholder="SEARCH LIBRARY..."
+                            className="hr-input pl-16 pr-8 py-5 bg-white border-hr-border hover:border-hr-red/30 focus:border-hr-red/50 rounded-2xl shadow-xl transition-all text-gray-900 placeholder:text-gray-400 font-black italic uppercase tracking-widest text-[10px]"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex gap-4">
+                        <button onClick={() => navigate('/recruiter/schedule')} className="btn-hr-secondary py-3 px-6 text-[10px]">
+                            ← SCHEDULE
+                        </button>
+                        <button onClick={openCreate} className="btn-hr-primary py-3 px-6 text-[10px]">
+                            <TfiPlus /> NEW BANK
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -177,7 +204,7 @@ export default function QuestionBank() {
                     <h3 className="hr-heading text-xl">Library Empty</h3>
                     <p className="hr-subheading text-[10px] mt-2 mb-8">Deploy AI generation to initialize your first question bank.</p>
                     <button onClick={openCreate} className="btn-hr-primary py-4 px-10">
-                        <TfiBolt /> INITIALIZE WITH AI
+                        <TfiBolt /> GENERATE QUESTIONS
                     </button>
                 </div>
             ) : (
@@ -268,7 +295,7 @@ export default function QuestionBank() {
                                         <p className="hr-subheading text-[10px]">AI-Powered Question Bank</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setShowModal(false)} className="w-10 h-10 rounded-xl bg-hr-black text-white flex items-center justify-center hover:bg-hr-red transition-all">
+                                <button type="button" onClick={() => setShowModal(false)} className="w-10 h-10 rounded-xl bg-hr-black text-white flex items-center justify-center hover:bg-hr-red transition-all">
                                     <TfiClose />
                                 </button>
                             </div>
@@ -309,15 +336,16 @@ export default function QuestionBank() {
                                                 <TfiBolt className="animate-pulse" />
                                             </div>
                                             <div>
-                                                <p className="text-lg font-black italic uppercase tracking-tighter text-gray-950 mb-1 leading-none">AI Matrix Synthesis</p>
-                                                <p className="text-[9px] font-black uppercase text-gray-400 tracking-[0.4em] italic">Generate 15 suggested nodes</p>
+                                                <p className="text-lg font-black italic uppercase tracking-tighter text-gray-950 mb-1 leading-none">AI Question Generator</p>
+                                                <p className="text-[9px] font-black uppercase text-gray-400 tracking-[0.4em] italic">Generate 15 suggested questions</p>
                                             </div>
                                         </div>
                                         <button
+                                            type="button"
                                             onClick={() => setShowAiPanel(!showAiPanel)}
                                             className="btn-hr-primary py-4 px-8 text-[9px] shadow-lg active:scale-95 transition-all"
                                         >
-                                            {showAiPanel ? 'MINIMIZE SYSTEM' : 'ENGAGE AI CORE'}
+                                            {showAiPanel ? 'CLOSE' : 'GENERATE QUESTIONS'}
                                         </button>
                                     </div>
                                     <AnimatePresence>
@@ -326,30 +354,31 @@ export default function QuestionBank() {
                                                 <div className="pt-10 space-y-8 relative">
                                                     <div className="group/input">
                                                         <label className="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] mb-3 block italic flex items-center gap-3">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-600" /> TARGET OPERATIONAL ROLE
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-600" /> JOB TITLE
                                                         </label>
                                                         <input className="hr-input bg-gray-50 border-gray-100 focus:bg-white text-gray-950 placeholder:text-gray-300 shadow-inner group-hover/input:border-red-600/20 transition-all font-black uppercase italic tracking-widest h-14"
-                                                            placeholder="e.g. SYSTEMS ARCHITECT"
+                                                            placeholder="e.g. SOFTWARE ENGINEER"
                                                             value={aiJobTitle}
                                                             onChange={e => setAiJobTitle(e.target.value)}
                                                         />
                                                     </div>
                                                     <div className="group/input">
                                                         <label className="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] mb-3 block italic flex items-center gap-3">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-600" /> MISSION PARAMETERS / JD
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-600" /> JOB DESCRIPTION
                                                         </label>
                                                         <textarea className="hr-input bg-gray-50 border-gray-100 focus:bg-white text-gray-950 placeholder:text-gray-300 shadow-inner group-hover/input:border-red-600/20 transition-all font-medium italic h-32"
-                                                            placeholder="Paste briefing for high-fidelity synthesis..."
+                                                            placeholder="Paste job details here..."
                                                             value={aiJobDesc}
                                                             onChange={e => setAiJobDesc(e.target.value)}
                                                         />
                                                     </div>
                                                     <button
+                                                        type="button"
                                                         onClick={handleAiGenerate}
                                                         disabled={aiGenerating}
                                                         className="btn-hr-primary w-full py-6 text-[10px] shadow-2xl shadow-red-600/20 active:scale-95 transition-all flex items-center justify-center gap-4"
                                                     >
-                                                        {aiGenerating ? <><TfiReload className="animate-spin text-xl" /> SYNTHESIZING...</> : <><TfiBolt className="text-xl" /> COMMENCE GENERATION</>}
+                                                        {aiGenerating ? <><TfiReload className="animate-spin text-xl" /> GENERATING...</> : <><TfiBolt className="text-xl" /> GENERATE NOW</>}
                                                     </button>
                                                 </div>
                                             </motion.div>
@@ -403,7 +432,7 @@ export default function QuestionBank() {
                                             </div>
                                         ))}
                                     </div>
-                                    <button onClick={addMQ} className="w-full py-4 border-2 border-dashed border-hr-border rounded-2xl text-[10px] font-black uppercase text-hr-text-muted hover:border-hr-red hover:text-hr-red transition-all flex items-center justify-center gap-3">
+                                    <button type="button" onClick={addMQ} className="w-full py-4 border-2 border-dashed border-hr-border rounded-2xl text-[10px] font-black uppercase text-hr-text-muted hover:border-hr-red hover:text-hr-red transition-all flex items-center justify-center gap-3">
                                         <TfiPlus /> ADD QUESTION
                                     </button>
                                 </div>
@@ -411,8 +440,8 @@ export default function QuestionBank() {
 
                             {/* Modal Footer */}
                             <div className="p-10 bg-hr-bg/30 border-t border-hr-border flex gap-4">
-                                <button onClick={() => setShowModal(false)} className="btn-hr-secondary flex-1">CANCEL</button>
-                                <button onClick={handleSave} disabled={saving} className="btn-hr-primary flex-1">
+                                <button type="button" onClick={() => setShowModal(false)} className="btn-hr-secondary flex-1">CANCEL</button>
+                                <button type="button" onClick={handleSave} disabled={saving} className="btn-hr-primary flex-1">
                                     {saving ? <TfiReload className="animate-spin" /> : <TfiCheck />} {saving ? 'SAVING...' : editBank ? 'SAVE CHANGES' : 'SAVE BANK'}
                                 </button>
                             </div>
