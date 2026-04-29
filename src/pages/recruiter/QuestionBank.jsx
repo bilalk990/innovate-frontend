@@ -281,26 +281,26 @@ export default function QuestionBank() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-hr-black/90 backdrop-blur-xl flex items-center justify-center p-6 z-[2000] overflow-y-auto"
+                        className="fixed inset-0 bg-white/80 backdrop-blur-xl flex items-center justify-center p-6 z-[2000] overflow-y-auto"
                         onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
                     >
                         <motion.div
                             initial={{ scale: 0.95, y: 20 }}
                             animate={{ scale: 1, y: 0 }}
-                            className="bg-white rounded-2xl max-w-4xl w-full my-10 shadow-2xl border-2 border-hr-border overflow-hidden"
+                            className="bg-white rounded-3xl max-w-4xl w-full my-10 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border-2 border-gray-100 overflow-hidden"
                         >
                             {/* Modal Header */}
-                            <div className="p-10 border-b border-hr-border flex items-center justify-between bg-hr-bg/50">
+                            <div className="p-10 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-hr-black text-hr-red flex items-center justify-center shadow-lg">
+                                    <div className="w-12 h-12 rounded-2xl bg-white border-2 border-gray-100 text-red-600 flex items-center justify-center shadow-sm">
                                         <TfiPlus className="text-xl" />
                                     </div>
                                     <div>
-                                        <h2 className="hr-heading text-lg">{editBank ? 'Update Question Bank' : 'Create New Bank'}</h2>
-                                        <p className="hr-subheading text-[10px]">AI-Powered Question Bank</p>
+                                        <h2 className="text-2xl font-black italic uppercase tracking-tight text-gray-950">{editBank ? 'Update Question Bank' : 'Create New Bank'}</h2>
+                                        <p className="text-xs font-black italic uppercase tracking-[0.2em] text-gray-400">AI-Powered Question Bank</p>
                                     </div>
                                 </div>
-                                <button type="button" onClick={() => setShowModal(false)} className="w-10 h-10 rounded-xl bg-hr-black text-white flex items-center justify-center hover:bg-hr-red transition-all">
+                                <button type="button" onClick={() => setShowModal(false)} className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all">
                                     <TfiClose />
                                 </button>
                             </div>
@@ -393,14 +393,14 @@ export default function QuestionBank() {
 
                                 {/* Questions List */}
                                 <div className="space-y-6">
-                                    <h3 className="hr-subheading flex justify-between items-center">
+                                    <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] flex justify-between items-center italic">
                                         Questions <span>({modalQuestions.filter(q => q.text.trim()).length})</span>
                                     </h3>
                                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                         {modalQuestions.map((q, i) => (
-                                            <div key={i} className="p-6 bg-hr-bg rounded-2xl border border-hr-border relative group">
+                                            <div key={i} className="p-6 bg-gray-50 rounded-2xl border border-gray-200 relative group">
                                                 <div className="flex items-start gap-4">
-                                                    <span className="w-8 h-8 rounded-xl bg-hr-black text-white text-[10px] flex items-center justify-center font-black flex-shrink-0 mt-1">{i + 1}</span>
+                                                    <span className="w-8 h-8 rounded-xl bg-gray-950 text-white text-[10px] flex items-center justify-center font-black flex-shrink-0 mt-1">{i + 1}</span>
                                                     <div className="flex-1 space-y-4">
                                                         <textarea className="hr-input bg-white h-24 italic text-sm font-medium"
                                                             placeholder="Enter question text..."
@@ -409,7 +409,7 @@ export default function QuestionBank() {
                                                         />
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div className="relative">
-                                                                <label className="text-[8px] font-black uppercase text-hr-text-muted mb-1 block">Category</label>
+                                                                <label className="text-[8px] font-black uppercase text-gray-400 mb-1 block">Category</label>
                                                                 <select className="hr-input py-2 text-xs"
                                                                     value={q.category}
                                                                     onChange={e => setMQ(i, 'category', e.target.value)}
@@ -420,7 +420,7 @@ export default function QuestionBank() {
                                                                 </select>
                                                             </div>
                                                             <div className="relative">
-                                                                <label className="text-[8px] font-black uppercase text-hr-text-muted mb-1 block">Complexity</label>
+                                                                <label className="text-[8px] font-black uppercase text-gray-400 mb-1 block">Complexity</label>
                                                                 <select className="hr-input py-2 text-xs"
                                                                     value={q.difficulty}
                                                                     onChange={e => setMQ(i, 'difficulty', e.target.value)}
@@ -432,21 +432,21 @@ export default function QuestionBank() {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <button onClick={() => removeMQ(i)} className="text-hr-text-muted hover:text-hr-red transition-colors p-2"><TfiTrash /></button>
+                                                    <button onClick={() => removeMQ(i)} className="text-gray-400 hover:text-red-600 transition-colors p-2"><TfiTrash /></button>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                    <button type="button" onClick={addMQ} className="w-full py-4 border-2 border-dashed border-hr-border rounded-2xl text-[10px] font-black uppercase text-hr-text-muted hover:border-hr-red hover:text-hr-red transition-all flex items-center justify-center gap-3">
+                                    <button type="button" onClick={addMQ} className="w-full py-4 border-2 border-dashed border-gray-200 rounded-2xl text-[10px] font-black uppercase text-gray-400 hover:border-red-600 hover:text-red-600 transition-all flex items-center justify-center gap-3">
                                         <TfiPlus /> ADD QUESTION
                                     </button>
                                 </div>
                             </div>
 
                             {/* Modal Footer */}
-                            <div className="p-10 bg-hr-bg/30 border-t border-hr-border flex gap-4">
+                            <div className="p-10 bg-gray-50/50 border-t border-gray-100 flex gap-4">
                                 <button type="button" onClick={() => setShowModal(false)} className="btn-hr-secondary flex-1">CANCEL</button>
-                                <button type="button" onClick={handleSave} disabled={saving} className="btn-hr-primary flex-1">
+                                <button type="button" onClick={handleSave} disabled={saving} className="btn-hr-primary flex-1 flex justify-center items-center gap-2">
                                     {saving ? <TfiReload className="animate-spin" /> : <TfiCheck />} {saving ? 'SAVING...' : editBank ? 'SAVE CHANGES' : 'SAVE BANK'}
                                 </button>
                             </div>
