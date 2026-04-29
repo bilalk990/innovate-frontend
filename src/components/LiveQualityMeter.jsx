@@ -34,11 +34,12 @@ export default function LiveQualityMeter({ interviewId, transcript, questionInde
             });
 
             const data = response.data.quality;
+            const score = data.quality_score || data.score || 0;
             setQuality({
-                score: data.score || 0,
-                color: getColorFromScore(data.score),
-                signal: data.signal || 'on_track',
-                coaching_tip: data.coaching_tip || ''
+                score: score,
+                color: getColorFromScore(score),
+                signal: data.on_track ? 'on_track' : 'needs_improvement',
+                coaching_tip: data.coach_message || data.coaching_tip || ''
             });
         } catch (error) {
             console.error('[LiveQuality] Analysis failed:', error);
