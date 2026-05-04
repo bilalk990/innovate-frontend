@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL ||
-    'https://hifza123.app.n8n.cloud/webhook-test/38ef0fd5-da1f-4af6-85f5-6907bdd93964';
+    'https://hifza123.app.n8n.cloud/webhook/38ef0fd5-da1f-4af6-85f5-6907bdd93964';
 
 // Score badge: green 90+, yellow 80-89
 const ScoreBadge = ({ score }) => {
