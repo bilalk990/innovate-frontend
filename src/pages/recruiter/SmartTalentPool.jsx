@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import api from '../../api/axios';
 
-const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL ||
-    'https://hifza123.app.n8n.cloud/webhook/38ef0fd5-da1f-4af6-85f5-6907bdd93964';
+const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || null;
 
 // Score badge: green 90+, yellow 80-89
 const ScoreBadge = ({ score }) => {
@@ -100,18 +100,29 @@ export default function SmartTalentPool() {
         setResults(null);
 
         try {
-            const res = await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            let data;
+            if (WEBHOOK_URL) {
+                // Use n8n webhook if configured
+                const res = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query.trim(),
+                        recruiter_email: recruiterEmail.trim(),
+                        top_n: topN,
+                    }),
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                data = await res.json();
+            } else {
+                // Use backend directly
+                const res = await api.post('/auth/talent-pool/', {
                     query: query.trim(),
                     recruiter_email: recruiterEmail.trim(),
                     top_n: topN,
-                }),
-            });
-
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
+                });
+                data = res.data;
+            }
             setResults(data);
             setActiveTab('shortlisted');
             toast.success(`Scanned ${data.total_scanned || 0} candidates!`);
