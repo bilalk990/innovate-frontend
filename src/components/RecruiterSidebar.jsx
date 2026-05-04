@@ -25,6 +25,7 @@ const navItems = [
   { to: '/recruiter/ranking', icon: <TfiStatsUp />, label: 'Candidate Ranking' },
   { to: '/recruiter/question-bank', icon: <TfiLayoutGrid2 />, label: 'Question Bank' },
   { to: '/recruiter/ai-tools', icon: <TfiBolt />, label: 'AI Tools' },
+  { to: '/recruiter/smart-talent-pool', icon: <TfiTarget />, label: 'Talent Pool' },
   { to: '/recruiter/profile', icon: <TfiLink />, label: 'Profile Settings' },
 ];
 
