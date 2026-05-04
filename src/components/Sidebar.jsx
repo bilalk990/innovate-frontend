@@ -102,6 +102,7 @@ const recruiterNavigation = [
       { path: '/recruiter/handbook-builder', icon: TfiAgenda, label: 'Handbook AI' },
       { path: '/recruiter/ld-roadmap', icon: TfiMap, label: 'L&D Planner' },
       { path: '/recruiter/policy-compliance', icon: TfiShield, label: 'Policy Check' },
+      { path: '/recruiter/smart-talent-pool', icon: TfiTarget, label: 'Smart Talent Pool' },
     ]
   },
   {
